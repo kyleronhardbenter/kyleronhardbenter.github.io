@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gastos - Gestión de Gastos e Ingresos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1><i class="fas fa-wallet"></i> Finanzas</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="expenses.html" class="nav-link active"><i class="fas fa-minus-circle"></i> Gastos</a></li>
+            <li><a href="incomes.html" class="nav-link"><i class="fas fa-plus-circle"></i> Ingresos</a></li>
+            <li><a href="currencies.html" class="nav-link"><i class="fas fa-exchange-alt"></i> Divisas</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="page-header">
+            <h1><i class="fas fa-minus-circle"></i> Gastos</h1>
+        </header>
+
+        <!-- Monthly Expenses Summary -->
+        <div class="dashboard-cards">
+            <div class="card expense">
+                <h3><i class="fas fa-euro-sign"></i> Total Gastos del Mes</h3>
+                <p id="monthly-expenses-total">€0.00</p>
+            </div>
+            <div class="card expense">
+                <h3><i class="fas fa-hashtag"></i> Número de Gastos</h3>
+                <p id="monthly-expenses-count">0</p>
+            </div>
+        </div>
+
+        <!-- Add Expense Form -->
+        <div class="form-container">
+            <h2><i class="fas fa-plus"></i> Agregar Gasto Diario</h2>
+            <form id="expense-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expense-date">Fecha:</label>
+                        <input type="date" id="expense-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-description">Descripción:</label>
+                        <input type="text" id="expense-description" placeholder="Ej: Café" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expense-amount">Monto:</label>
+                        <input type="number" id="expense-amount" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-category">Categoría:</label>
+                        <select id="expense-category">
+                            <option value="Alimentación">Alimentación</option>
+                            <option value="Transporte">Transporte</option>
+                            <option value="Entretenimiento">Entretenimiento</option>
+                            <option value="Vivienda">Vivienda</option>
+                            <option value="Salud">Salud</option>
+                            <option value="Educación">Educación</option>
+                            <option value="Ropa">Ropa</option>
+                            <option value="Servicios">Servicios</option>
+                            <option value="Viajes">Viajes</option>
+                            <option value="Deporte">Deporte</option>
+                            <option value="Mascotas">Mascotas</option>
+                            <option value="Regalos">Regalos</option>
+                            <option value="Seguros">Seguros</option>
+                            <option value="Impuestos">Impuestos</option>
+                            <option value="Tecnología">Tecnología</option>
+                            <option value="Hogar">Hogar</option>
+                            <option value="Belleza">Belleza</option>
+                            <option value="Otros">Otros</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit"><i class="fas fa-plus"></i> Agregar Gasto</button>
+            </form>
+        </div>
+
+        <!-- Automatic Monthly Expenses -->
+        <div class="form-container">
+            <h2><i class="fas fa-calendar-alt"></i> Gastos Automáticos Mensuales</h2>
+            <form id="automatic-expense-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="auto-expense-description">Descripción:</label>
+                        <input type="text" id="auto-expense-description" placeholder="Ej: Seguro mensual" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="auto-expense-amount">Monto:</label>
+                        <input type="number" id="auto-expense-amount" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="auto-expense-category">Categoría:</label>
+                        <select id="auto-expense-category">
+                            <option value="Alimentación">Alimentación</option>
+                            <option value="Transporte">Transporte</option>
+                            <option value="Entretenimiento">Entretenimiento</option>
+                            <option value="Vivienda">Vivienda</option>
+                            <option value="Salud">Salud</option>
+                            <option value="Educación">Educación</option>
+                            <option value="Ropa">Ropa</option>
+                            <option value="Servicios">Servicios</option>
+                            <option value="Viajes">Viajes</option>
+                            <option value="Deporte">Deporte</option>
+                            <option value="Mascotas">Mascotas</option>
+                            <option value="Regalos">Regalos</option>
+                            <option value="Seguros">Seguros</option>
+                            <option value="Impuestos">Impuestos</option>
+                            <option value="Tecnología">Tecnología</option>
+                            <option value="Hogar">Hogar</option>
+                            <option value="Belleza">Belleza</option>
+                            <option value="Otros">Otros</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="auto-expense-day">Día del mes:</label>
+                        <input type="number" id="auto-expense-day" min="1" max="31" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="auto-expense-hour">Hora:</label>
+                        <input type="number" id="auto-expense-hour" min="0" max="23" value="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="auto-expense-minute">Minuto:</label>
+                        <input type="number" id="auto-expense-minute" min="0" max="59" value="0" required>
+                    </div>
+                </div>
+                <button type="submit"><i class="fas fa-plus"></i> Programar Gasto Automático</button>
+            </form>
+        </div>
+
+        <!-- Automatic Expenses List -->
+        <div class="entries-container" style="margin-bottom: 3rem;">
+            <h2><i class="fas fa-clock"></i> Gastos Automáticos Activos</h2>
+            <div id="automatic-expenses-list"></div>
+        </div>
+
+        <!-- Expenses List -->
+        <div class="entries-container">
+            <h2><i class="fas fa-list"></i> Lista de Gastos</h2>
+            <div class="filters">
+                <input type="text" id="expense-search" placeholder="Buscar por descripción...">
+                <select id="expense-filter">
+                    <option value="">Todas las categorías</option>
+                    <option value="Alimentación">Alimentación</option>
+                    <option value="Transporte">Transporte</option>
+                    <option value="Entretenimiento">Entretenimiento</option>
+                    <option value="Vivienda">Vivienda</option>
+                    <option value="Salud">Salud</option>
+                    <option value="Educación">Educación</option>
+                    <option value="Ropa">Ropa</option>
+                    <option value="Servicios">Servicios</option>
+                    <option value="Viajes">Viajes</option>
+                    <option value="Otros">Otros</option>
+                </select>
+                <div class="button-row">
+                    <button id="export-expenses" class="btn-secondary"><i class="fas fa-download"></i> Exportar CSV</button>
+                    <button id="delete-all-expenses" class="btn-delete"><i class="fas fa-trash"></i> Eliminar Todo</button>
+                </div>
+            </div>
+            <div id="expenses-list"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
