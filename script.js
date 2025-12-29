@@ -561,6 +561,13 @@ async function exportExpenses() {
     data.expenses.forEach(expense => {
         csv += `${expense.date},"${expense.description.replace(/"/g, '""')}",${expense.amount},${expense.category}\n`;
     });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'gastos.csv';
+    a.click();
+}
 
 // Export incomes to CSV
 async function exportIncomes() {
@@ -578,25 +585,25 @@ async function exportIncomes() {
 }
 
 // Delete all expenses
-function deleteAllExpenses() {
+async function deleteAllExpenses() {
     if (!confirm('¿Estás seguro de eliminar TODOS los gastos? Esta acción no se puede deshacer.')) return;
-    const data = loadData();
+    const data = await loadData();
     data.expenses = [];
-    saveData(data);
-    displayExpenses();
-    updateDashboard();
+    await saveData(data);
+    await displayExpenses();
+    await updateDashboard();
     updateMonthlyExpensesSummary();
 }
 
 // Delete all incomes
-function deleteAllIncomes() {
+async function deleteAllIncomes() {
     if (!confirm('¿Estás seguro de eliminar TODOS los ingresos? Esta acción no se puede deshacer.')) return;
-    const data = loadData();
+    const data = await loadData();
     data.incomes = [];
-    saveData(data);
-    displayIncomes();
-    updateDashboard();
-    updateMonthlyIncomesSummary();
+    await saveData(data);
+    await displayIncomes();
+    await updateDashboard();
+    await updateMonthlyIncomesSummary();
 }
 
 // Calculate time remaining until next occurrence
@@ -622,8 +629,8 @@ function getTimeRemaining(dayOfMonth, hour = 0, minute = 0) {
 }
 
 // Process automatic entries that are due
-function processAutomaticEntries() {
-    const data = loadData();
+async function processAutomaticEntries() {
+    const data = await loadData();
     const now = new Date();
     const today = now.toISOString().split('T')[0];
 
@@ -668,15 +675,15 @@ function processAutomaticEntries() {
     });
 
     if (updated) {
-        saveData(data);
-        updateDashboard();
+        await saveData(data);
+        await updateDashboard();
         if (window.location.pathname.includes('incomes.html')) {
-            displayIncomes();
-            displayAutomaticIncomes();
+            await displayIncomes();
+            await displayAutomaticIncomes();
         }
         if (window.location.pathname.includes('expenses.html')) {
-            displayExpenses();
-            displayAutomaticExpenses();
+            await displayExpenses();
+            await displayAutomaticExpenses();
         }
     }
 }
@@ -684,7 +691,7 @@ function processAutomaticEntries() {
 // Add automatic income
 const automaticIncomeForm = document.getElementById('automatic-income-form');
 if (automaticIncomeForm) {
-    automaticIncomeForm.addEventListener('submit', function(e) {
+    automaticIncomeForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const description = document.getElementById('auto-income-description').value;
         const amount = parseFloat(document.getElementById('auto-income-amount').value);
@@ -710,7 +717,7 @@ if (automaticIncomeForm) {
             return;
         }
 
-        const data = loadData();
+        const data = await loadData();
         if (editingIndex >= 0 && editingType === 'auto-income') {
             data.automaticIncomes[editingIndex] = { description, amount, category, day, hour, minute, count: data.automaticIncomes[editingIndex].count || 0 };
             editingIndex = -1;
@@ -719,7 +726,7 @@ if (automaticIncomeForm) {
         } else {
             data.automaticIncomes.push({ description, amount, category, day, hour, minute, count: 0 });
         }
-        saveData(data);
+        await saveData(data);
 
         displayAutomaticIncomes();
         this.reset();
@@ -729,7 +736,7 @@ if (automaticIncomeForm) {
 // Add automatic expense
 const automaticExpenseForm = document.getElementById('automatic-expense-form');
 if (automaticExpenseForm) {
-    automaticExpenseForm.addEventListener('submit', function(e) {
+    automaticExpenseForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         const description = document.getElementById('auto-expense-description').value;
         const amount = parseFloat(document.getElementById('auto-expense-amount').value);
@@ -755,7 +762,7 @@ if (automaticExpenseForm) {
             return;
         }
 
-        const data = loadData();
+        const data = await loadData();
         if (editingIndex >= 0 && editingType === 'auto-expense') {
             data.automaticExpenses[editingIndex] = { description, amount, category, day, hour, minute, count: data.automaticExpenses[editingIndex].count || 0 };
             editingIndex = -1;
@@ -764,7 +771,7 @@ if (automaticExpenseForm) {
         } else {
             data.automaticExpenses.push({ description, amount, category, day, hour, minute, count: 0 });
         }
-        saveData(data);
+        await saveData(data);
 
         displayAutomaticExpenses();
         this.reset();
@@ -772,8 +779,8 @@ if (automaticExpenseForm) {
 }
 
 // Display automatic incomes
-function displayAutomaticIncomes() {
-    const data = loadData();
+async function displayAutomaticIncomes() {
+    const data = await loadData();
     const automaticIncomesList = document.getElementById('automatic-incomes-list');
     if (!automaticIncomesList) return;
     automaticIncomesList.innerHTML = '';
@@ -825,8 +832,8 @@ function displayAutomaticIncomes() {
 }
 
 // Display automatic expenses
-function displayAutomaticExpenses() {
-    const data = loadData();
+async function displayAutomaticExpenses() {
+    const data = await loadData();
     const automaticExpensesList = document.getElementById('automatic-expenses-list');
     if (!automaticExpensesList) return;
     automaticExpensesList.innerHTML = '';
@@ -878,8 +885,8 @@ function displayAutomaticExpenses() {
 }
 
 // Edit automatic entry
-function editAutomaticEntry(type, index) {
-    const data = loadData();
+async function editAutomaticEntry(type, index) {
+    const data = await loadData();
     let entry;
     if (type === 'income') {
         entry = data.automaticIncomes[index];
@@ -905,9 +912,9 @@ function editAutomaticEntry(type, index) {
 }
 
 // Delete automatic entry
-function deleteAutomaticEntry(type, index) {
+async function deleteAutomaticEntry(type, index) {
     if (!confirm('¿Estás seguro de eliminar esta entrada automática?')) return;
-    const data = loadData();
+    const data = await loadData();
     if (type === 'income') {
         data.automaticIncomes.splice(index, 1);
         displayAutomaticIncomes();
@@ -915,7 +922,7 @@ function deleteAutomaticEntry(type, index) {
         data.automaticExpenses.splice(index, 1);
         displayAutomaticExpenses();
     }
-    saveData(data);
+    await saveData(data);
 }
 
 // Update countdown timers
@@ -1047,7 +1054,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Budget form
     const budgetForm = document.getElementById('budget-form');
     if (budgetForm) {
-        budgetForm.addEventListener('submit', function(e) {
+        budgetForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             const category = document.getElementById('budget-category').value;
             const amount = parseFloat(document.getElementById('budget-amount').value);
@@ -1055,7 +1062,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('El monto del presupuesto debe ser positivo.');
                 return;
             }
-            const data = loadData();
+            const data = await loadData();
 
             if (editingIndex >= 0 && editingType === 'budget') {
                 // Update existing budget
@@ -1072,7 +1079,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.budgets.push({ category, amount });
                 }
             }
-            saveData(data);
+            await saveData(data);
             displayBudgets();
             this.reset();
         });
