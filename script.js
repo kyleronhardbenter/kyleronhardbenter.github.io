@@ -6,6 +6,7 @@ import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/9
 const firebaseConfig = {
   apiKey: "AIzaSyDmOVgHXXhLAp59JFI0UolZTW9pWyYZuoA",
   authDomain: "finanzas-pagina.firebaseapp.com",
+  databaseURL: "https://finanzas-pagina-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "finanzas-pagina",
   storageBucket: "finanzas-pagina.firebasestorage.app",
   messagingSenderId: "138404823610",
