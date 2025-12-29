@@ -15,7 +15,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+const database = getDatabase(app); 
 
 // Load data from Firebase
 async function loadData() {
@@ -946,7 +946,7 @@ function updateCountdowns() {
 // Update monthly expenses summary
 async function updateMonthlyExpensesSummary() {
     const data = await loadData();
-    if (!data || !Array.isArray(data.expenses)) {
+    if (!data || !data.expenses || !Array.isArray(data.expenses)) {
         console.error('Failed to load data or expenses is not an array');
         return;
     }
@@ -966,7 +966,7 @@ async function updateMonthlyExpensesSummary() {
 // Update monthly incomes summary
 async function updateMonthlyIncomesSummary() {
     const data = await loadData();
-    if (!data || !Array.isArray(data.incomes)) {
+    if (!data || !data.incomes || !Array.isArray(data.incomes)) {
         console.error('Failed to load data or incomes is not an array');
         return;
     }
