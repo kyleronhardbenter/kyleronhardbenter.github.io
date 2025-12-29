@@ -966,6 +966,10 @@ async function updateMonthlyExpensesSummary() {
 // Update monthly incomes summary
 async function updateMonthlyIncomesSummary() {
     const data = await loadData();
+    if (!data || !Array.isArray(data.incomes)) {
+        console.error('Failed to load data or incomes is not an array');
+        return;
+    }
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
 
     const monthlyIncomes = data.incomes.filter(income => income.date.startsWith(currentMonth));
