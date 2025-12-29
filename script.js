@@ -132,7 +132,7 @@ if (incomeForm) {
         }
         await saveData(data);
 
-        await displayIncomes();
+        await displayIncomes('', '', data);
         await updateDashboard();
         this.reset();
     });
@@ -167,8 +167,10 @@ if (generateSummaryBtn) {
 }
 
 // Display expenses
-async function displayExpenses(search = '', filter = '') {
-    const data = await loadData();
+async function displayExpenses(search = '', filter = '', data = null) {
+    if (!data) {
+        data = await loadData();
+    }
     const expensesList = document.getElementById('expenses-list');
     if (!expensesList) return;
     expensesList.innerHTML = '';
@@ -217,8 +219,10 @@ async function displayExpenses(search = '', filter = '') {
 }
 
 // Display incomes
-async function displayIncomes(search = '', filter = '') {
-    const data = await loadData();
+async function displayIncomes(search = '', filter = '', data = null) {
+    if (!data) {
+        data = await loadData();
+    }
     const incomesList = document.getElementById('incomes-list');
     if (!incomesList) return;
     incomesList.innerHTML = '';
@@ -300,9 +304,9 @@ async function deleteEntry(type, index) {
     }
     await saveData(data);
     if (type === 'expense') {
-        await displayExpenses();
+        await displayExpenses('', '', data);
     } else {
-        await displayIncomes();
+        await displayIncomes('', '', data);
     }
     await updateDashboard();
 }
