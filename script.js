@@ -944,8 +944,8 @@ function updateCountdowns() {
 }
 
 // Update monthly expenses summary
-function updateMonthlyExpensesSummary() {
-    const data = loadData();
+async function updateMonthlyExpensesSummary() {
+    const data = await loadData();
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
 
     const monthlyExpenses = data.expenses.filter(expense => expense.date.startsWith(currentMonth));
@@ -960,8 +960,8 @@ function updateMonthlyExpensesSummary() {
 }
 
 // Update monthly incomes summary
-function updateMonthlyIncomesSummary() {
-    const data = loadData();
+async function updateMonthlyIncomesSummary() {
+    const data = await loadData();
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
 
     const monthlyIncomes = data.incomes.filter(income => income.date.startsWith(currentMonth));
