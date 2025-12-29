@@ -946,6 +946,10 @@ function updateCountdowns() {
 // Update monthly expenses summary
 async function updateMonthlyExpensesSummary() {
     const data = await loadData();
+    if (!data || !Array.isArray(data.expenses)) {
+        console.error('Failed to load data or expenses is not an array');
+        return;
+    }
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
 
     const monthlyExpenses = data.expenses.filter(expense => expense.date.startsWith(currentMonth));
@@ -976,7 +980,7 @@ async function updateMonthlyIncomesSummary() {
 }
 
 // Initialize based on page
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Set today's date as default for date inputs
     const today = new Date().toISOString().split('T')[0];
     const expenseDateInput = document.getElementById('expense-date');
@@ -992,7 +996,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else if (path.includes('expenses.html')) {
         displayExpenses();
         displayAutomaticExpenses();
-        updateMonthlyExpensesSummary();
+        await updateMonthlyExpensesSummary();
         // Event listeners for search and filter
         const expenseSearch = document.getElementById('expense-search');
         const expenseFilter = document.getElementById('expense-filter');
@@ -1018,7 +1022,7 @@ document.addEventListener('DOMContentLoaded', function() {
     } else if (path.includes('incomes.html')) {
         displayIncomes();
         displayAutomaticIncomes();
-        updateMonthlyIncomesSummary();
+        await updateMonthlyIncomesSummary();
         // Similar for incomes
         const incomeSearch = document.getElementById('income-search');
         const incomeFilter = document.getElementById('income-filter');
