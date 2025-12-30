@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divisas - Gestión de Gastos e Ingresos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="menu-toggle" id="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1><i class="fas fa-wallet"></i> Finanzas</h1>
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li><a href="expenses.html" class="nav-link"><i class="fas fa-minus-circle"></i> Gastos</a></li>
+            <li><a href="incomes.html" class="nav-link"><i class="fas fa-plus-circle"></i> Ingresos</a></li>
+            <li><a href="currencies.html" class="nav-link active"><i class="fas fa-exchange-alt"></i> Divisas</a></li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="page-header">
+            <h1><i class="fas fa-exchange-alt"></i> Conversión de Divisas</h1>
+        </header>
+
+        <!-- Current Balance Card -->
+        <div class="card balance" style="margin-bottom: 2rem;">
+            <h3><i class="fas fa-euro-sign"></i> Saldo Actual</h3>
+            <p id="current-balance">€0.00</p>
+        </div>
+
+        <!-- Currency Converter -->
+        <div class="form-container">
+            <h2><i class="fas fa-star"></i> Divisas Favoritas</h2>
+            <div id="favorites-list" class="currencies-grid">
+                <!-- Favorites will be loaded here -->
+            </div>
+        </div>
+
+        <div class="form-container">
+            <h2><i class="fas fa-globe"></i> Todas las Divisas</h2>
+            <div class="filters" style="margin-bottom: 1.5rem;">
+                <input type="text" id="currency-search" placeholder="Buscar divisa...">
+            </div>
+            <div id="currencies-list" class="currencies-grid">
+                <!-- All currencies will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
