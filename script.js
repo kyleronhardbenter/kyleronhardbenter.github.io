@@ -987,6 +987,24 @@ async function updateMonthlyIncomesSummary() {
     if (countEl) countEl.textContent = monthlyIncomesCount.toString();
 }
 
+// Make functions available globally for inline scripts
+window.loadData = loadData;
+window.saveData = saveData;
+window.updateDashboard = updateDashboard;
+window.displayExpenses = displayExpenses;
+window.displayIncomes = displayIncomes;
+window.displayBudgets = displayBudgets;
+window.displayAutomaticIncomes = displayAutomaticIncomes;
+window.displayAutomaticExpenses = displayAutomaticExpenses;
+window.updateMonthlyExpensesSummary = updateMonthlyExpensesSummary;
+window.updateMonthlyIncomesSummary = updateMonthlyIncomesSummary;
+window.exportExpenses = exportExpenses;
+window.exportIncomes = exportIncomes;
+window.deleteAllExpenses = deleteAllExpenses;
+window.deleteAllIncomes = deleteAllIncomes;
+window.processAutomaticEntries = processAutomaticEntries;
+window.updateCountdowns = updateCountdowns;
+
 // Initialize based on page
 document.addEventListener('DOMContentLoaded', async function() {
     // Set today's date as default for date inputs
@@ -999,9 +1017,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
 
     const path = window.location.pathname;
-    if (path.includes('index.html') || path === '/' || path.endsWith('PROYECTO/')) {
+    const href = window.location.href;
+    if (path.includes('index.html') || path === '/' || path.endsWith('PROYECTO/') || href.includes('index.html') || href.endsWith('localhost:8000/')) {
         updateDashboard();
-    } else if (path.includes('expenses.html')) {
+    } else if (path.includes('expenses.html') || href.includes('expenses.html')) {
         displayExpenses();
         displayAutomaticExpenses();
         await updateMonthlyExpensesSummary();
@@ -1027,7 +1046,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         if (exportExpensesBtn) {
             exportExpensesBtn.addEventListener('click', exportExpenses);
         }
-    } else if (path.includes('incomes.html')) {
+    } else if (path.includes('incomes.html') || href.includes('incomes.html')) {
         displayIncomes();
         displayAutomaticIncomes();
         await updateMonthlyIncomesSummary();
@@ -1096,5 +1115,197 @@ document.addEventListener('DOMContentLoaded', async function() {
             displayBudgets();
             this.reset();
         });
+    }
+
+    // Currency page specific code
+    if (path.includes('currencies.html')) {
+        // Currency conversion functionality
+        const CURRENCY_API_URL = 'https://api.exchangerate-api.com/v4/latest/EUR';
+        let exchangeRates = {};
+        let favorites = [];
+
+        // Load favorites from localStorage
+        function loadFavorites() {
+            const stored = localStorage.getItem('currencyFavorites');
+            favorites = stored ? JSON.parse(stored) : [];
+        }
+
+        // Save favorites to localStorage
+        function saveFavorites() {
+            localStorage.setItem('currencyFavorites', JSON.stringify(favorites));
+        }
+
+        // Fetch exchange rates
+        async function fetchExchangeRates() {
+            try {
+                const response = await fetch(CURRENCY_API_URL);
+                const data = await response.json();
+                // Only include top currencies even from API
+                const topCurrencies = ['EUR', 'USD', 'GBP', 'JPY', 'CAD', 'AUD', 'CHF', 'CNY', 'PHP', 'KRW', 'MXN'];
+                exchangeRates = {};
+                topCurrencies.forEach(currency => {
+                    if (data.rates[currency]) {
+                        exchangeRates[currency] = data.rates[currency];
+                    }
+                });
+                return true;
+            } catch (error) {
+                console.error('Error fetching exchange rates:', error);
+                // Fallback rates if API fails - current approximate rates (late 2024)
+                exchangeRates = {
+                    'EUR': 1.0,
+                    'USD': 1.05,
+                    'GBP': 0.83,
+                    'JPY': 158.0,
+                    'CAD': 1.42,
+                    'AUD': 1.62,
+                    'CHF': 0.92,
+                    'CNY': 7.5,
+                    'PHP': 58.0,
+                    'KRW': 1380.0,
+                    'MXN': 19.5
+                };
+                return false;
+            }
+        }
+
+        // Get current balance
+        async function getCurrentBalance() {
+            const data = await loadData();
+            const totalIncomes = data.incomes.reduce((sum, i) => sum + i.amount, 0);
+            const totalExpenses = data.expenses.reduce((sum, e) => sum + e.amount, 0);
+            return totalIncomes - totalExpenses;
+        }
+
+        // Display currencies
+        async function displayCurrencies() {
+            const balance = await getCurrentBalance();
+            document.getElementById('current-balance').textContent = `€${balance.toFixed(2)}`;
+
+            const favoritesList = document.getElementById('favorites-list');
+            const currenciesList = document.getElementById('currencies-list');
+            const searchTerm = document.getElementById('currency-search').value.toLowerCase();
+
+            favoritesList.innerHTML = '';
+            currenciesList.innerHTML = '';
+
+            const currencyNames = {
+                'EUR': '🇪🇸 Euro',
+                'USD': '🇺🇸 Dólar estadounidense',
+                'GBP': '🇬🇧 Libra esterlina',
+                'JPY': '🇯🇵 Yen japonés',
+                'CAD': '🇨🇦 Dólar canadiense',
+                'AUD': '🇦🇺 Dólar australiano',
+                'CHF': '🇨🇭 Franco suizo',
+                'CNY': '🇨🇳 Yuan chino',
+                'PHP': '🇵🇭 Peso filipino',
+                'KRW': '🇰🇷 Won surcoreano',
+                'MXN': '🇲🇽 Peso mexicano',
+                'SEK': '🇸🇪 Corona sueca',
+                'NOK': '🇳🇴 Corona noruega',
+                'DKK': '🇩🇰 Corona danesa',
+                'PLN': '🇵🇱 Złoty polaco',
+                'CZK': '🇨🇿 Corona checa',
+                'HUF': '🇭🇺 Forinto húngaro',
+                'RON': '🇷🇴 Leu rumano',
+                'BGN': '🇧🇬 Lev búlgaro',
+                'HRK': '🇭🇷 Kuna croata',
+                'TRY': '🇹🇷 Lira turca',
+                'RUB': '🇷🇺 Rublo ruso',
+                'BRL': '🇧🇷 Real brasileño',
+                'ARS': '🇦🇷 Peso argentino',
+                'CLP': '🇨🇱 Peso chileno',
+                'COP': '🇨🇴 Peso colombiano',
+                'PEN': '🇵🇪 Sol peruano'
+            };
+
+            // Display favorites first
+            favorites.forEach(currency => {
+                if (exchangeRates[currency]) {
+                    const convertedAmount = balance * exchangeRates[currency];
+                    const currencyCard = createCurrencyCard(currency, currencyNames[currency] || currency, convertedAmount, true);
+                    favoritesList.appendChild(currencyCard);
+                }
+            });
+
+            // Display all currencies (excluding favorites)
+            Object.keys(exchangeRates).forEach(currency => {
+                if (!favorites.includes(currency) && (searchTerm === '' || currency.toLowerCase().includes(searchTerm) || (currencyNames[currency] && currencyNames[currency].toLowerCase().includes(searchTerm)))) {
+                    const convertedAmount = balance * exchangeRates[currency];
+                    const currencyCard = createCurrencyCard(currency, currencyNames[currency] || currency, convertedAmount, false);
+                    currenciesList.appendChild(currencyCard);
+                }
+            });
+        }
+
+        // Create currency card
+        function createCurrencyCard(currency, name, amount, isFavorite) {
+            // Remove flag emoji from name if it exists
+            const cleanName = name.replace(/🇪🇸|🇺🇸|🇬🇧|🇯🇵|🇨🇦|🇦🇺|🇨🇭|🇨🇳|🇵🇭|🇰🇷|🇲🇽|🏳️/g, '').trim();
+
+            // Get flag class for styling
+            const flagClasses = {
+                'EUR': 'flag-es',
+                'USD': 'flag-us',
+                'GBP': 'flag-gb',
+                'JPY': 'flag-jp',
+                'CAD': 'flag-ca',
+                'AUD': 'flag-au',
+                'CHF': 'flag-ch',
+                'CNY': 'flag-cn',
+                'PHP': 'flag-ph',
+                'KRW': 'flag-kr',
+                'MXN': 'flag-mx'
+            };
+            const flagClass = flagClasses[currency] || 'flag-default';
+
+            const card = document.createElement('div');
+            card.className = 'currency-card';
+            card.innerHTML = `
+                <div class="currency-header">
+                    <div class="currency-info">
+                        <div class="currency-code-row">
+                            <span class="currency-flag ${flagClass}"></span>
+                            <strong>${currency}</strong>
+                        </div>
+                        <span>${cleanName}</span>
+                    </div>
+                    <button class="btn-icon btn-favorite ${isFavorite ? 'active' : ''}" data-currency="${currency}">
+                        <i class="fas fa-star"></i>
+                    </button>
+                </div>
+                <div class="currency-amount">
+                    ${amount.toFixed(2)} ${currency}
+                </div>
+            `;
+
+            // Add event listener for favorite button
+            const favoriteBtn = card.querySelector('.btn-favorite');
+            favoriteBtn.addEventListener('click', function() {
+                const curr = this.getAttribute('data-currency');
+                if (favorites.includes(curr)) {
+                    favorites = favorites.filter(f => f !== curr);
+                    this.classList.remove('active');
+                } else {
+                    favorites.push(curr);
+                    this.classList.add('active');
+                }
+                saveFavorites();
+                displayCurrencies();
+            });
+
+            return card;
+        }
+
+        // Initialize page
+        loadFavorites();
+        const apiSuccess = await fetchExchangeRates();
+        displayCurrencies();
+
+        // Add search functionality
+        document.getElementById('currency-search').addEventListener('input', displayCurrencies);
+
+        // Update balance when data changes
+        updateDashboard();
     }
 });
