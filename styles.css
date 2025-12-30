@@ -565,6 +565,9 @@ button:hover {
 @media (max-width: 768px) {
     .menu-toggle {
         display: inline-block !important;
+        position: fixed !important;
+        bottom: 1rem !important;
+        right: 1rem !important;
         width: 3rem !important;
         height: 3rem !important;
         min-height: 3rem !important;
