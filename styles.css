@@ -545,6 +545,8 @@ button:hover {
     border: none;
     border-radius: 6px;
     padding: 0.75rem;
+    width: 3rem;
+    height: 3rem;
     cursor: pointer;
     box-shadow: var(--shadow);
     transition: all 0.3s ease;
