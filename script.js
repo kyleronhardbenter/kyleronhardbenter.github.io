@@ -1,9 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
 import { getDatabase, ref, get, set, push } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
 
-/* =========================
-   FIREBASE INIT
-========================= */
 const firebaseConfig = {
     apiKey: "AIzaSyD-ET-NddOEtiNvSt7787wxVbGoDj8-kas",
     authDomain: "website-cc7ff.firebaseapp.com",
@@ -14,188 +11,190 @@ const firebaseConfig = {
     appId: "1:755069923532:web:62384a64fb880100ff1269"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const firebaseApp = initializeApp(firebaseConfig);
+const rtdb = getDatabase(firebaseApp);
 
-const ROOT = "website/profile";
-
-/* =========================
-   UTIL: SHA256
-========================= */
-async function sha256(text) {
-    const data = new TextEncoder().encode(String(text || ""));
-    const hash = await crypto.subtle.digest("SHA-256", data);
-    return [...new Uint8Array(hash)]
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
-}
+const DB_ROOT = "website/profile";
 
 /* =========================
    DB HELPERS
 ========================= */
-const dbGet = async (p) => (await get(ref(db, `${ROOT}/${p}`))).val() ?? null;
-const dbSet = async (p, v) => set(ref(db, `${ROOT}/${p}`), v);
-const dbPush = async (p, v) => push(ref(db, `${ROOT}/${p}`), v);
+async function dbGet(path) {
+    try {
+        const snapshot = await get(ref(rtdb, `${DB_ROOT}/${path}`));
+        return snapshot.exists() ? snapshot.val() : null;
+    } catch {
+        return null;
+    }
+}
+
+async function dbSet(path, value) {
+    try {
+        await set(ref(rtdb, `${DB_ROOT}/${path}`), value);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+async function dbPush(path, value) {
+    try {
+        return await push(ref(rtdb, `${DB_ROOT}/${path}`), value);
+    } catch {
+        return null;
+    }
+}
 
 /* =========================
-   STATE GLOBAL
+   SHA256 (PIN SYSTEM)
 ========================= */
-let state = {
-    pinConfig: {},
-    incomes: [],
-    docs: {},
-    currency: {},
-    pinLock: {
-        attempts: 0,
-        lockedUntil: 0,
-        level: 0
-    }
+async function sha256(text) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(String(text || ''));
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/* =========================
+   DIVISAS - CONFIG
+========================= */
+const CURRENCY_STORAGE_KEY = 'finanzas_currency_v1';
+
+const DEFAULT_RATES = {
+    EUR: 1,
+    USD: 1.09,
+    GBP: 0.85,
+    JPY: 163.5,
+    PEN: 4.05,
+    PHP: 62.5
+};
+
+const CURRENCY_META = {
+    EUR: { symbol: '€', flag: '🇪🇺', name: 'Euro' },
+    USD: { symbol: '$', flag: '🇺🇸', name: 'Dólar' },
+    GBP: { symbol: '£', flag: '🇬🇧', name: 'Libra' },
+    JPY: { symbol: '¥', flag: '🇯🇵', name: 'Yen' },
+    PEN: { symbol: 'S/', flag: '🇵🇪', name: 'Sol' },
+    PHP: { symbol: '₱', flag: '🇵🇭', name: 'Peso' }
+};
+
+let ratesState = {
+    rates: { ...DEFAULT_RATES },
+    updatedAt: null,
+    source: 'fallback'
 };
 
 /* =========================
-   LOAD INIT DATA
+   DOM CACHE
 ========================= */
-async function init() {
-    state.pinConfig = await dbGet("pinConfig") || {};
-    state.incomes = await dbGet("incomes") || [];
-    state.docs = await dbGet("docsStore") || {};
-    state.currency = await dbGet("currency") || {};
+let baseAmountInput, baseCurrencySelect, currencyGrid, refreshRatesBtn;
+
+/* =========================
+   INIT
+========================= */
+document.addEventListener('DOMContentLoaded', async function() {
+
+    baseAmountInput = document.getElementById('baseAmount');
+    baseCurrencySelect = document.getElementById('baseCurrency');
+    currencyGrid = document.getElementById('currencyGrid');
+    refreshRatesBtn = document.getElementById('refreshRatesBtn');
+
+    await loadCurrencyState();
+    renderCurrencyGrid();
+
+    /* 🔥 AUTO REFRESH (TIEMPO REAL) */
+    setInterval(() => {
+        refreshRatesFromApi();
+    }, 60000); // cada 60 segundos
+
+    /* 🔥 refresh cuando vuelves a la pestaña */
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") {
+            refreshRatesFromApi();
+        }
+    });
+
+    baseAmountInput?.addEventListener('input', renderCurrencyGrid);
+    baseCurrencySelect?.addEventListener('change', renderCurrencyGrid);
+    refreshRatesBtn?.addEventListener('click', refreshRatesFromApi);
+});
+
+/* =========================
+   API LIVE RATES
+========================= */
+async function refreshRatesFromApi() {
+    try {
+        const res = await fetch(
+            'https://api.exchangerate.host/latest?base=EUR&symbols=EUR,USD,GBP,JPY,PEN,PHP'
+        );
+
+        const data = await res.json();
+
+        if (!res.ok || !data?.rates) throw new Error("API error");
+
+        ratesState.rates = {
+            ...DEFAULT_RATES,
+            ...data.rates
+        };
+
+        ratesState.updatedAt = new Date().toISOString();
+        ratesState.source = 'api';
+
+        saveCurrencyState();
+        renderCurrencyGrid();
+
+    } catch (err) {
+        ratesState.source = 'fallback';
+        ratesState.updatedAt = new Date().toISOString();
+        renderCurrencyGrid();
+    }
 }
 
 /* =========================
-   PIN SYSTEM (REAL SAFE)
+   RENDER CURRENCY
 ========================= */
-async function verifyPIN(input, context) {
-    const hash = await sha256(input);
-    return hash === state.pinConfig?.[context];
+function renderCurrencyGrid() {
+    if (!currencyGrid) return;
+
+    const baseCode = baseCurrencySelect?.value || 'EUR';
+    const baseAmount = Number(baseAmountInput?.value || 0);
+    const baseRate = ratesState.rates[baseCode] || 1;
+
+    currencyGrid.innerHTML = Object.keys(CURRENCY_META).map(code => {
+        const rate = ratesState.rates[code] || 0;
+        const converted = (baseAmount / baseRate) * rate;
+
+        return `
+            <div class="currency-item">
+                <span>${CURRENCY_META[code].flag}</span>
+                <div>
+                    <strong>${code}</strong>
+                    <p>${converted.toFixed(2)} ${CURRENCY_META[code].symbol}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 /* =========================
-   PIN MODAL LOGIC
+   LOAD / SAVE
 ========================= */
-let currentContext = "general";
-let pendingAction = null;
+async function loadCurrencyState() {
+    const remote = await dbGet('currency');
 
-const pinModal = document.getElementById("passwordModal");
-const pinInput = document.getElementById("pinInput");
-const pinMsg = document.getElementById("pinMessage");
-
-function showPIN(context, action) {
-    currentContext = context;
-    pendingAction = action;
-    pinModal.style.display = "flex";
-    pinInput.value = "";
-    pinInput.focus();
-}
-
-function closePIN() {
-    pinModal.style.display = "none";
-    pinInput.value = "";
-    pinMsg.textContent = "";
-}
-
-async function submitPIN() {
-    const value = pinInput.value;
-
-    const ok = await verifyPIN(value, currentContext);
-
-    if (!ok) {
-        pinMsg.textContent = "PIN incorrecto";
-        pinMsg.className = "error";
+    if (remote?.rates) {
+        ratesState = remote;
         return;
     }
-
-    pinMsg.textContent = "Acceso permitido";
-    pinMsg.className = "success";
-
-    setTimeout(() => {
-        closePIN();
-        if (typeof pendingAction === "function") pendingAction();
-    }, 200);
 }
 
-/* =========================
-   NAVIGATION
-========================= */
-function setupNav() {
-    document.querySelectorAll(".nav-item").forEach(btn => {
-        btn.onclick = () => {
-            const section = btn.dataset.section;
+async function saveCurrencyState() {
+    const payload = {
+        rates: ratesState.rates,
+        updatedAt: ratesState.updatedAt,
+        source: ratesState.source
+    };
 
-            if (section === "finanzas") {
-                showPIN("general", () => switchSection(section));
-                return;
-            }
-
-            switchSection(section);
-        };
-    });
+    await dbSet('currency', payload);
 }
-
-function switchSection(id) {
-    document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-    document.getElementById(id)?.classList.add("active");
-}
-
-/* =========================
-   FINANZAS
-========================= */
-function renderFinance() {
-    const list = document.getElementById("incomeTableBody");
-    if (!list) return;
-
-    list.innerHTML = state.incomes.map(i => `
-        <tr>
-            <td>${i.date}</td>
-            <td>${i.type}</td>
-            <td>${i.concept}</td>
-            <td>${i.amount}€</td>
-        </tr>
-    `).join("");
-}
-
-/* =========================
-   DOCUMENTOS (PROTECTED)
-========================= */
-function uploadDoc(type) {
-    showPIN("general", () => {
-        document.getElementById(`fileInput-${type}`).click();
-    });
-}
-
-function downloadDoc(type) {
-    showPIN("doc-download", () => {
-        const doc = state.docs[type];
-        if (!doc) return;
-        const a = document.createElement("a");
-        a.href = doc.content;
-        a.download = doc.name;
-        a.click();
-    });
-}
-
-/* =========================
-   EVENTS
-========================= */
-document.addEventListener("DOMContentLoaded", async () => {
-
-    await init();
-
-    setupNav();
-    renderFinance();
-
-    pinInput?.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") submitPIN();
-        if (e.key === "Escape") closePIN();
-    });
-
-    document.querySelectorAll(".doc-btn").forEach(btn => {
-        btn.onclick = () => {
-            const type = btn.dataset.docType;
-            const action = btn.dataset.docAction;
-
-            if (action === "upload") uploadDoc(type);
-            if (action === "download") downloadDoc(type);
-        };
-    });
-});
