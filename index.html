@@ -1,150 +1,142 @@
-// ===============================
-// CONFIG FIREBASE (si lo usas)
-// ===============================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-import { getDatabase } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Pro</title>
 
-const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_AUTH",
-    databaseURL: "TU_DB",
-    projectId: "TU_ID",
-};
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+<link rel="stylesheet" href="styles.css">
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// ===============================
-// PIN SYSTEM (FIXED)
-// ===============================
-const CORRECT_PIN_HASH = "e3afed0047b08059d0fada10f400c1e5"; 
-// 👆 EJEMPLO MD5 (cambia esto o usa SHA-256 abajo)
-
-let currentUnlockTarget = null;
-
-// abrir modal
-window.checkPassword = function (target) {
-    currentUnlockTarget = target;
-    document.getElementById("passwordModal").style.display = "flex";
-    document.getElementById("pinInput").value = "";
-    document.getElementById("pinMessage").innerText = "";
-};
-
-// cerrar modal
-window.closeModal = function () {
-    document.getElementById("passwordModal").style.display = "none";
-    currentUnlockTarget = null;
-};
-
-// hash SHA256 real
-async function sha256(text) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(text);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    return Array.from(new Uint8Array(hashBuffer))
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
+<style>
+/* LOGIN OVERLAY */
+#authScreen {
+    position: fixed;
+    inset: 0;
+    background: #0f0f14;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
 }
 
-// verificar PIN
-window.verifyPin = async function () {
-    const input = document.getElementById("pinInput").value;
-    const message = document.getElementById("pinMessage");
-
-    const hashed = await sha256(input);
-
-    // ⚠️ CAMBIA ESTE HASH POR TU PIN REAL
-    const VALID_HASH = await sha256("1234");
-
-    if (hashed === VALID_HASH) {
-        message.style.color = "green";
-        message.innerText = "Acceso permitido";
-
-        unlockData(currentUnlockTarget);
-        setTimeout(closeModal, 500);
-    } else {
-        message.style.color = "red";
-        message.innerText = "PIN incorrecto";
-    }
-};
-
-// desbloquear datos
-function unlockData(target) {
-    if (!target) return;
-
-    document.querySelectorAll(".metric-" + target).forEach(el => {
-        el.classList.remove("censored");
-        el.querySelector("small").innerText = "€0.00";
-    });
+.auth-box {
+    background: #1c1c25;
+    padding: 25px;
+    border-radius: 12px;
+    width: 320px;
+    color: white;
 }
 
-// ===============================
-// DIVISAS EN TIEMPO REAL (FIX)
-// ===============================
-const currencyGrid = document.getElementById("currencyGrid");
-const baseAmount = document.getElementById("baseAmount");
-const baseCurrency = document.getElementById("baseCurrency");
-
-const symbols = ["USD", "GBP", "JPY", "PEN", "PHP"];
-
-async function fetchRates(base = "EUR") {
-    try {
-        const res = await fetch(`https://api.frankfurter.app/latest?from=${base}`);
-        return await res.json();
-    } catch (e) {
-        console.log("Fallback rates");
-        return {
-            rates: {
-                USD: 1.08,
-                GBP: 0.85,
-                JPY: 160,
-                PEN: 4.0,
-                PHP: 62
-            }
-        };
-    }
+.auth-box input {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0;
+    border-radius: 8px;
+    border: none;
 }
 
-async function updateCurrency() {
-    const amount = parseFloat(baseAmount.value || 1);
-    const base = baseCurrency.value;
-
-    const data = await fetchRates(base);
-
-    currencyGrid.innerHTML = "";
-
-    symbols.forEach(curr => {
-        const rate = data.rates[curr] || 1;
-        const value = (amount * rate).toFixed(2);
-
-        const card = document.createElement("div");
-        card.className = "currency-card";
-        card.innerHTML = `
-            <h4>${curr}</h4>
-            <p>${value}</p>
-        `;
-
-        currencyGrid.appendChild(card);
-    });
+.auth-box button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 8px;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
 }
 
-// eventos
-baseAmount?.addEventListener("input", updateCurrency);
-baseCurrency?.addEventListener("change", updateCurrency);
+.auth-switch {
+    text-align: center;
+    font-size: 12px;
+    margin-top: 10px;
+    cursor: pointer;
+    color: #aaa;
+}
 
-document.getElementById("refreshRatesBtn")?.addEventListener("click", updateCurrency);
+/* oculto dashboard hasta login */
+#app {
+    display: none;
+}
+</style>
+</head>
 
-// init
-updateCurrency();
+<body>
 
-// ===============================
-// CONTACT FORM SIMPLE FIX
-// ===============================
-document.getElementById("contactForm")?.addEventListener("submit", (e) => {
-    e.preventDefault();
+<!-- 🔐 LOGIN -->
+<div id="authScreen">
+    <div class="auth-box">
+        <h2 id="authTitle">Login</h2>
 
-    document.getElementById("contactFeedback").innerText =
-        "Mensaje enviado correctamente ✔";
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Contraseña">
 
-    e.target.reset();
-});
+        <button onclick="authAction()">Entrar</button>
+
+        <div class="auth-switch" onclick="toggleMode()">
+            ¿No tienes cuenta? Regístrate
+        </div>
+    </div>
+</div>
+
+<!-- 🔥 TU APP COMPLETA -->
+<div id="app">
+
+    <div id="accessLockBanner" class="access-lock-banner">
+        <i class='bx bxs-error-circle'></i>
+        <span>Acceso restringido temporalmente.</span>
+    </div>
+
+    <nav class="menu">
+        <ul>
+            <li class="nav-item active" data-section="dashboard">
+                <i class='bx bx-grid-alt'></i>
+                <span>DASHBOARD</span>
+            </li>
+            <li class="nav-item" data-section="laboral">
+                <i class='bx bx-briefcase'></i>
+                <span>LABORAL</span>
+            </li>
+            <li class="nav-item" data-section="finanzas">
+                <i class='bx bx-bar-chart-alt-2'></i>
+                <span>FINANZAS</span>
+            </li>
+            <li class="nav-item" data-section="contacto">
+                <i class='bx bx-envelope'></i>
+                <span>CONTACTO</span>
+            </li>
+        </ul>
+    </nav>
+
+    <main class="content">
+
+        <!-- 🔥 AQUÍ NO TOCO NADA DE TU DASHBOARD -->
+        <section id="dashboard" class="section active">
+            <!-- TODO TU CONTENIDO ORIGINAL TAL CUAL -->
+        </section>
+
+        <section id="laboral" class="section">
+            <!-- TODO TU CONTENIDO ORIGINAL -->
+        </section>
+
+        <section id="finanzas" class="section">
+            <!-- TODO TU CONTENIDO ORIGINAL -->
+        </section>
+
+        <section id="contacto" class="section">
+            <!-- TODO TU CONTENIDO ORIGINAL -->
+        </section>
+
+    </main>
+
+    <button onclick="logout()" style="position:fixed;bottom:20px;right:20px;padding:10px;background:red;color:white;border:none;border-radius:8px;cursor:pointer;">
+        Logout
+    </button>
+
+</div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
