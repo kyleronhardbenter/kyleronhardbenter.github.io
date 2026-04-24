@@ -1,142 +1,161 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Pro</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Profesional</title>
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
-<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-<link rel="stylesheet" href="styles.css">
-
-<style>
-/* LOGIN OVERLAY */
-#authScreen {
-    position: fixed;
-    inset: 0;
-    background: #0f0f14;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 9999;
-}
-
-.auth-box {
-    background: #1c1c25;
-    padding: 25px;
-    border-radius: 12px;
-    width: 320px;
-    color: white;
-}
-
-.auth-box input {
-    width: 100%;
-    padding: 10px;
-    margin: 6px 0;
-    border-radius: 8px;
-    border: none;
-}
-
-.auth-box button {
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    border: none;
-    border-radius: 8px;
-    background: #4f46e5;
-    color: white;
-    cursor: pointer;
-}
-
-.auth-switch {
-    text-align: center;
-    font-size: 12px;
-    margin-top: 10px;
-    cursor: pointer;
-    color: #aaa;
-}
-
-/* oculto dashboard hasta login */
-#app {
-    display: none;
-}
-</style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-<!-- 🔐 LOGIN -->
-<div id="authScreen">
+<!-- =========================
+🔐 AUTH PANEL (LOGIN / REGISTER)
+========================= -->
+<div id="authScreen" class="auth-screen">
     <div class="auth-box">
-        <h2 id="authTitle">Login</h2>
+
+        <h2>Acceso Seguro</h2>
+        <p>Inicia sesión o regístrate</p>
 
         <input type="email" id="email" placeholder="Email">
         <input type="password" id="password" placeholder="Contraseña">
 
-        <button onclick="authAction()">Entrar</button>
-
-        <div class="auth-switch" onclick="toggleMode()">
-            ¿No tienes cuenta? Regístrate
+        <div class="auth-buttons">
+            <button onclick="login()">Login</button>
+            <button onclick="register()">Registro</button>
         </div>
+
+        <p id="authMsg"></p>
     </div>
 </div>
 
-<!-- 🔥 TU APP COMPLETA -->
-<div id="app">
-
-    <div id="accessLockBanner" class="access-lock-banner">
-        <i class='bx bxs-error-circle'></i>
-        <span>Acceso restringido temporalmente.</span>
-    </div>
+<!-- =========================
+APP PRINCIPAL
+========================= -->
+<div id="app" style="display:none;">
 
     <nav class="menu">
         <ul>
-            <li class="nav-item active" data-section="dashboard">
-                <i class='bx bx-grid-alt'></i>
-                <span>DASHBOARD</span>
-            </li>
-            <li class="nav-item" data-section="laboral">
-                <i class='bx bx-briefcase'></i>
-                <span>LABORAL</span>
-            </li>
-            <li class="nav-item" data-section="finanzas">
-                <i class='bx bx-bar-chart-alt-2'></i>
-                <span>FINANZAS</span>
-            </li>
-            <li class="nav-item" data-section="contacto">
-                <i class='bx bx-envelope'></i>
-                <span>CONTACTO</span>
-            </li>
+            <li class="nav-item active" data-section="dashboard">Dashboard</li>
+            <li class="nav-item" data-section="laboral">Laboral</li>
+            <li class="nav-item" data-section="finanzas">Finanzas</li>
+            <li class="nav-item" data-section="contacto">Contacto</li>
         </ul>
     </nav>
 
     <main class="content">
 
-        <!-- 🔥 AQUÍ NO TOCO NADA DE TU DASHBOARD -->
+        <!-- DASHBOARD -->
         <section id="dashboard" class="section active">
-            <!-- TODO TU CONTENIDO ORIGINAL TAL CUAL -->
+            <h1>Dashboard</h1>
+
+            <div>
+                <p>Bienvenido 👋</p>
+                <button onclick="logout()">Cerrar sesión</button>
+            </div>
         </section>
 
+        <!-- LABORAL -->
         <section id="laboral" class="section">
-            <!-- TODO TU CONTENIDO ORIGINAL -->
+            <h2>Laboral</h2>
+            <p>Tu contenido laboral aquí</p>
         </section>
 
+        <!-- FINANZAS -->
         <section id="finanzas" class="section">
-            <!-- TODO TU CONTENIDO ORIGINAL -->
+            <h2>Finanzas</h2>
+            <p>Tu sistema financiero aquí</p>
         </section>
 
+        <!-- CONTACTO -->
         <section id="contacto" class="section">
-            <!-- TODO TU CONTENIDO ORIGINAL -->
+            <h2>Contacto</h2>
+            <p>Formulario de contacto</p>
         </section>
 
     </main>
-
-    <button onclick="logout()" style="position:fixed;bottom:20px;right:20px;padding:10px;background:red;color:white;border:none;border-radius:8px;cursor:pointer;">
-        Logout
-    </button>
-
 </div>
 
-<script type="module" src="script.js"></script>
+<!-- =========================
+🔥 FIREBASE SCRIPT
+========================= -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyD-ET-NddOEtiNvSt7787wxVbGoDj8-kas",
+    authDomain: "website-cc7ff.firebaseapp.com",
+    databaseURL: "https://website-cc7ff-default-rtdb.firebaseio.com",
+    projectId: "website-cc7ff",
+    storageBucket: "website-cc7ff.appspot.com",
+    messagingSenderId: "755069923532",
+    appId: "1:755069923532:web:62384a64fb880100ff1269"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// =========================
+// LOGIN
+// =========================
+window.login = async function () {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        document.getElementById("authMsg").innerText = "Login correcto";
+    } catch (e) {
+        document.getElementById("authMsg").innerText = e.message;
+    }
+};
+
+// =========================
+// REGISTER
+// =========================
+window.register = async function () {
+    const email = document.getElementById("email").value;
+    const pass = document.getElementById("password").value;
+
+    try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+        document.getElementById("authMsg").innerText = "Usuario creado";
+    } catch (e) {
+        document.getElementById("authMsg").innerText = e.message;
+    }
+};
+
+// =========================
+// LOGOUT
+// =========================
+window.logout = async function () {
+    await signOut(auth);
+};
+
+// =========================
+// CONTROL DE ACCESO
+// =========================
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        document.getElementById("authScreen").style.display = "none";
+        document.getElementById("app").style.display = "block";
+    } else {
+        document.getElementById("authScreen").style.display = "flex";
+        document.getElementById("app").style.display = "none";
+    }
+});
+</script>
+
 </body>
 </html>
