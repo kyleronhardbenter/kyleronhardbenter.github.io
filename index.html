@@ -9,27 +9,29 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="styles.css">
 
-    <!-- Firebase -->
+    <!-- Firebase script -->
     <script type="module" src="script.js"></script>
 </head>
 
 <body>
 
-<!-- 🔐 LOGIN OVERLAY -->
+<!-- ================= LOGIN OVERLAY (NUEVO) ================= -->
 <div id="loginOverlay" class="login-overlay">
     <div class="login-box">
+
         <h2>Acceso Seguro</h2>
 
-        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="email" id="loginEmail" placeholder="Correo electrónico">
         <input type="password" id="loginPassword" placeholder="Contraseña">
 
-        <button id="loginBtn">Iniciar sesión</button>
+        <button id="loginBtn">Entrar</button>
 
         <p id="loginError"></p>
+
     </div>
 </div>
 
-<!-- 👤 USER BAR -->
+<!-- ================= USER BAR (NUEVO) ================= -->
 <div id="userBar" class="access-lock-banner" style="display:none;">
     <i class='bx bxs-user'></i>
     <span id="userEmail">Usuario</span>
@@ -40,13 +42,13 @@
     </button>
 </div>
 
-<!-- ⚠️ ACCESS BANNER -->
+<!-- ================= ACCESS BANNER ================= -->
 <div id="accessLockBanner" class="access-lock-banner">
     <i class='bx bxs-error-circle'></i>
     <span id="accessLockBannerText">Acceso restringido temporalmente.</span>
 </div>
 
-<!-- NAV -->
+<!-- ================= NAV ================= -->
 <nav class="menu">
     <ul>
         <li class="nav-item active" data-section="dashboard">
@@ -66,7 +68,7 @@
 
 <main class="content">
 
-<!-- ================= DASHBOARD ================= -->
+<!-- ================= DASHBOARD (TU ORIGINAL COMPLETO) ================= -->
 <section id="dashboard" class="section active">
 
     <div class="dashboard-container">
@@ -74,22 +76,38 @@
         <div class="profile-section">
 
             <div class="presentation-card-left">
+
                 <div class="photo-container">
                     <img src="FOTOS/IMG_1147.JPG" class="photo">
                 </div>
 
                 <div class="name-badge">
+
                     <h1 class="name">KYLE RONHARD BENTER PIMENTEL</h1>
 
                     <div class="info-badges">
-                        <div class="info-item"><i class='bx bx-cake'></i><span>23 años</span></div>
-                        <div class="info-item"><i class='bx bx-briefcase'></i><span>Chalito Collblanc</span></div>
-                        <div class="info-item"><i class='bx bx-map'></i><span>Barcelona</span></div>
+
+                        <div class="info-item age">
+                            <i class='bx bx-cake'></i>
+                            <span>23 años</span>
+                        </div>
+
+                        <div class="info-item work">
+                            <i class='bx bx-briefcase-alt-2'></i>
+                            <span>Chalito Collblanc</span>
+                        </div>
+
+                        <div class="info-item location">
+                            <i class='bx bx-map-pin'></i>
+                            <span>Barcelona</span>
+                        </div>
+
                     </div>
+
                 </div>
+
             </div>
 
-            <!-- métricas bloqueadas por PIN -->
             <div class="presentation-card-right">
 
                 <div class="personal-metrics">
@@ -103,7 +121,7 @@
                     <div class="metric-small censored" onclick="checkPassword('gastos')">
                         <i class='bx bx-money'></i>
                         <span>Gastos Mes</span>
-                        <small>*****</small>
+                        <small id="dashExpenseMonth">*****</small>
                     </div>
 
                     <div class="metric-small censored" onclick="checkPassword('saldo')">
@@ -133,9 +151,7 @@
 
     <h1>CV y Documentos</h1>
 
-    <button onclick="checkPassword('docs')" class="btn">
-        Acceder documentos (PIN)
-    </button>
+    <button onclick="checkPassword('docs')">Acceder documentos (PIN)</button>
 
 </section>
 
@@ -181,7 +197,7 @@
         <p id="pinMessage"></p>
 
         <button onclick="verifyPin()">Verificar</button>
-        <button onclick="closeModal()">Cancelar</button>
+        <button onclick="closeModal()">Cerrar</button>
 
     </div>
 
