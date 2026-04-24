@@ -1,190 +1,216 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kyle Ronhard - Dashboard Profesional</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Pro</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+<style>
+body{
+    margin:0;
+    font-family:Inter;
+    background:#0b0b0b;
+    color:white;
+}
+
+/* AUTH */
+.auth-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.85);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+}
+
+.auth-box{
+    background:#111;
+    padding:25px;
+    border-radius:12px;
+    width:300px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.auth-box input{
+    padding:10px;
+    border-radius:8px;
+    border:none;
+}
+
+.auth-actions{
+    display:flex;
+    gap:10px;
+}
+
+.auth-actions button{
+    flex:1;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+/* USER BAR */
+.user-bar{
+    position:fixed;
+    top:10px;
+    right:10px;
+    background:#111;
+    padding:10px;
+    border-radius:10px;
+    z-index:99999;
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.hidden{display:none;}
+
+.user-bar button{
+    background:red;
+    color:white;
+    border:none;
+    padding:5px 10px;
+    border-radius:6px;
+    cursor:pointer;
+}
+</style>
 </head>
 
 <body>
 
-<!-- ================= AUTH LOGIN ================= -->
-<div id="authOverlay" class="auth-overlay">
-    <div class="auth-box">
+<!-- USER BAR -->
+<div id="userBar" class="user-bar hidden">
+    <span id="userEmail">No logueado</span>
+    <button id="logoutBtn">Logout</button>
+</div>
 
-        <h2>Acceso al Dashboard</h2>
+<!-- LOGIN MODAL -->
+<div id="authModal" class="auth-modal">
+    <div class="auth-box">
+        <h2>Acceso</h2>
 
         <input type="email" id="authEmail" placeholder="Correo">
         <input type="password" id="authPassword" placeholder="Contraseña">
 
-        <div class="auth-buttons">
-            <button onclick="loginUser(
-                document.getElementById('authEmail').value,
-                document.getElementById('authPassword').value
-            )">
-                Iniciar sesión
-            </button>
-
-            <button onclick="registerUser(
-                document.getElementById('authEmail').value,
-                document.getElementById('authPassword').value
-            )">
-                Registrarse
-            </button>
+        <div class="auth-actions">
+            <button id="loginBtn">Login</button>
+            <button id="registerBtn">Registro</button>
         </div>
 
-        <p id="authError"></p>
+        <p id="authMsg"></p>
     </div>
 </div>
 
-<!-- ================= PIN MODAL ================= -->
-<div id="passwordModal" class="password-modal">
-    <div class="modal-content">
+<!-- TU CONTENIDO ORIGINAL VA AQUÍ -->
+<h1 style="text-align:center;margin-top:120px;">TU DASHBOARD AQUÍ</h1>
 
-        <h3>🔒 PIN de Seguridad</h3>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-        <input type="password" id="pinInput" placeholder="Introduce PIN">
+import {
+    getDatabase,
+    ref,
+    set
+} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
 
-        <p id="pinMessage"></p>
+const firebaseConfig = {
+    apiKey: "AIzaSyD-ET-NddOEtiNvSt7787wxVbGoDj8-kas",
+    authDomain: "website-cc7ff.firebaseapp.com",
+    databaseURL: "https://website-cc7ff-default-rtdb.firebaseio.com",
+    projectId: "website-cc7ff",
+    storageBucket: "website-cc7ff.firebasestorage.app",
+    messagingSenderId: "755069923532",
+    appId: "1:755069923532:web:62384a64fb880100ff1269"
+};
 
-        <div class="modal-actions">
-            <button onclick="verifyPin()">Verificar</button>
-            <button onclick="closeModal()">Cancelar</button>
-        </div>
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
 
-    </div>
-</div>
+// ELEMENTOS
+const authModal = document.getElementById("authModal");
+const userBar = document.getElementById("userBar");
+const userEmail = document.getElementById("userEmail");
+const authMsg = document.getElementById("authMsg");
 
-<!-- ================= MENU ================= -->
-<nav class="menu">
-    <ul>
-        <li class="nav-item active" data-section="dashboard">
-            <i class='bx bx-grid-alt'></i><span>DASHBOARD</span>
-        </li>
+// LOGIN
+document.getElementById("loginBtn").onclick = async () => {
+    try {
+        await signInWithEmailAndPassword(
+            auth,
+            authEmail.value,
+            authPassword.value
+        );
+        authMsg.textContent = "Login correcto";
+    } catch (e) {
+        authMsg.textContent = e.message;
+    }
+};
 
-        <li class="nav-item" data-section="laboral">
-            <i class='bx bx-briefcase'></i><span>LABORAL</span>
-        </li>
+// REGISTRO
+document.getElementById("registerBtn").onclick = async () => {
+    try {
+        await createUserWithEmailAndPassword(
+            auth,
+            authEmail.value,
+            authPassword.value
+        );
+        authMsg.textContent = "Usuario creado";
+    } catch (e) {
+        authMsg.textContent = e.message;
+    }
+};
 
-        <li class="nav-item" data-section="finanzas">
-            <i class='bx bx-bar-chart-alt-2'></i><span>FINANZAS</span>
-        </li>
+// LOGOUT
+document.getElementById("logoutBtn").onclick = () => {
+    signOut(auth);
+};
 
-        <li class="nav-item" data-section="contacto">
-            <i class='bx bx-envelope'></i><span>CONTACTO</span>
-        </li>
-    </ul>
-</nav>
+// ESTADO USUARIO
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        authModal.style.display = "none";
+        userBar.classList.remove("hidden");
+        userEmail.textContent = user.email;
 
-<!-- ================= CONTENT ================= -->
-<main class="content">
+        // guardar login
+        set(ref(db, "usuarios/" + user.uid), {
+            email: user.email,
+            lastLogin: Date.now()
+        });
 
-<!-- DASHBOARD -->
-<section id="dashboard" class="section active">
+    } else {
+        authModal.style.display = "flex";
+        userBar.classList.add("hidden");
+    }
+});
 
-    <div class="dashboard-container">
+// AUTOGUARDADO
+setInterval(() => {
+    const user = auth.currentUser;
+    if (!user) return;
 
-        <div class="profile-section">
+    set(ref(db, "usuarios/" + user.uid), {
+        email: user.email,
+        lastActive: Date.now()
+    });
 
-            <div class="presentation-card-left">
-
-                <div class="photo-container">
-                    <img src="FOTOS/IMG_1147.JPG" class="photo">
-                </div>
-
-                <h1 class="name">KYLE RONHARD BENTER PIMENTEL</h1>
-
-            </div>
-
-            <div class="presentation-card-right">
-
-                <div class="personal-metrics">
-
-                    <div class="metric-small censored" onclick="checkPassword('ingresos')">
-                        <span>Ingresos Mes</span>
-                        <small id="dashIncomeMonth">*****</small>
-                    </div>
-
-                    <div class="metric-small censored" onclick="checkPassword('gastosmes')">
-                        <span>Gastos Mes</span>
-                        <small id="dashExpenseMonth">*****</small>
-                    </div>
-
-                    <div class="metric-small censored" onclick="checkPassword('saldo')">
-                        <span>Saldo</span>
-                        <small id="dashBalanceLocked">*****</small>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-<!-- LABORAL -->
-<section id="laboral" class="section">
-    <h1>CV y Documentos</h1>
-
-    <div class="doc-card">
-        <h3>Curriculum</h3>
-        <input type="file" id="fileInput-curriculum">
-    </div>
-
-</section>
-
-<!-- FINANZAS -->
-<section id="finanzas" class="section">
-
-    <h1>Finanzas</h1>
-
-    <form id="incomeForm">
-
-        <input type="date" id="incomeDate">
-        <input type="text" id="incomeConcept" placeholder="Concepto">
-
-        <select id="incomeType">
-            <option>Ingreso</option>
-            <option>Gasto</option>
-        </select>
-
-        <input type="number" id="incomeAmount" placeholder="Monto">
-
-        <button type="submit">Guardar</button>
-
-    </form>
-
-    <table>
-        <tbody id="incomeTableBody"></tbody>
-    </table>
-
-</section>
-
-<!-- CONTACTO -->
-<section id="contacto" class="section">
-
-    <h1>Contacto</h1>
-
-    <form id="contactForm">
-        <input type="text" id="contactName" placeholder="Nombre">
-        <input type="email" id="contactEmail" placeholder="Email">
-        <textarea id="contactMessage"></textarea>
-        <button type="submit">Enviar</button>
-    </form>
-
-</section>
-
-</main>
-
-<!-- ================= SCRIPT ================= -->
-<script type="module" src="script.js"></script>
+}, 15000);
+</script>
 
 </body>
 </html>
