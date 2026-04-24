@@ -1,176 +1,187 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kyle Ronhard - Dashboard Profesional</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="styles.css">
+<title>Dashboard Profesional</title>
 
-    <!-- Firebase + Script -->
-    <script type="module" src="script.js"></script>
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="script.js" defer></script>
 </head>
 
 <body>
 
-<!-- 🔐 BANNER USUARIO LOGUEADO -->
-<div id="userBar" class="access-lock-banner" style="display:none;">
-    <i class='bx bxs-user'></i>
-    <span id="userEmail">Usuario</span>
+<!-- ================= LOGIN ================= -->
+<div id="authBox">
+  <h2>Acceso al sistema</h2>
 
-    <button onclick="logoutUser()" 
-        style="margin-left:10px;background:#ff4d4d;border:none;padding:5px 10px;color:white;border-radius:5px;cursor:pointer;">
-        Logout
-    </button>
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Contraseña">
+
+  <button id="loginBtn">Iniciar sesión</button>
+  <button id="registerBtn">Registro</button>
 </div>
 
-<!-- 🔒 BANNER ACCESO -->
-<div id="accessLockBanner" class="access-lock-banner" role="alert" aria-live="assertive">
-    <i class='bx bxs-error-circle'></i>
-    <span id="accessLockBannerText">Acceso restringido temporalmente.</span>
-</div>
+<!-- ================= APP ================= -->
+<div id="app" class="hidden">
 
-<nav class="menu">
-    <ul>
-        <li class="nav-item active" data-section="dashboard">
-            <i class='bx bx-grid-alt'></i>
-            <span>DASHBOARD</span>
-        </li>
-        <li class="nav-item" data-section="laboral">
-            <i class='bx bx-briefcase'></i>
-            <span>LABORAL</span>
-        </li>
-        <li class="nav-item" data-section="finanzas">
-            <i class='bx bx-bar-chart-alt-2'></i>
-            <span>FINANZAS</span>
-        </li>
-        <li class="nav-item" data-section="contacto">
-            <i class='bx bx-envelope'></i>
-            <span>CONTACTO</span>
-        </li>
-    </ul>
+<!-- NAV -->
+<nav>
+  <button data-section="dashboard">Dashboard</button>
+  <button data-section="finanzas">Finanzas</button>
+  <button data-section="docs">Laboral</button>
+  <button data-section="contacto">Contacto</button>
 </nav>
-
-<main class="content">
 
 <!-- ================= DASHBOARD ================= -->
 <section id="dashboard" class="section active">
 
-    <div class="dashboard-container">
+  <h1>📊 Dashboard</h1>
 
-        <div class="profile-section">
+  <div class="metrics">
 
-            <div class="presentation-card-left">
-                <div class="photo-container">
-                    <img src="FOTOS/IMG_1147.JPG" class="photo">
-                </div>
-
-                <div class="name-badge">
-                    <h1 class="name">KYLE RONHARD BENTER PIMENTEL</h1>
-
-                    <div class="info-badges">
-                        <div class="info-item age">
-                            <i class='bx bx-cake'></i>
-                            <span>23 años</span>
-                        </div>
-
-                        <div class="info-item work">
-                            <i class='bx bx-briefcase-alt-2'></i>
-                            <span>Chalito Collblanc</span>
-                        </div>
-
-                        <div class="info-item location">
-                            <i class='bx bx-map-pin'></i>
-                            <span>Barcelona</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- métricas -->
-            <div class="presentation-card-right">
-
-                <div class="personal-metrics">
-
-                    <div class="metric-small censored" onclick="checkPassword('ingresos')">
-                        <i class='bx bx-line-chart'></i>
-                        <span>Ingresos Mes</span>
-                        <small>*****</small>
-                    </div>
-
-                    <div class="metric-small censored" onclick="checkPassword('gastos')">
-                        <i class='bx bx-money'></i>
-                        <span>Gastos Mes</span>
-                        <small>*****</small>
-                    </div>
-
-                    <div class="metric-small censored" onclick="checkPassword('saldo')">
-                        <i class='bx bx-lock-alt'></i>
-                        <span>Saldo</span>
-                        <small>*****</small>
-                    </div>
-
-                    <div class="metric-small censored" onclick="checkPassword('dia')">
-                        <i class='bx bx-lock-alt'></i>
-                        <span>Gasto Día</span>
-                        <small>*****</small>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
+    <div class="card metric-saldo censored" onclick="checkPassword('saldo')">
+      <h3>Saldo</h3>
+      <small>*****</small>
     </div>
 
-</section>
+    <div class="card metric-ingresos censored" onclick="checkPassword('ingresos')">
+      <h3>Ingresos</h3>
+      <small>*****</small>
+    </div>
 
-<!-- ================= LABORAL ================= -->
-<section id="laboral" class="section">
-    <h1>CV y Documentos</h1>
-    <button onclick="checkPassword('docs')">Acceder documentos (PIN)</button>
+    <div class="card metric-gastos censored" onclick="checkPassword('gastos')">
+      <h3>Gastos</h3>
+      <small>*****</small>
+    </div>
+
+    <div class="card metric-gastosmes censored" onclick="checkPassword('mes')">
+      <h3>Gastos mes</h3>
+      <small>*****</small>
+    </div>
+
+  </div>
+
 </section>
 
 <!-- ================= FINANZAS ================= -->
 <section id="finanzas" class="section">
-    <h1>Finanzas</h1>
 
-    <form id="incomeForm">
-        <input type="date" id="incomeDate" required>
-        <input type="text" id="incomeConcept" placeholder="Concepto" required>
+  <h1>💰 Finanzas</h1>
 
-        <select id="incomeType">
-            <option value="Ingreso">Ingreso</option>
-            <option value="Gasto">Gasto</option>
-        </select>
+  <form id="incomeForm">
 
-        <input type="number" id="incomeAmount" placeholder="Cantidad" required>
+    <input id="incomeDate" type="date">
+    <input id="incomeConcept" placeholder="Concepto">
 
-        <button type="submit">Guardar</button>
-    </form>
+    <select id="incomeType">
+      <option>Ingreso</option>
+      <option>Gasto</option>
+    </select>
+
+    <select id="incomeCategory"></select>
+
+    <select id="incomeMethod">
+      <option>Efectivo</option>
+      <option>Tarjeta</option>
+      <option>Transferencia</option>
+    </select>
+
+    <input id="incomeAmount" type="number" placeholder="Cantidad">
+    <input id="incomeNotes" placeholder="Notas">
+
+    <button id="saveIncomeBtn">Guardar</button>
+    <button type="button" id="cancelEditBtn">Cancelar</button>
+
+  </form>
+
+  <input id="searchIncome" placeholder="Buscar...">
+
+  <table>
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Tipo</th>
+        <th>Concepto</th>
+        <th>Categoría</th>
+        <th>Método</th>
+        <th>Cantidad</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody id="incomeTableBody"></tbody>
+  </table>
+
+  <div id="incomePagination"></div>
+
+  <div class="summary">
+    <p>Ingresos: <span id="totalIncomeValue"></span></p>
+    <p>Gastos: <span id="totalExpenseValue"></span></p>
+    <p>Balance: <span id="balanceValue"></span></p>
+    <p>Registros: <span id="recordsCountValue"></span></p>
+  </div>
+
+</section>
+
+<!-- ================= DOCUMENTOS ================= -->
+<section id="docs" class="section">
+
+  <h1>📁 Laboral</h1>
+
+  <div class="doc">
+    <h3>Curriculum</h3>
+    <input type="file" id="fileInput-curriculum">
+    <button class="doc-btn" data-doc-action="upload" data-doc-type="curriculum">Subir</button>
+    <button class="doc-btn" data-doc-action="download" data-doc-type="curriculum">Descargar</button>
+    <p id="docStatus-curriculum">Sin archivo</p>
+  </div>
+
+  <div class="doc">
+    <h3>Certificado laboral</h3>
+    <input type="file" id="fileInput-certificado_laboral">
+    <button class="doc-btn" data-doc-action="upload" data-doc-type="certificado_laboral">Subir</button>
+    <button class="doc-btn" data-doc-action="download" data-doc-type="certificado_laboral">Descargar</button>
+    <p id="docStatus-certificado_laboral">Sin archivo</p>
+  </div>
+
 </section>
 
 <!-- ================= CONTACTO ================= -->
 <section id="contacto" class="section">
-    <h1>Contacto</h1>
+
+  <h1>📞 Contacto</h1>
+
+  <form id="contactForm">
+
+    <input id="contactName" placeholder="Nombre">
+    <input id="contactEmail" placeholder="Email">
+    <textarea id="contactMessage" placeholder="Mensaje"></textarea>
+
+    <button>Enviar</button>
+
+  </form>
+
+  <p id="contactFeedback"></p>
+
 </section>
 
-</main>
+</div>
 
 <!-- ================= PIN MODAL ================= -->
-<div id="passwordModal" class="password-modal">
-    <div class="modal-content">
-        <h3>PIN</h3>
+<div id="pinModal" class="modal hidden">
 
-        <input type="password" id="pinInput" placeholder="PIN">
+  <div class="card">
+    <h3>PIN de seguridad</h3>
 
-        <p id="pinMessage"></p>
+    <input id="pinInput" placeholder="PIN">
 
-        <button onclick="verifyPin()">Aceptar</button>
-        <button onclick="closeModal()">Cerrar</button>
-    </div>
+    <button onclick="checkPin()">Validar</button>
+    <button onclick="closeModal()">Cerrar</button>
+
+  </div>
+
 </div>
 
 </body>
