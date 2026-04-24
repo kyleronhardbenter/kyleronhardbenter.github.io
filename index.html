@@ -1,230 +1,191 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Kyle</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kyle Ronhard - Dashboard Profesional</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="styles.css">
 
-<style>
-body{
-    margin:0;
-    font-family:Inter;
-    background:#0b0b0b;
-    color:white;
-}
-
-/* USER BAR */
-.user-bar{
-    position:fixed;
-    top:10px;
-    right:10px;
-    background:#111;
-    padding:10px;
-    border-radius:10px;
-    z-index:9999;
-    display:flex;
-    gap:10px;
-    align-items:center;
-}
-
-.user-bar button{
-    background:red;
-    border:none;
-    color:white;
-    padding:5px 10px;
-    border-radius:6px;
-    cursor:pointer;
-}
-
-.hidden{display:none;}
-
-/* AUTH */
-.auth-modal{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.85);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    z-index:99999;
-}
-
-.auth-box{
-    background:#111;
-    padding:25px;
-    border-radius:12px;
-    width:300px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-}
-
-.auth-box input{
-    padding:10px;
-    border:none;
-    border-radius:8px;
-}
-
-.auth-actions{
-    display:flex;
-    gap:10px;
-}
-
-.auth-actions button{
-    flex:1;
-    padding:10px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-}
-
-/* DASHBOARD SIMPLE BASE (tu CSS sigue intacto si lo pegas debajo) */
-.dashboard{
-    padding:100px 20px;
-    text-align:center;
-}
-</style>
+    <!-- Firebase -->
+    <script type="module" src="script.js"></script>
 </head>
 
 <body>
 
-<!-- USER BAR -->
-<div id="userBar" class="user-bar hidden">
-    <span id="userEmail">No logueado</span>
-    <button id="logoutBtn">Logout</button>
-</div>
-
-<!-- LOGIN -->
-<div id="authModal" class="auth-modal">
-    <div class="auth-box">
+<!-- 🔐 LOGIN OVERLAY -->
+<div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
         <h2>Acceso Seguro</h2>
 
-        <input type="email" id="authEmail" placeholder="Correo">
-        <input type="password" id="authPassword" placeholder="Contraseña">
+        <input type="email" id="loginEmail" placeholder="Email">
+        <input type="password" id="loginPassword" placeholder="Contraseña">
 
-        <div class="auth-actions">
-            <button id="loginBtn">Login</button>
-            <button id="registerBtn">Registro</button>
-        </div>
+        <button id="loginBtn">Iniciar sesión</button>
 
-        <p id="authMsg"></p>
+        <p id="loginError"></p>
     </div>
 </div>
 
-<!-- 🔥 TU DASHBOARD (NO BORRADO, SOLO ACTIVO) -->
-<div class="dashboard">
+<!-- 👤 USER BAR -->
+<div id="userBar" class="access-lock-banner" style="display:none;">
+    <i class='bx bxs-user'></i>
+    <span id="userEmail">Usuario</span>
 
-    <!-- AQUÍ PEGA TU HTML ORIGINAL ENTERO -->
-    <!-- NO LO HE TOCADO PARA RESPETARTE EL DISEÑO -->
-
-    <h1>BIENVENIDO A TU DASHBOARD</h1>
-    <p>Tu contenido original sigue aquí sin cambios.</p>
-
+    <button onclick="logoutUser()"
+        style="margin-left:10px;background:#ff4d4d;border:none;padding:6px 12px;color:#fff;border-radius:6px;cursor:pointer;">
+        Logout
+    </button>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    signOut,
-    onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+<!-- ⚠️ ACCESS BANNER -->
+<div id="accessLockBanner" class="access-lock-banner">
+    <i class='bx bxs-error-circle'></i>
+    <span id="accessLockBannerText">Acceso restringido temporalmente.</span>
+</div>
 
-import {
-    getDatabase,
-    ref,
-    set
-} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+<!-- NAV -->
+<nav class="menu">
+    <ul>
+        <li class="nav-item active" data-section="dashboard">
+            <i class='bx bx-grid-alt'></i><span>DASHBOARD</span>
+        </li>
+        <li class="nav-item" data-section="laboral">
+            <i class='bx bx-briefcase'></i><span>LABORAL</span>
+        </li>
+        <li class="nav-item" data-section="finanzas">
+            <i class='bx bx-bar-chart-alt-2'></i><span>FINANZAS</span>
+        </li>
+        <li class="nav-item" data-section="contacto">
+            <i class='bx bx-envelope'></i><span>CONTACTO</span>
+        </li>
+    </ul>
+</nav>
 
-// FIREBASE
-const firebaseConfig = {
-    apiKey: "AIzaSyD-ET-NddOEtiNvSt7787wxVbGoDj8-kas",
-    authDomain: "website-cc7ff.firebaseapp.com",
-    databaseURL: "https://website-cc7ff-default-rtdb.firebaseio.com",
-    projectId: "website-cc7ff",
-    storageBucket: "website-cc7ff.firebasestorage.app",
-    messagingSenderId: "755069923532",
-    appId: "1:755069923532:web:62384a64fb880100ff1269"
-};
+<main class="content">
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
+<!-- ================= DASHBOARD ================= -->
+<section id="dashboard" class="section active">
 
-// ELEMENTOS
-const authModal = document.getElementById("authModal");
-const userBar = document.getElementById("userBar");
-const userEmail = document.getElementById("userEmail");
-const authMsg = document.getElementById("authMsg");
+    <div class="dashboard-container">
 
-// LOGIN
-document.getElementById("loginBtn").onclick = async () => {
-    try {
-        await signInWithEmailAndPassword(
-            auth,
-            authEmail.value,
-            authPassword.value
-        );
-        authMsg.textContent = "Login correcto";
-    } catch (e) {
-        authMsg.textContent = e.message;
-    }
-};
+        <div class="profile-section">
 
-// REGISTRO
-document.getElementById("registerBtn").onclick = async () => {
-    try {
-        await createUserWithEmailAndPassword(
-            auth,
-            authEmail.value,
-            authPassword.value
-        );
-        authMsg.textContent = "Usuario creado";
-    } catch (e) {
-        authMsg.textContent = e.message;
-    }
-};
+            <div class="presentation-card-left">
+                <div class="photo-container">
+                    <img src="FOTOS/IMG_1147.JPG" class="photo">
+                </div>
 
-// LOGOUT
-document.getElementById("logoutBtn").onclick = () => {
-    signOut(auth);
-};
+                <div class="name-badge">
+                    <h1 class="name">KYLE RONHARD BENTER PIMENTEL</h1>
 
-// ESTADO USUARIO
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        authModal.style.display = "none";
-        userBar.classList.remove("hidden");
-        userEmail.textContent = user.email;
+                    <div class="info-badges">
+                        <div class="info-item"><i class='bx bx-cake'></i><span>23 años</span></div>
+                        <div class="info-item"><i class='bx bx-briefcase'></i><span>Chalito Collblanc</span></div>
+                        <div class="info-item"><i class='bx bx-map'></i><span>Barcelona</span></div>
+                    </div>
+                </div>
+            </div>
 
-        set(ref(db, "usuarios/" + user.uid), {
-            email: user.email,
-            lastLogin: Date.now()
-        });
+            <!-- métricas bloqueadas por PIN -->
+            <div class="presentation-card-right">
 
-    } else {
-        authModal.style.display = "flex";
-        userBar.classList.add("hidden");
-    }
-});
+                <div class="personal-metrics">
 
-// AUTOGUARDADO
-setInterval(() => {
-    const user = auth.currentUser;
-    if (!user) return;
+                    <div class="metric-small censored" onclick="checkPassword('ingresos')">
+                        <i class='bx bx-line-chart'></i>
+                        <span>Ingresos Mes</span>
+                        <small id="dashIncomeMonth">*****</small>
+                    </div>
 
-    set(ref(db, "usuarios/" + user.uid), {
-        email: user.email,
-        lastActive: Date.now()
-    });
+                    <div class="metric-small censored" onclick="checkPassword('gastos')">
+                        <i class='bx bx-money'></i>
+                        <span>Gastos Mes</span>
+                        <small>*****</small>
+                    </div>
 
-}, 15000);
-</script>
+                    <div class="metric-small censored" onclick="checkPassword('saldo')">
+                        <i class='bx bx-lock-alt'></i>
+                        <span>Saldo</span>
+                        <small>*****</small>
+                    </div>
+
+                    <div class="metric-small censored" onclick="checkPassword('dia')">
+                        <i class='bx bx-time'></i>
+                        <span>Gasto Día</span>
+                        <small>*****</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= LABORAL ================= -->
+<section id="laboral" class="section">
+
+    <h1>CV y Documentos</h1>
+
+    <button onclick="checkPassword('docs')" class="btn">
+        Acceder documentos (PIN)
+    </button>
+
+</section>
+
+<!-- ================= FINANZAS ================= -->
+<section id="finanzas" class="section">
+
+    <h1>Finanzas</h1>
+
+    <form id="incomeForm">
+
+        <input type="date" id="incomeDate" required>
+        <input type="text" id="incomeConcept" placeholder="Concepto" required>
+
+        <select id="incomeType">
+            <option value="Ingreso">Ingreso</option>
+            <option value="Gasto">Gasto</option>
+        </select>
+
+        <input type="number" id="incomeAmount" placeholder="Cantidad" required>
+
+        <button type="submit">Guardar</button>
+
+    </form>
+
+</section>
+
+<!-- ================= CONTACTO ================= -->
+<section id="contacto" class="section">
+    <h1>Contacto</h1>
+</section>
+
+</main>
+
+<!-- ================= PIN MODAL ================= -->
+<div id="passwordModal" class="password-modal">
+
+    <div class="modal-content">
+
+        <h3>PIN de Seguridad</h3>
+
+        <input type="password" id="pinInput" placeholder="Introduce PIN">
+
+        <p id="pinMessage"></p>
+
+        <button onclick="verifyPin()">Verificar</button>
+        <button onclick="closeModal()">Cancelar</button>
+
+    </div>
+
+</div>
 
 </body>
 </html>
