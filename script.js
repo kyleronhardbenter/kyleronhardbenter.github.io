@@ -1,9 +1,9 @@
 // ================================
-// 🔥 FIREBASE (GITHUB PAGES SAFE)
+// 🔥 FIREBASE INIT (GITHUB PAGES SAFE)
 // ================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-import { 
+import {
     getAuth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
@@ -11,18 +11,8 @@ import {
     signOut
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
 
-import {
-    getDatabase,
-    ref,
-    set,
-    get,
-    child,
-    push,
-    update
-} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
-
 // ================================
-// 🔧 CONFIG FIREBASE
+// CONFIG FIREBASE
 // ================================
 
 const firebaseConfig = {
@@ -30,54 +20,59 @@ const firebaseConfig = {
     authDomain: "website-cc7ff.firebaseapp.com",
     databaseURL: "https://website-cc7ff-default-rtdb.firebaseio.com",
     projectId: "website-cc7ff",
-    storageBucket: "website-cc7ff.appspot.com", // ✔ FIX IMPORTANTE
+    storageBucket: "website-cc7ff.appspot.com",
     messagingSenderId: "755069923532",
     appId: "1:755069923532:web:62384a64fb880100ff1269"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getDatabase(app);
-
-console.log("🔥 Firebase listo");
-
-// ================================
-// 👤 REGISTRO
-// ================================
-
-window.registerUser = async function(email, password, extraData = {}) {
-    try {
-        const userCred = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCred.user;
-
-        await set(ref(db, "users/" + user.uid), {
-            email: email,
-            createdAt: Date.now(),
-            ...extraData
-        });
-
-        console.log("✅ Usuario registrado");
-        return user;
-
-    } catch (error) {
-        console.error("❌ Error registro:", error.message);
-        alert(error.message);
-    }
-};
 
 // ================================
 // 🔐 LOGIN
 // ================================
 
-window.loginUser = async function(email, password) {
-    try {
-        const userCred = await signInWithEmailAndPassword(auth, email, password);
-        console.log("✅ Login correcto");
-        return userCred.user;
+window.login = async function () {
+    const email = document.getElementById("email").value.trim();
+    const pass = document.getElementById("password").value.trim();
 
-    } catch (error) {
-        console.error("❌ Error login:", error.message);
-        alert(error.message);
+    if (!email || !pass) {
+        document.getElementById("authMsg").innerText = "Rellena todos los campos";
+        return;
+    }
+
+    try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        document.getElementById("authMsg").innerText = "Login correcto";
+    } catch (e) {
+        console.error(e.code);
+
+        if (e.code === "auth/invalid-credential") {
+            document.getElementById("authMsg").innerText = "Usuario o contraseña incorrectos";
+        } else {
+            document.getElementById("authMsg").innerText = e.message;
+        }
+    }
+};
+
+// ================================
+// 🧾 REGISTRO
+// ================================
+
+window.register = async function () {
+    const email = document.getElementById("email").value.trim();
+    const pass = document.getElementById("password").value.trim();
+
+    if (!email || !pass) {
+        document.getElementById("authMsg").innerText = "Rellena todos los campos";
+        return;
+    }
+
+    try {
+        await createUserWithEmailAndPassword(auth, email, pass);
+        document.getElementById("authMsg").innerText = "Usuario creado correctamente";
+    } catch (e) {
+        document.getElementById("authMsg").innerText = e.message;
     }
 };
 
@@ -85,68 +80,24 @@ window.loginUser = async function(email, password) {
 // 🚪 LOGOUT
 // ================================
 
-window.logoutUser = async function() {
+window.logout = async function () {
     await signOut(auth);
-    console.log("👋 Sesión cerrada");
 };
 
 // ================================
-// 👀 ESTADO USUARIO
+// 👁 CONTROL DE SESIÓN
 // ================================
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, (user) => {
+    const authScreen = document.getElementById("authScreen");
+    const app = document.getElementById("app");
+
     if (user) {
-        console.log("👤 Usuario activo:", user.email);
-
-        const snapshot = await get(child(ref(db), "users/" + user.uid));
-        if (snapshot.exists()) {
-            console.log("📦 Datos usuario:", snapshot.val());
-        }
-
-        // 👉 aquí conectas tu dashboard
-        document.body.classList.add("logged");
+        authScreen.style.display = "none";
+        app.style.display = "block";
+        console.log("👤 Usuario:", user.email);
     } else {
-        console.log("🚫 No hay usuario");
-        document.body.classList.remove("logged");
+        authScreen.style.display = "flex";
+        app.style.display = "none";
     }
 });
-
-// ================================
-// 💾 GUARDAR DATOS (FINANZAS / DASHBOARD)
-// ================================
-
-window.saveData = async function(path, data) {
-    try {
-        await push(ref(db, path), {
-            ...data,
-            timestamp: Date.now()
-        });
-
-        console.log("💾 Datos guardados");
-    } catch (err) {
-        console.error("❌ Error DB:", err);
-    }
-};
-
-// ================================
-// 📊 LEER DATOS
-// ================================
-
-window.getData = async function(path) {
-    try {
-        const snapshot = await get(ref(db, path));
-        return snapshot.exists() ? snapshot.val() : null;
-    } catch (err) {
-        console.error("❌ Error lectura:", err);
-    }
-};
-
-// ================================
-// 🔐 PIN SIMPLE (OPCIONAL TU DASHBOARD)
-// ================================
-
-const DASHBOARD_PIN = "1234"; // cámbialo
-
-window.verifyPin = function(input) {
-    return input === DASHBOARD_PIN;
-};
