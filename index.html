@@ -3,183 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Profesional</title>
+    <title>Kyle Ronhard - Dashboard Profesional</title>
 
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-<!-- =========================
-🔐 LOGIN / REGISTER OVERLAY
-========================= -->
-<div id="authScreen" class="auth-screen">
+<!-- ================= AUTH LOGIN ================= -->
+<div id="authOverlay" class="auth-overlay">
     <div class="auth-box">
 
-        <h2>Acceso Seguro</h2>
+        <h2>Acceso al Dashboard</h2>
 
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Contraseña">
+        <input type="email" id="authEmail" placeholder="Correo">
+        <input type="password" id="authPassword" placeholder="Contraseña">
 
         <div class="auth-buttons">
-            <button onclick="login()">Login</button>
-            <button onclick="register()">Registro</button>
+            <button onclick="loginUser(
+                document.getElementById('authEmail').value,
+                document.getElementById('authPassword').value
+            )">
+                Iniciar sesión
+            </button>
+
+            <button onclick="registerUser(
+                document.getElementById('authEmail').value,
+                document.getElementById('authPassword').value
+            )">
+                Registrarse
+            </button>
         </div>
 
-        <p id="authMsg"></p>
+        <p id="authError"></p>
     </div>
 </div>
 
-<!-- =========================
-APP COMPLETA (TU DISEÑO ORIGINAL)
-========================= -->
-<div id="app" style="display:none;">
+<!-- ================= PIN MODAL ================= -->
+<div id="passwordModal" class="password-modal">
+    <div class="modal-content">
 
-    <nav class="menu">
-        <ul>
-            <li class="nav-item active" data-section="dashboard">
-                <i class='bx bx-grid-alt'></i>
-                <span>DASHBOARD</span>
-            </li>
-            <li class="nav-item" data-section="laboral">
-                <i class='bx bx-briefcase'></i>
-                <span>LABORAL</span>
-            </li>
-            <li class="nav-item" data-section="finanzas">
-                <i class='bx bx-bar-chart-alt-2'></i>
-                <span>FINANZAS</span>
-            </li>
-            <li class="nav-item" data-section="contacto">
-                <i class='bx bx-envelope'></i>
-                <span>CONTACTO</span>
-            </li>
-        </ul>
-    </nav>
+        <h3>🔒 PIN de Seguridad</h3>
 
-    <main class="content">
+        <input type="password" id="pinInput" placeholder="Introduce PIN">
 
-        <!-- ================= DASHBOARD ================= -->
-        <section id="dashboard" class="section active">
-            <div class="dashboard-container">
+        <p id="pinMessage"></p>
 
-                <h1>Bienvenido 👋</h1>
+        <div class="modal-actions">
+            <button onclick="verifyPin()">Verificar</button>
+            <button onclick="closeModal()">Cancelar</button>
+        </div>
 
-                <button onclick="logout()" style="margin-top:20px;">
-                    Cerrar sesión
-                </button>
+    </div>
+</div>
 
-                <!-- 🔽 AQUÍ puedes mantener TODO tu dashboard original -->
-                <!-- (he dejado tu estructura intacta) -->
+<!-- ================= MENU ================= -->
+<nav class="menu">
+    <ul>
+        <li class="nav-item active" data-section="dashboard">
+            <i class='bx bx-grid-alt'></i><span>DASHBOARD</span>
+        </li>
 
-                <div class="profile-section">
-                    <div class="presentation-card-left">
-                        <h2>KYLE RONHARD</h2>
-                        <p>Dashboard activo</p>
+        <li class="nav-item" data-section="laboral">
+            <i class='bx bx-briefcase'></i><span>LABORAL</span>
+        </li>
+
+        <li class="nav-item" data-section="finanzas">
+            <i class='bx bx-bar-chart-alt-2'></i><span>FINANZAS</span>
+        </li>
+
+        <li class="nav-item" data-section="contacto">
+            <i class='bx bx-envelope'></i><span>CONTACTO</span>
+        </li>
+    </ul>
+</nav>
+
+<!-- ================= CONTENT ================= -->
+<main class="content">
+
+<!-- DASHBOARD -->
+<section id="dashboard" class="section active">
+
+    <div class="dashboard-container">
+
+        <div class="profile-section">
+
+            <div class="presentation-card-left">
+
+                <div class="photo-container">
+                    <img src="FOTOS/IMG_1147.JPG" class="photo">
+                </div>
+
+                <h1 class="name">KYLE RONHARD BENTER PIMENTEL</h1>
+
+            </div>
+
+            <div class="presentation-card-right">
+
+                <div class="personal-metrics">
+
+                    <div class="metric-small censored" onclick="checkPassword('ingresos')">
+                        <span>Ingresos Mes</span>
+                        <small id="dashIncomeMonth">*****</small>
                     </div>
+
+                    <div class="metric-small censored" onclick="checkPassword('gastosmes')">
+                        <span>Gastos Mes</span>
+                        <small id="dashExpenseMonth">*****</small>
+                    </div>
+
+                    <div class="metric-small censored" onclick="checkPassword('saldo')">
+                        <span>Saldo</span>
+                        <small id="dashBalanceLocked">*****</small>
+                    </div>
+
                 </div>
 
             </div>
-        </section>
 
-        <!-- LABORAL -->
-        <section id="laboral" class="section">
-            <h1>Laboral</h1>
-            <p>Tu contenido laboral original aquí</p>
-        </section>
+        </div>
 
-        <!-- FINANZAS -->
-        <section id="finanzas" class="section">
-            <h1>Finanzas</h1>
-            <p>Tu sistema financiero aquí</p>
-        </section>
+    </div>
 
-        <!-- CONTACTO -->
-        <section id="contacto" class="section">
-            <h1>Contacto</h1>
-            <p>Formulario contacto</p>
-        </section>
+</section>
 
-    </main>
-</div>
+<!-- LABORAL -->
+<section id="laboral" class="section">
+    <h1>CV y Documentos</h1>
 
-<!-- =========================
-🔥 FIREBASE SCRIPT COMPLETO
-========================= -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-import {
-    getAuth,
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    onAuthStateChanged,
-    signOut
-} from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+    <div class="doc-card">
+        <h3>Curriculum</h3>
+        <input type="file" id="fileInput-curriculum">
+    </div>
 
-const firebaseConfig = {
-    apiKey: "AIzaSyD-ET-NddOEtiNvSt7787wxVbGoDj8-kas",
-    authDomain: "website-cc7ff.firebaseapp.com",
-    databaseURL: "https://website-cc7ff-default-rtdb.firebaseio.com",
-    projectId: "website-cc7ff",
-    storageBucket: "website-cc7ff.appspot.com",
-    messagingSenderId: "755069923532",
-    appId: "1:755069923532:web:62384a64fb880100ff1269"
-};
+</section>
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+<!-- FINANZAS -->
+<section id="finanzas" class="section">
 
-// =========================
-// LOGIN
-// =========================
-window.login = async function () {
-    const email = document.getElementById("email").value.trim();
-    const pass = document.getElementById("password").value.trim();
+    <h1>Finanzas</h1>
 
-    try {
-        await signInWithEmailAndPassword(auth, email, pass);
-        document.getElementById("authMsg").innerText = "Login correcto";
-    } catch (e) {
-        document.getElementById("authMsg").innerText = e.message;
-    }
-};
+    <form id="incomeForm">
 
-// =========================
-// REGISTER
-// =========================
-window.register = async function () {
-    const email = document.getElementById("email").value.trim();
-    const pass = document.getElementById("password").value.trim();
+        <input type="date" id="incomeDate">
+        <input type="text" id="incomeConcept" placeholder="Concepto">
 
-    try {
-        await createUserWithEmailAndPassword(auth, email, pass);
-        document.getElementById("authMsg").innerText = "Usuario creado";
-    } catch (e) {
-        document.getElementById("authMsg").innerText = e.message;
-    }
-};
+        <select id="incomeType">
+            <option>Ingreso</option>
+            <option>Gasto</option>
+        </select>
 
-// =========================
-// LOGOUT
-// =========================
-window.logout = async function () {
-    await signOut(auth);
-};
+        <input type="number" id="incomeAmount" placeholder="Monto">
 
-// =========================
-// CONTROL DE ACCESO
-// =========================
-onAuthStateChanged(auth, (user) => {
-    if (user) {
-        document.getElementById("authScreen").style.display = "none";
-        document.getElementById("app").style.display = "block";
-    } else {
-        document.getElementById("authScreen").style.display = "flex";
-        document.getElementById("app").style.display = "none";
-    }
-});
-</script>
+        <button type="submit">Guardar</button>
+
+    </form>
+
+    <table>
+        <tbody id="incomeTableBody"></tbody>
+    </table>
+
+</section>
+
+<!-- CONTACTO -->
+<section id="contacto" class="section">
+
+    <h1>Contacto</h1>
+
+    <form id="contactForm">
+        <input type="text" id="contactName" placeholder="Nombre">
+        <input type="email" id="contactEmail" placeholder="Email">
+        <textarea id="contactMessage"></textarea>
+        <button type="submit">Enviar</button>
+    </form>
+
+</section>
+
+</main>
+
+<!-- ================= SCRIPT ================= -->
+<script type="module" src="script.js"></script>
 
 </body>
 </html>
