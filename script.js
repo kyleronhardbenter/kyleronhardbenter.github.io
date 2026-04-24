@@ -1,6 +1,6 @@
 // ==============================
-// DASHBOARD PROFESIONAL - SCRIPT
-// Firebase + Finanzas + PIN + Divisas
+// DASHBOARD PROFESIONAL - SCRIPT (PRO UPDATE)
+// Firebase + Auth + Logout + User UI + Autosave + Divisas
 // ==============================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
@@ -11,13 +11,13 @@ import {
   onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-auth.js";
+
 import {
   getDatabase,
   ref,
   set,
   get,
-  push,
-  child
+  push
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
 
 // ==============================
@@ -38,73 +38,73 @@ const auth = getAuth(app);
 const db = getDatabase(app);
 
 // ==============================
-// GLOBAL STATE
+// STATE
 // ==============================
 let currentUser = null;
 let financeData = [];
-let currencyRates = {};
 let pinUnlocked = {};
 
-// PIN (puedes cambiarlo)
 const MASTER_PIN = "1234";
 
 // ==============================
-// AUTH SYSTEM
+// UI USER HEADER
 // ==============================
+function renderUserUI(user) {
+  let old = document.getElementById("userBar");
+  if (old) old.remove();
 
-window.registerUser = async function(email, password) {
-  try {
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
-    await set(ref(db, "users/" + userCred.user.uid), {
-      email,
-      created: Date.now()
-    });
-    return userCred.user;
-  } catch (e) {
-    console.error("Register error", e);
-    throw e;
-  }
+  const bar = document.createElement("div");
+  bar.id = "userBar";
+  bar.style = "position:fixed;top:10px;right:10px;background:#111;color:#fff;padding:10px 15px;border-radius:10px;z-index:9999;display:flex;gap:10px;align-items:center";
+
+  bar.innerHTML = `
+    <span>👤 ${user.email}</span>
+    <button id="logoutBtn" style="cursor:pointer;padding:5px 10px;border-radius:6px;border:none;background:red;color:white">Logout</button>
+  `;
+
+  document.body.appendChild(bar);
+
+  document.getElementById("logoutBtn").onclick = async () => {
+    await signOut(auth);
+    location.reload();
+  };
+}
+
+// ==============================
+// AUTH
+// ==============================
+window.registerUser = async (email, password) => {
+  const userCred = await createUserWithEmailAndPassword(auth, email, password);
+  await set(ref(db, "users/" + userCred.user.uid), { email });
+  return userCred.user;
 };
 
-window.loginUser = async function(email, password) {
-  try {
-    const userCred = await signInWithEmailAndPassword(auth, email, password);
-    return userCred.user;
-  } catch (e) {
-    console.error("Login error", e);
-    throw e;
-  }
-};
-
-window.logoutUser = function() {
-  return signOut(auth);
+window.loginUser = async (email, password) => {
+  const userCred = await signInWithEmailAndPassword(auth, email, password);
+  return userCred.user;
 };
 
 onAuthStateChanged(auth, (user) => {
   currentUser = user;
+
   if (user) {
+    renderUserUI(user);
     loadFinance();
-    console.log("Logged in:", user.email);
-  } else {
-    console.log("No user");
   }
 });
 
 // ==============================
-// PIN SYSTEM
+// PIN
 // ==============================
-window.checkPassword = function(type) {
+window.checkPassword = (type) => {
   if (pinUnlocked[type]) return showValue(type);
-
-  const modal = document.getElementById("passwordModal");
-  modal.style.display = "flex";
-  modal.dataset.type = type;
+  document.getElementById("passwordModal").style.display = "flex";
+  document.getElementById("passwordModal").dataset.type = type;
 };
 
-window.verifyPin = function() {
+window.verifyPin = () => {
   const input = document.getElementById("pinInput").value;
-  const modal = document.getElementById("passwordModal");
-  const type = modal.dataset.type;
+  const type = document.getElementById("passwordModal").dataset.type;
 
   if (input === MASTER_PIN) {
     pinUnlocked[type] = true;
@@ -115,7 +115,7 @@ window.verifyPin = function() {
   }
 };
 
-window.closeModal = function() {
+window.closeModal = () => {
   document.getElementById("passwordModal").style.display = "none";
   document.getElementById("pinInput").value = "";
   document.getElementById("pinMessage").innerText = "";
@@ -134,19 +134,33 @@ function showValue(type) {
 }
 
 // ==============================
-// FINANCE SYSTEM
+// AUTOSAVE FINANCE
 // ==============================
+let saveTimeout;
 
-async function saveFinance(entry) {
-  if (!currentUser) return;
-  const newRef = push(ref(db, "finance/" + currentUser.uid));
-  await set(newRef, entry);
+function autosave(entry) {
+  clearTimeout(saveTimeout);
+
+  saveTimeout = setTimeout(async () => {
+    if (!currentUser) return;
+
+    const newRef = push(ref(db, "finance/" + currentUser.uid));
+    await set(newRef, entry);
+
+    console.log("Auto-guardado ✔");
+    loadFinance();
+  }, 800);
 }
 
+// ==============================
+// LOAD FINANCE
+// ==============================
 async function loadFinance() {
   if (!currentUser) return;
+
   const snap = await get(ref(db, "finance/" + currentUser.uid));
   financeData = snap.exists() ? Object.values(snap.val()) : [];
+
   renderFinance();
 }
 
@@ -156,79 +170,37 @@ function renderFinance() {
 
   tbody.innerHTML = "";
 
-  financeData.forEach((item) => {
+  financeData.forEach((i) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${item.date}</td>
-      <td>${item.type}</td>
-      <td>${item.concept}</td>
-      <td>${item.category}</td>
-      <td>${item.method}</td>
-      <td>€${item.amount}</td>
-      <td>✔</td>
+      <td>${i.date}</td>
+      <td>${i.type}</td>
+      <td>${i.concept}</td>
+      <td>${i.category}</td>
+      <td>${i.method}</td>
+      <td>€${i.amount}</td>
     `;
     tbody.appendChild(tr);
   });
 }
 
 // ==============================
-// CURRENCY SYSTEM (REAL TIME)
+// FORM FINANCE
 // ==============================
 
-async function fetchRates() {
-  try {
-    const res = await fetch("https://api.exchangerate.host/latest?base=EUR");
-    const data = await res.json();
-    currencyRates = data.rates;
+window.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("incomeForm");
 
-    document.getElementById("currencyStatusBadge").innerText = "Tasas en tiempo real";
-    document.getElementById("ratesUpdatedAt").innerText = new Date().toLocaleTimeString();
+  form?.addEventListener("input", () => {
+    const entry = {
+      date: document.getElementById("incomeDate")?.value,
+      concept: document.getElementById("incomeConcept")?.value,
+      type: document.getElementById("incomeType")?.value,
+      amount: document.getElementById("incomeAmount")?.value
+    };
 
-    renderCurrency();
-  } catch (e) {
-    console.error("Currency error", e);
-  }
-}
-
-function renderCurrency() {
-  const base = document.getElementById("baseCurrency")?.value || "EUR";
-  const amount = parseFloat(document.getElementById("baseAmount")?.value || 1);
-
-  const grid = document.getElementById("currencyGrid");
-  if (!grid) return;
-
-  grid.innerHTML = "";
-
-  Object.keys(currencyRates).slice(0, 6).forEach((cur) => {
-    const converted = (amount / currencyRates[base]) * currencyRates[cur];
-
-    const div = document.createElement("div");
-    div.className = "currency-card-item";
-    div.innerHTML = `
-      <strong>${cur}</strong>
-      <span>${converted.toFixed(2)}</span>
-    `;
-    grid.appendChild(div);
+    if (entry.date && entry.concept && entry.amount) {
+      autosave(entry);
+    }
   });
-}
-
-// ==============================
-// CONTACT FORM
-// ==============================
-
-document.getElementById("contactForm")?.addEventListener("submit", (e) => {
-  e.preventDefault();
-  document.getElementById("contactFeedback").innerText = "Mensaje enviado ✔";
-});
-
-// ==============================
-// INIT
-// ==============================
-
-document.addEventListener("DOMContentLoaded", () => {
-  fetchRates();
-  setInterval(fetchRates, 60000);
-
-  document.getElementById("baseAmount")?.addEventListener("input", renderCurrency);
-  document.getElementById("baseCurrency")?.addEventListener("change", renderCurrency);
 });
