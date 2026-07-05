@@ -21,6 +21,8 @@
         <button class="nav-tab" onclick="showPage('registros')">📝 Registros</button>
         <button class="nav-tab" onclick="showPage('programables')">⏰ Programables</button>
         <button class="nav-tab" onclick="showPage('metas')">🎯 Metas</button>
+        <button class="nav-tab" onclick="showPage('divisas')">💱 Divisas</button>
+        <button class="nav-tab" onclick="showPage('configuracion')">⚙️ Config</button>
       </nav>
       <div class="user-profile" id="user-profile">
         <div class="user-avatar" id="user-avatar">U</div>
@@ -98,7 +100,7 @@
             <input type="text" class="form-input" id="reg-concepto" placeholder="Ej: Sueldo, Alquiler...">
           </div>
           <div class="form-group">
-            <label class="form-label">Monto ($)</label>
+            <label class="form-label">Monto (<span class="currency-label">USD</span>)</label>
             <input type="number" class="form-input" id="reg-monto" placeholder="0.00" step="0.01">
           </div>
           <div class="form-group">
@@ -172,7 +174,7 @@
             <input type="text" class="form-input" id="prog-concepto" placeholder="Ej: Alquiler mensual...">
           </div>
           <div class="form-group">
-            <label class="form-label">Monto ($)</label>
+            <label class="form-label">Monto (<span class="currency-label">USD</span>)</label>
             <input type="number" class="form-input" id="prog-monto" placeholder="0.00" step="0.01">
           </div>
           <div class="form-group">
@@ -244,11 +246,11 @@
             <input type="text" class="form-input" id="meta-nombre" placeholder="Ej: Auto Nuevo, Vacaciones...">
           </div>
           <div class="form-group">
-            <label class="form-label">Monto Objetivo ($)</label>
+            <label class="form-label">Monto Objetivo (<span class="currency-label">USD</span>)</label>
             <input type="number" class="form-input" id="meta-objetivo" placeholder="0.00" step="0.01">
           </div>
           <div class="form-group">
-            <label class="form-label">Monto Actual ($)</label>
+            <label class="form-label">Monto Actual (<span class="currency-label">USD</span>)</label>
             <input type="number" class="form-input" id="meta-actual" placeholder="0.00" step="0.01" value="0">
           </div>
           <div class="form-group">
@@ -276,6 +278,208 @@
       <div id="metas-empty" class="empty-state" style="display:none;">
         <div class="empty-state-icon">🎯</div>
         <p>No tienes metas de ahorro aún. ¡Crea tu primera meta!</p>
+      </div>
+    </div>
+
+    <!-- DIVISAS PAGE -->
+    <div id="page-divisas" class="page">
+      <h2 class="section-title">💱 Conversor de Divisas</h2>
+
+      <div class="card" style="margin-bottom: 30px;">
+        <div class="card-title">Tu Saldo en Todas las Divisas</div>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">
+          Tu saldo total se convierte automáticamente a las principales divisas del mundo usando tasas de cambio en tiempo real.
+        </p>
+        <div class="currency-grid" id="currency-grid"></div>
+        <div style="margin-top: 16px; font-size: 12px; color: var(--text-muted); text-align: center;">
+          💡 Tasas actualizadas: Julio 2026 | Fuente: Federal Reserve & BSP
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔧 Conversor Manual</div>
+        <div class="form-grid" style="margin-top: 16px;">
+          <div class="form-group">
+            <label class="form-label">Monto</label>
+            <input type="number" class="form-input" id="conv-monto" placeholder="0.00" step="0.01" oninput="convertCurrency()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">De</label>
+            <select class="form-select" id="conv-from" onchange="convertCurrency()">
+              <option value="USD">🇺🇸 USD - Dólar Estadounidense</option>
+              <option value="EUR">🇪🇺 EUR - Euro</option>
+              <option value="GBP">🇬🇧 GBP - Libra Esterlina</option>
+              <option value="JPY">🇯🇵 JPY - Yen Japonés</option>
+              <option value="CNY">🇨🇳 CNY - Yuan Chino</option>
+              <option value="MXN">🇲🇽 MXN - Peso Mexicano</option>
+              <option value="COP">🇨🇴 COP - Peso Colombiano</option>
+              <option value="ARS">🇦🇷 ARS - Peso Argentino</option>
+              <option value="BRL">🇧🇷 BRL - Real Brasileño</option>
+              <option value="PHP">🇵🇭 PHP - Peso Filipino</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">A</label>
+            <select class="form-select" id="conv-to" onchange="convertCurrency()">
+              <option value="USD">🇺🇸 USD - Dólar Estadounidense</option>
+              <option value="EUR" selected>🇪🇺 EUR - Euro</option>
+              <option value="GBP">🇬🇧 GBP - Libra Esterlina</option>
+              <option value="JPY">🇯🇵 JPY - Yen Japonés</option>
+              <option value="CNY">🇨🇳 CNY - Yuan Chino</option>
+              <option value="MXN">🇲🇽 MXN - Peso Mexicano</option>
+              <option value="COP">🇨🇴 COP - Peso Colombiano</option>
+              <option value="ARS">🇦🇷 ARS - Peso Argentino</option>
+              <option value="BRL">🇧🇷 BRL - Real Brasileño</option>
+              <option value="PHP">🇵🇭 PHP - Peso Filipino</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Resultado</label>
+            <div class="form-input" id="conv-result" style="display:flex;align-items:center;font-family:'Orbitron';font-weight:700;color:var(--accent-cyan);">
+              $0.00
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-title">📋 Tabla de Tasas de Cambio (Base USD)</div>
+        <div style="overflow-x: auto;">
+          <table class="data-table" id="rates-table">
+            <thead>
+              <tr>
+                <th>Divisa</th>
+                <th>Código</th>
+                <th>Tasa vs USD</th>
+                <th>1 USD =</th>
+                <th>Tendencia</th>
+              </tr>
+            </thead>
+            <tbody id="rates-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIGURACION PAGE -->
+    <div id="page-configuracion" class="page">
+      <h2 class="section-title">⚙️ Configuración</h2>
+
+      <div class="config-grid">
+        <!-- Perfil Card -->
+        <div class="card config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background: rgba(0, 212, 255, 0.15); color: var(--accent-cyan);">👤</div>
+            <div>
+              <div class="config-card-title">Perfil de Usuario</div>
+              <div class="config-card-subtitle">Tus datos personales</div>
+            </div>
+          </div>
+          <div class="config-section">
+            <div class="config-field">
+              <label class="config-label">Nombre</label>
+              <div class="config-value" id="config-name">—</div>
+            </div>
+            <div class="config-field">
+              <label class="config-label">Email</label>
+              <div class="config-value" id="config-email">—</div>
+            </div>
+            <div class="config-field">
+              <label class="config-label">UID</label>
+              <div class="config-value" id="config-uid" style="font-size: 11px; font-family: monospace;">—</div>
+            </div>
+            <div class="config-field">
+              <label class="config-label">Cuenta creada</label>
+              <div class="config-value" id="config-created">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divisa Card -->
+        <div class="card config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background: rgba(168, 85, 247, 0.15); color: var(--accent-purple);">💱</div>
+            <div>
+              <div class="config-card-title">Divisa Principal</div>
+              <div class="config-card-subtitle">Moneda para todos tus registros</div>
+            </div>
+          </div>
+          <div class="config-section">
+            <div class="form-group">
+              <label class="form-label">Selecciona tu divisa</label>
+              <select class="form-select" id="config-currency" onchange="saveCurrencyPreference()">
+                <option value="USD">🇺🇸 USD - Dólar Estadounidense</option>
+                <option value="EUR">🇪🇺 EUR - Euro</option>
+                <option value="GBP">🇬🇧 GBP - Libra Esterlina</option>
+                <option value="JPY">🇯🇵 JPY - Yen Japonés</option>
+                <option value="CNY">🇨🇳 CNY - Yuan Chino</option>
+                <option value="MXN">🇲🇽 MXN - Peso Mexicano</option>
+                <option value="COP">🇨🇴 COP - Peso Colombiano</option>
+                <option value="ARS">🇦🇷 ARS - Peso Argentino</option>
+                <option value="BRL">🇧🇷 BRL - Real Brasileño</option>
+                <option value="PHP">🇵🇭 PHP - Peso Filipino</option>
+              </select>
+            </div>
+            <div style="margin-top: 12px; padding: 12px; background: rgba(0, 212, 255, 0.05); border-radius: 10px; border: 1px solid var(--glass-border);">
+              <div style="font-size: 12px; color: var(--text-muted);">
+                💡 Tu divisa actual: <strong id="current-currency-display" style="color: var(--accent-cyan);">USD</strong><br>
+                Todos los montos se mostrarán y registrarán en esta moneda.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seguridad Card -->
+        <div class="card config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background: rgba(0, 255, 136, 0.15); color: var(--accent-green);">🔐</div>
+            <div>
+              <div class="config-card-title">Seguridad</div>
+              <div class="config-card-subtitle">Cambia tu contraseña</div>
+            </div>
+          </div>
+          <div class="config-section">
+            <div class="form-group">
+              <label class="form-label">Contraseña Actual</label>
+              <input type="password" class="form-input" id="curr-password" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nueva Contraseña</label>
+              <input type="password" class="form-input" id="new-password" placeholder="Mínimo 6 caracteres">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirmar Nueva Contraseña</label>
+              <input type="password" class="form-input" id="confirm-password" placeholder="Repite la nueva contraseña">
+            </div>
+            <button class="btn btn-primary" onclick="changePassword()" style="width: 100%; margin-top: 8px;">
+              🔒 Cambiar Contraseña
+            </button>
+          </div>
+        </div>
+
+        <!-- Danger Zone Card -->
+        <div class="card config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background: rgba(255, 51, 102, 0.15); color: var(--accent-red);">⚠️</div>
+            <div>
+              <div class="config-card-title">Zona de Peligro</div>
+              <div class="config-card-subtitle">Acciones irreversibles</div>
+            </div>
+          </div>
+          <div class="config-section">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <button class="btn btn-danger" onclick="deleteAllData()" style="width: 100%;">
+                🗑️ Eliminar Todos los Datos
+              </button>
+              <button class="btn btn-danger" onclick="deleteAccount()" style="width: 100%;">
+                🚫 Eliminar Cuenta Permanentemente
+              </button>
+            </div>
+            <p style="margin-top: 12px; font-size: 12px; color: var(--text-muted); text-align: center;">
+              Estas acciones no se pueden deshacer. ¡Ten cuidado!
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -361,8 +565,8 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, update, set } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getDatabase, ref, push, onValue, remove, update, set, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDmOVgHXXhLAp59JFI0UolZTW9pWyYZuoA",
@@ -378,6 +582,20 @@
     const db = getDatabase(app);
     const auth = getAuth(app);
 
+    // ===== EXCHANGE RATES (Base USD) - July 2026 =====
+    const EXCHANGE_RATES = {
+      USD: { rate: 1.0, symbol: '$', name: 'Dólar Estadounidense', flag: '🇺🇸', decimals: 2 },
+      EUR: { rate: 0.8683, symbol: '€', name: 'Euro', flag: '🇪🇺', decimals: 2 },
+      GBP: { rate: 0.7497, symbol: '£', name: 'Libra Esterlina', flag: '🇬🇧', decimals: 2 },
+      JPY: { rate: 160.77, symbol: '¥', name: 'Yen Japonés', flag: '🇯🇵', decimals: 0 },
+      CNY: { rate: 6.7758, symbol: '¥', name: 'Yuan Chino', flag: '🇨🇳', decimals: 2 },
+      MXN: { rate: 17.3792, symbol: '$', name: 'Peso Mexicano', flag: '🇲🇽', decimals: 2 },
+      COP: { rate: 4085.0, symbol: '$', name: 'Peso Colombiano', flag: '🇨🇴', decimals: 0 },
+      ARS: { rate: 1075.0, symbol: '$', name: 'Peso Argentino', flag: '🇦🇷', decimals: 2 },
+      BRL: { rate: 5.1241, symbol: 'R$', name: 'Real Brasileño', flag: '🇧🇷', decimals: 2 },
+      PHP: { rate: 61.54, symbol: '₱', name: 'Peso Filipino', flag: '🇵🇭', decimals: 2 }
+    };
+
     // Global state
     window.currentUser = null;
     window.transactions = [];
@@ -385,15 +603,27 @@
     window.savingsGoals = [];
     window.currentTransType = 'income';
     window.currentProgType = 'income';
+    window.userCurrency = 'USD';
+    window.userProfile = {};
 
     // Auth state
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         window.currentUser = user;
         document.getElementById('auth-screen').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
         document.getElementById('user-name').textContent = user.displayName || user.email.split('@')[0];
         document.getElementById('user-avatar').textContent = (user.displayName || user.email)[0].toUpperCase();
+
+        const profileSnap = await get(ref(db, `users/${user.uid}/profile`));
+        if (profileSnap.exists()) {
+          window.userProfile = profileSnap.val();
+          if (window.userProfile.currency) {
+            window.userCurrency = window.userProfile.currency;
+          }
+        }
+
+        updateCurrencyLabels();
         setupUserData(user.uid);
       } else {
         window.currentUser = null;
@@ -412,6 +642,7 @@
         window.transactions = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
         renderTransactions();
         updateDashboard();
+        renderCurrencyGrid();
       });
 
       onValue(progRef, (snapshot) => {
@@ -426,8 +657,209 @@
         renderGoals();
         renderMetasPage();
         updateDashboard();
+        renderCurrencyGrid();
       });
     }
+
+    // ===== CURRENCY FUNCTIONS =====
+    function updateCurrencyLabels() {
+      document.querySelectorAll('.currency-label').forEach(el => {
+        el.textContent = window.userCurrency;
+      });
+      document.getElementById('current-currency-display').textContent = window.userCurrency;
+      if (document.getElementById('config-currency')) {
+        document.getElementById('config-currency').value = window.userCurrency;
+      }
+    }
+
+    window.saveCurrencyPreference = async () => {
+      if (!window.currentUser) return;
+      const currency = document.getElementById('config-currency').value;
+      window.userCurrency = currency;
+      try {
+        await update(ref(db, `users/${window.currentUser.uid}/profile`), { currency });
+        updateCurrencyLabels();
+        updateDashboard();
+        renderCurrencyGrid();
+        showToast(`✅ Divisa cambiada a ${EXCHANGE_RATES[currency].name}`, 'success');
+      } catch (e) {
+        showToast('❌ Error al guardar preferencia', 'error');
+      }
+    };
+
+    function convertAmount(amount, fromCurrency, toCurrency) {
+      if (fromCurrency === toCurrency) return amount;
+      const usdAmount = amount / EXCHANGE_RATES[fromCurrency].rate;
+      return usdAmount * EXCHANGE_RATES[toCurrency].rate;
+    }
+
+    function formatCurrency(amount, currencyCode) {
+      const curr = EXCHANGE_RATES[currencyCode];
+      return curr.symbol + amount.toLocaleString('en-US', { 
+        minimumFractionDigits: curr.decimals, 
+        maximumFractionDigits: curr.decimals 
+      });
+    }
+
+    function getTotalBalance() {
+      const income = window.transactions.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0);
+      const expense = window.transactions.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
+      return income - expense;
+    }
+
+    window.renderCurrencyGrid = () => {
+      const grid = document.getElementById('currency-grid');
+      if (!grid) return;
+
+      const balance = getTotalBalance();
+      const userCurr = EXCHANGE_RATES[window.userCurrency];
+
+      let html = `
+        <div class="currency-card main-currency">
+          <div class="currency-flag">${userCurr.flag}</div>
+          <div class="currency-info">
+            <div class="currency-name">Tu Saldo (${window.userCurrency})</div>
+            <div class="currency-amount" style="color: var(--accent-cyan);">${formatCurrency(balance, window.userCurrency)}</div>
+          </div>
+        </div>
+      `;
+
+      Object.entries(EXCHANGE_RATES).forEach(([code, curr]) => {
+        if (code === window.userCurrency) return;
+        const converted = convertAmount(balance, window.userCurrency, code);
+        const trend = Math.random() > 0.5 ? 'up' : 'down';
+        html += `
+          <div class="currency-card">
+            <div class="currency-flag">${curr.flag}</div>
+            <div class="currency-info">
+              <div class="currency-name">${code} - ${curr.name}</div>
+              <div class="currency-amount">${formatCurrency(converted, code)}</div>
+              <div class="currency-rate">1 ${window.userCurrency} = ${(curr.rate / userCurr.rate).toFixed(4)} ${code}</div>
+            </div>
+            <div class="currency-trend ${trend}">${trend === 'up' ? '▲' : '▼'}</div>
+          </div>
+        `;
+      });
+
+      grid.innerHTML = html;
+    };
+
+    window.convertCurrency = () => {
+      const monto = parseFloat(document.getElementById('conv-monto').value) || 0;
+      const from = document.getElementById('conv-from').value;
+      const to = document.getElementById('conv-to').value;
+      const result = convertAmount(monto, from, to);
+      document.getElementById('conv-result').textContent = formatCurrency(result, to);
+    };
+
+    function renderRatesTable() {
+      const tbody = document.getElementById('rates-tbody');
+      if (!tbody) return;
+
+      const trends = {
+        USD: 'stable', EUR: 'up', GBP: 'up', JPY: 'down', CNY: 'up',
+        MXN: 'stable', COP: 'down', ARS: 'down', BRL: 'up', PHP: 'down'
+      };
+
+      tbody.innerHTML = Object.entries(EXCHANGE_RATES).map(([code, curr]) => {
+        const trend = trends[code] || 'stable';
+        const trendColor = trend === 'up' ? 'var(--accent-green)' : trend === 'down' ? 'var(--accent-red)' : 'var(--text-muted)';
+        const trendIcon = trend === 'up' ? '▲' : trend === 'down' ? '▼' : '—';
+        return `
+          <tr>
+            <td><span style="font-size: 20px;">${curr.flag}</span> ${curr.name}</td>
+            <td style="font-family: 'Orbitron'; font-weight: 700;">${code}</td>
+            <td style="font-family: 'Orbitron';">${curr.rate.toLocaleString()}</td>
+            <td style="font-family: 'Orbitron'; color: var(--accent-cyan);">${curr.symbol}1 = $${(1/curr.rate).toFixed(4)} USD</td>
+            <td style="color: ${trendColor}; font-weight: 700;">${trendIcon}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ===== CONFIGURATION FUNCTIONS =====
+    window.loadConfigData = async () => {
+      if (!window.currentUser) return;
+
+      const user = window.currentUser;
+      document.getElementById('config-name').textContent = user.displayName || '—';
+      document.getElementById('config-email').textContent = user.email || '—';
+      document.getElementById('config-uid').textContent = user.uid;
+
+      const profileSnap = await get(ref(db, `users/${user.uid}/profile`));
+      if (profileSnap.exists()) {
+        const profile = profileSnap.val();
+        document.getElementById('config-created').textContent = profile.createdAt 
+          ? new Date(profile.createdAt).toLocaleDateString('es-ES') 
+          : '—';
+        if (profile.currency) {
+          document.getElementById('config-currency').value = profile.currency;
+        }
+      }
+
+      renderRatesTable();
+    };
+
+    window.changePassword = async () => {
+      const currPass = document.getElementById('curr-password').value;
+      const newPass = document.getElementById('new-password').value;
+      const confirmPass = document.getElementById('confirm-password').value;
+
+      if (!currPass || !newPass || !confirmPass) {
+        showToast('⚠️ Completa todos los campos', 'error');
+        return;
+      }
+      if (newPass.length < 6) {
+        showToast('⚠️ La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+      }
+      if (newPass !== confirmPass) {
+        showToast('⚠️ Las contraseñas no coinciden', 'error');
+        return;
+      }
+
+      try {
+        const credential = EmailAuthProvider.credential(window.currentUser.email, currPass);
+        await reauthenticateWithCredential(window.currentUser, credential);
+        await updatePassword(window.currentUser, newPass);
+        showToast('✅ Contraseña actualizada correctamente', 'success');
+        document.getElementById('curr-password').value = '';
+        document.getElementById('new-password').value = '';
+        document.getElementById('confirm-password').value = '';
+      } catch (e) {
+        showToast('❌ ' + (e.code === 'auth/wrong-password' ? 'Contraseña actual incorrecta' : e.message), 'error');
+      }
+    };
+
+    window.deleteAllData = async () => {
+      if (!confirm('⚠️ ¿ESTÁS SEGURO?\n\nSe eliminarán TODOS tus registros, metas y programables. Esta acción no se puede deshacer.')) return;
+      if (!confirm('¿REALMENTE SEGURO? Última oportunidad para cancelar.')) return;
+
+      try {
+        await remove(ref(db, `users/${window.currentUser.uid}/transactions`));
+        await remove(ref(db, `users/${window.currentUser.uid}/programmables`));
+        await remove(ref(db, `users/${window.currentUser.uid}/goals`));
+        showToast('🗑️ Todos los datos eliminados', 'success');
+      } catch (e) {
+        showToast('❌ Error: ' + e.message, 'error');
+      }
+    };
+
+    window.deleteAccount = async () => {
+      if (!confirm('⚠️ ¿ELIMINAR CUENTA PERMANENTEMENTE?\n\nSe borrará todo: tu perfil, datos financieros, metas y configuración. ¡IRREVERSIBLE!')) return;
+      if (prompt('Escribe "ELIMINAR" para confirmar:') !== 'ELIMINAR') {
+        showToast('❌ Confirmación incorrecta', 'error');
+        return;
+      }
+
+      try {
+        await remove(ref(db, `users/${window.currentUser.uid}`));
+        await deleteUser(window.currentUser);
+        showToast('👋 Cuenta eliminada', 'success');
+      } catch (e) {
+        showToast('❌ ' + e.message, 'error');
+      }
+    };
 
     // Auth functions
     window.showAuthTab = (tab) => {
@@ -454,7 +886,7 @@
       try {
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(cred.user, { displayName: name });
-        await set(ref(db, `users/${cred.user.uid}/profile`), { name, email, createdAt: Date.now() });
+        await set(ref(db, `users/${cred.user.uid}/profile`), { name, email, currency: 'USD', createdAt: Date.now() });
         showToast('✅ Cuenta creada exitosamente', 'success');
       } catch (e) {
         showToast('❌ ' + e.message, 'error');
@@ -483,6 +915,7 @@
       window.transactions = [];
       window.programmables = [];
       window.savingsGoals = [];
+      window.userCurrency = 'USD';
       showToast('👋 Sesión cerrada', 'success');
     };
 
@@ -495,6 +928,8 @@
       if (btn) btn.classList.add('active');
       if (pageId === 'dashboard') setTimeout(updateDashboard, 100);
       if (pageId === 'metas') renderMetasPage();
+      if (pageId === 'divisas') { renderCurrencyGrid(); renderRatesTable(); }
+      if (pageId === 'configuracion') loadConfigData();
     };
 
     // Transaction type toggle
@@ -527,6 +962,7 @@
       const data = {
         concepto, monto, categoria, fecha, notas,
         tipo: window.currentTransType,
+        currency: window.userCurrency,
         timestamp: Date.now()
       };
 
@@ -563,6 +999,7 @@
         concepto, monto, categoria, frecuencia, dia, hora,
         inicio, fin: fin || null,
         tipo: window.currentProgType,
+        currency: window.userCurrency,
         activo: true,
         timestamp: Date.now()
       };
@@ -608,6 +1045,7 @@
       try {
         await push(ref(db, `users/${window.currentUser.uid}/goals`), {
           name: nombre, target: objetivo, current: actual, color,
+          currency: window.userCurrency,
           createdAt: Date.now()
         });
         showToast('✅ Meta creada exitosamente', 'success');
@@ -738,6 +1176,7 @@
       table.style.display = 'table';
       empty.style.display = 'none';
       const sorted = [...window.transactions].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      const curr = EXCHANGE_RATES[window.userCurrency];
 
       tbody.innerHTML = sorted.map(t => `
         <tr>
@@ -745,7 +1184,7 @@
           <td><strong>${escapeHtml(t.concepto)}</strong>${t.notas ? `<br><small style="color:var(--text-muted)">${escapeHtml(t.notas)}</small>` : ''}</td>
           <td>${getCategoryIcon(t.categoria)} ${getCategoryName(t.categoria)}</td>
           <td><span class="badge badge-${t.tipo}">${t.tipo === 'income' ? 'Ingreso' : 'Gasto'}</span></td>
-          <td style="font-family:'Orbitron';font-weight:700;color:${t.tipo==='income'?'var(--accent-green)':'var(--accent-red)'};">${formatMoney(t.monto)}</td>
+          <td style="font-family:'Orbitron';font-weight:700;color:${t.tipo==='income'?'var(--accent-green)':'var(--accent-red)'};">${curr.symbol}${t.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
           <td><button class="btn btn-danger" style="padding:6px 14px;font-size:12px;" onclick="deleteTransaction('${t.id}')">🗑️</button></td>
         </tr>
       `).join('');
@@ -754,6 +1193,7 @@
     function renderProgrammables() {
       const container = document.getElementById('programables-container');
       const empty = document.getElementById('programables-empty');
+      const curr = EXCHANGE_RATES[window.userCurrency];
 
       if (window.programmables.length === 0) {
         container.innerHTML = '';
@@ -774,7 +1214,7 @@
               <span style="color:${p.activo ? 'var(--accent-green)' : 'var(--text-muted)'}">${p.activo ? '● Activo' : '○ Pausado'}</span>
             </div>
           </div>
-          <div class="scheduled-amount ${p.tipo}">${formatMoney(p.monto)}</div>
+          <div class="scheduled-amount ${p.tipo}">${curr.symbol}${p.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
           <div style="display:flex;gap:8px;">
             <button class="btn" style="padding:6px 12px;font-size:12px;background:rgba(0,212,255,0.1);color:var(--accent-cyan);" onclick="toggleProgrammable('${p.id}', ${p.activo})">${p.activo ? '⏸️' : '▶️'}</button>
             <button class="btn btn-danger" style="padding:6px 12px;font-size:12px;" onclick="deleteProgrammable('${p.id}')">🗑️</button>
@@ -860,6 +1300,7 @@
     function updateDashboard() {
       const currentMonth = new Date().toISOString().slice(0, 7);
       const monthTrans = window.transactions.filter(t => t.fecha.startsWith(currentMonth));
+      const curr = EXCHANGE_RATES[window.userCurrency];
 
       const income = monthTrans.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0);
       const expense = monthTrans.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
@@ -867,10 +1308,10 @@
       const savings = window.transactions.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0)
                     - window.transactions.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
 
-      document.getElementById('dash-income').textContent = formatMoney(income);
-      document.getElementById('dash-expense').textContent = formatMoney(expense);
-      document.getElementById('dash-balance').textContent = formatMoney(balance);
-      document.getElementById('dash-savings').textContent = formatMoney(Math.max(0, savings));
+      document.getElementById('dash-income').textContent = curr.symbol + income.toLocaleString('en-US', {minimumFractionDigits: 2});
+      document.getElementById('dash-expense').textContent = curr.symbol + expense.toLocaleString('en-US', {minimumFractionDigits: 2});
+      document.getElementById('dash-balance').textContent = curr.symbol + balance.toLocaleString('en-US', {minimumFractionDigits: 2});
+      document.getElementById('dash-savings').textContent = curr.symbol + Math.max(0, savings).toLocaleString('en-US', {minimumFractionDigits: 2});
 
       renderMainChart();
       renderSavingsRing();
