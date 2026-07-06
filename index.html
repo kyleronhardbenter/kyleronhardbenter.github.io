@@ -167,6 +167,46 @@
       </div>
 
       <h2 class="section-title">Historial de Registros</h2>
+
+      <!-- Filtros y búsqueda -->
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="filters-grid">
+          <!-- Filtro por tipo -->
+          <div class="filter-group">
+            <label class="form-label">Tipo</label>
+            <div class="toggle-group" style="width:100%;">
+              <button class="toggle-btn active" id="filter-type-all" onclick="setFilterType('all')">Todos</button>
+              <button class="toggle-btn" id="filter-type-income" onclick="setFilterType('income')">Ingresos</button>
+              <button class="toggle-btn" id="filter-type-expense" onclick="setFilterType('expense')">Gastos</button>
+            </div>
+          </div>
+
+          <!-- Filtro por fecha desde -->
+          <div class="filter-group">
+            <label class="form-label">Desde</label>
+            <input type="date" class="form-input" id="filter-date-from" onchange="applyFilters()">
+          </div>
+
+          <!-- Filtro por fecha hasta -->
+          <div class="filter-group">
+            <label class="form-label">Hasta</label>
+            <input type="date" class="form-input" id="filter-date-to" onchange="applyFilters()">
+          </div>
+
+          <!-- Búsqueda por texto -->
+          <div class="filter-group" style="grid-column: 1 / -1;">
+            <label class="form-label">🔍 Buscar</label>
+            <input type="text" class="form-input" id="filter-search" placeholder="Buscar por concepto, categoría..." oninput="applyFilters()">
+          </div>
+        </div>
+
+        <div class="filters-summary">
+          <span id="filter-results-count">Mostrando 0 registros</span>
+          <button class="btn" style="padding:6px 14px;font-size:12px;" onclick="resetFilters()">🔄 Limpiar Filtros</button>
+        </div>
+      </div>
+
+      <!-- Tabla de resultados -->
       <div class="card">
         <div class="table-wrapper">
           <table class="data-table">
@@ -183,9 +223,19 @@
             <tbody id="transactions-table"></tbody>
           </table>
         </div>
+
+        <!-- Paginación -->
+        <div class="pagination" id="pagination-container" style="display:none;">
+          <button class="pagination-btn" id="pagination-prev" onclick="changePage(-1)">◀ Anterior</button>
+          <div class="pagination-info">
+            <span id="pagination-current">1</span> / <span id="pagination-total">1</span>
+          </div>
+          <button class="pagination-btn" id="pagination-next" onclick="changePage(1)">Siguiente ▶</button>
+        </div>
+
         <div id="transactions-empty" class="empty-state" style="display:none;">
           <div class="empty-state-icon">📭</div>
-          <p>No hay registros aún. ¡Empieza a registrar tus movimientos!</p>
+          <p>No hay registros que coincidan con los filtros.</p>
         </div>
       </div>
     </div>
@@ -1224,23 +1274,129 @@
     };
 
     // Render functions
+    // ===== FILTERS & PAGINATION STATE =====
+    window.txFilterType = 'all';
+    window.txFilterDateFrom = '';
+    window.txFilterDateTo = '';
+    window.txFilterSearch = '';
+    window.txCurrentPage = 1;
+    window.txItemsPerPage = 10;
+    window.txFilteredTransactions = [];
+
+    window.setFilterType = (type) => {
+      window.txFilterType = type;
+      document.getElementById('filter-type-all').classList.toggle('active', type === 'all');
+      document.getElementById('filter-type-income').classList.toggle('active', type === 'income');
+      document.getElementById('filter-type-expense').classList.toggle('active', type === 'expense');
+      window.txCurrentPage = 1;
+      applyFilters();
+    };
+
+    window.applyFilters = () => {
+      window.txFilterDateFrom = document.getElementById('filter-date-from').value;
+      window.txFilterDateTo = document.getElementById('filter-date-to').value;
+      window.txFilterSearch = document.getElementById('filter-search').value.toLowerCase().trim();
+      window.txCurrentPage = 1;
+      renderTransactions();
+    };
+
+    window.resetFilters = () => {
+      window.txFilterType = 'all';
+      window.txFilterDateFrom = '';
+      window.txFilterDateTo = '';
+      window.txFilterSearch = '';
+      window.txCurrentPage = 1;
+
+      document.getElementById('filter-type-all').classList.add('active');
+      document.getElementById('filter-type-income').classList.remove('active');
+      document.getElementById('filter-type-expense').classList.remove('active');
+      document.getElementById('filter-date-from').value = '';
+      document.getElementById('filter-date-to').value = '';
+      document.getElementById('filter-search').value = '';
+
+      renderTransactions();
+    };
+
+    window.changePage = (delta) => {
+      const totalPages = Math.ceil(window.txFilteredTransactions.length / window.txItemsPerPage) || 1;
+      const newPage = window.txCurrentPage + delta;
+      if (newPage >= 1 && newPage <= totalPages) {
+        window.txCurrentPage = newPage;
+        renderTransactions();
+      }
+    };
+
+    function getFilteredTransactions() {
+      let filtered = [...window.transactions];
+
+      // Filtrar por tipo
+      if (window.txFilterType !== 'all') {
+        filtered = filtered.filter(t => t.tipo === window.txFilterType);
+      }
+
+      // Filtrar por fecha desde
+      if (window.txFilterDateFrom) {
+        filtered = filtered.filter(t => t.fecha >= window.txFilterDateFrom);
+      }
+
+      // Filtrar por fecha hasta
+      if (window.txFilterDateTo) {
+        filtered = filtered.filter(t => t.fecha <= window.txFilterDateTo);
+      }
+
+      // Filtrar por búsqueda de texto
+      if (window.txFilterSearch) {
+        filtered = filtered.filter(t => {
+          const text = (t.concepto + ' ' + getCategoryName(t.categoria) + ' ' + (t.notas || '')).toLowerCase();
+          return text.includes(window.txFilterSearch);
+        });
+      }
+
+      // Ordenar por fecha descendente
+      filtered.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+      return filtered;
+    }
+
     function renderTransactions() {
       const tbody = document.getElementById('transactions-table');
       const empty = document.getElementById('transactions-empty');
       const table = tbody.closest('table');
+      const pagination = document.getElementById('pagination-container');
+      const resultsCount = document.getElementById('filter-results-count');
 
-      if (window.transactions.length === 0) {
+      window.txFilteredTransactions = getFilteredTransactions();
+      const totalItems = window.txFilteredTransactions.length;
+      const totalPages = Math.ceil(totalItems / window.txItemsPerPage) || 1;
+
+      // Ajustar página si está fuera de rango
+      if (window.txCurrentPage > totalPages) window.txCurrentPage = totalPages;
+      if (window.txCurrentPage < 1) window.txCurrentPage = 1;
+
+      const startIdx = (window.txCurrentPage - 1) * window.txItemsPerPage;
+      const endIdx = startIdx + window.txItemsPerPage;
+      const pageItems = window.txFilteredTransactions.slice(startIdx, endIdx);
+
+      // Actualizar contador
+      const showingText = totalItems === 0 
+        ? 'No hay registros' 
+        : totalItems === window.transactions.length 
+          ? `Mostrando ${totalItems} registro${totalItems !== 1 ? 's' : ''}` 
+          : `${totalItems} de ${window.transactions.length} registros`;
+      resultsCount.textContent = showingText;
+
+      if (totalItems === 0) {
         table.style.display = 'none';
+        pagination.style.display = 'none';
         empty.style.display = 'block';
         return;
       }
 
       table.style.display = 'table';
       empty.style.display = 'none';
-      const sorted = [...window.transactions].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
       const curr = EXCHANGE_RATES[window.userCurrency];
 
-      tbody.innerHTML = sorted.map(t => `
+      tbody.innerHTML = pageItems.map(t => `
         <tr>
           <td>${formatDate(t.fecha)}</td>
           <td><strong>${escapeHtml(t.concepto)}</strong>${t.notas ? `<br><small style="color:var(--text-muted)">${escapeHtml(t.notas)}</small>` : ''}</td>
@@ -1250,6 +1406,17 @@
           <td><button class="btn btn-danger" style="padding:6px 14px;font-size:12px;" onclick="deleteTransaction('${t.id}')">🗑️</button></td>
         </tr>
       `).join('');
+
+      // Renderizar paginación
+      if (totalPages > 1) {
+        pagination.style.display = 'flex';
+        document.getElementById('pagination-current').textContent = window.txCurrentPage;
+        document.getElementById('pagination-total').textContent = totalPages;
+        document.getElementById('pagination-prev').disabled = window.txCurrentPage === 1;
+        document.getElementById('pagination-next').disabled = window.txCurrentPage === totalPages;
+      } else {
+        pagination.style.display = 'none';
+      }
     }
 
     function renderProgrammables() {
