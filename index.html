@@ -18,12 +18,12 @@
     <header class="header">
       <div class="logo">FIN<span>TECH</span> OS</div>
       <nav class="nav-tabs" id="main-nav">
-        <button class="nav-tab active" onclick="showPage('dashboard')">📊 Dashboard</button>
-        <button class="nav-tab" onclick="showPage('registros')">📝 Registros</button>
-        <button class="nav-tab" onclick="showPage('programables')">⏰ Programables</button>
-        <button class="nav-tab" onclick="showPage('metas')">🎯 Metas</button>
-        <button class="nav-tab" onclick="showPage('divisas')">💱 Divisas</button>
-        <button class="nav-tab" onclick="showPage('configuracion')">⚙️ Config</button>
+        <button class="nav-tab active" onclick="showPage('dashboard')" data-short="📊">📊 Dashboard</button>
+        <button class="nav-tab" onclick="showPage('registros')" data-short="📝">📝 Registros</button>
+        <button class="nav-tab" onclick="showPage('programables')" data-short="⏰">⏰ Programables</button>
+        <button class="nav-tab" onclick="showPage('metas')" data-short="🎯">🎯 Metas</button>
+        <button class="nav-tab" onclick="showPage('divisas')" data-short="💱">💱 Divisas</button>
+        <button class="nav-tab" onclick="showPage('configuracion')" data-short="⚙️">⚙️ Config</button>
       </nav>
       <div class="user-profile" id="user-profile">
         <div class="user-avatar" id="user-avatar">U</div>
@@ -141,19 +141,21 @@
 
       <h2 class="section-title">Historial de Registros</h2>
       <div class="card">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Concepto</th>
-              <th>Categoría</th>
-              <th>Tipo</th>
-              <th>Monto</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="transactions-table"></tbody>
-        </table>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Concepto</th>
+                <th>Categoría</th>
+                <th>Tipo</th>
+                <th>Monto</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="transactions-table"></tbody>
+          </table>
+        </div>
         <div id="transactions-empty" class="empty-state" style="display:none;">
           <div class="empty-state-icon">📭</div>
           <p>No hay registros aún. ¡Empieza a registrar tus movimientos!</p>
@@ -336,7 +338,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Resultado</label>
-            <div class="form-input" id="conv-result" style="display:flex;align-items:center;font-family:'Orbitron';font-weight:700;color:var(--accent-cyan);">
+            <div class="form-input" id="conv-result" style="display:flex;align-items:center;font-family:'Orbitron';font-weight:700;color:var(--accent);">
               $0.00
             </div>
           </div>
@@ -370,7 +372,7 @@
         <!-- Perfil Card -->
         <div class="card config-card">
           <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(0, 212, 255, 0.15); color: var(--accent-cyan);">👤</div>
+            <div class="config-icon" style="background: rgba(0, 212, 255, 0.15); color: var(--accent);">👤</div>
             <div>
               <div class="config-card-title">Perfil de Usuario</div>
               <div class="config-card-subtitle">Tus datos personales</div>
@@ -399,7 +401,7 @@
         <!-- Divisa Card -->
         <div class="card config-card">
           <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(168, 85, 247, 0.15); color: var(--accent-purple);">💱</div>
+            <div class="config-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">💱</div>
             <div>
               <div class="config-card-title">Divisa Principal</div>
               <div class="config-card-subtitle">Moneda para todos tus registros</div>
@@ -423,7 +425,7 @@
             </div>
             <div style="margin-top: 12px; padding: 12px; background: rgba(0, 212, 255, 0.05); border-radius: 10px; border: 1px solid var(--glass-border);">
               <div style="font-size: 12px; color: var(--text-muted);">
-                💡 Tu divisa actual: <strong id="current-currency-display" style="color: var(--accent-cyan);">USD</strong><br>
+                💡 Tu divisa actual: <strong id="current-currency-display" style="color: var(--accent);">USD</strong><br>
                 Todos los montos se mostrarán y registrarán en esta moneda.
               </div>
             </div>
@@ -433,7 +435,7 @@
         <!-- Seguridad Card -->
         <div class="card config-card">
           <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(0, 255, 136, 0.15); color: var(--accent-green);">🔐</div>
+            <div class="config-icon" style="background: rgba(0, 255, 136, 0.15); color: var(--positive);">🔐</div>
             <div>
               <div class="config-card-title">Seguridad</div>
               <div class="config-card-subtitle">Cambia tu contraseña</div>
@@ -461,7 +463,7 @@
         <!-- Danger Zone Card -->
         <div class="card config-card">
           <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(255, 51, 102, 0.15); color: var(--accent-red);">⚠️</div>
+            <div class="config-icon" style="background: rgba(255, 51, 102, 0.15); color: var(--negative);">⚠️</div>
             <div>
               <div class="config-card-title">Zona de Peligro</div>
               <div class="config-card-subtitle">Acciones irreversibles</div>
@@ -720,7 +722,7 @@
           <div class="currency-flag">${userCurr.flag}</div>
           <div class="currency-info">
             <div class="currency-name">Tu Saldo (${window.userCurrency})</div>
-            <div class="currency-amount" style="color: var(--accent-cyan);">${formatCurrency(balance, window.userCurrency)}</div>
+            <div class="currency-amount" style="color: var(--accent);">${formatCurrency(balance, window.userCurrency)}</div>
           </div>
         </div>
       `;
@@ -764,14 +766,14 @@
 
       tbody.innerHTML = Object.entries(EXCHANGE_RATES).map(([code, curr]) => {
         const trend = trends[code] || 'stable';
-        const trendColor = trend === 'up' ? 'var(--accent-green)' : trend === 'down' ? 'var(--accent-red)' : 'var(--text-muted)';
+        const trendColor = trend === 'up' ? 'var(--positive)' : trend === 'down' ? 'var(--negative)' : 'var(--text-muted)';
         const trendIcon = trend === 'up' ? '▲' : trend === 'down' ? '▼' : '—';
         return `
           <tr>
             <td><span style="font-size: 20px;">${curr.flag}</span> ${curr.name}</td>
             <td style="font-family: 'Orbitron'; font-weight: 700;">${code}</td>
             <td style="font-family: 'Orbitron';">${curr.rate.toLocaleString()}</td>
-            <td style="font-family: 'Orbitron'; color: var(--accent-cyan);">${curr.symbol}1 = $${(1/curr.rate).toFixed(4)} USD</td>
+            <td style="font-family: 'Orbitron'; color: var(--accent);">${curr.symbol}1 = $${(1/curr.rate).toFixed(4)} USD</td>
             <td style="color: ${trendColor}; font-weight: 700;">${trendIcon}</td>
           </tr>
         `;
@@ -1185,7 +1187,7 @@
           <td><strong>${escapeHtml(t.concepto)}</strong>${t.notas ? `<br><small style="color:var(--text-muted)">${escapeHtml(t.notas)}</small>` : ''}</td>
           <td>${getCategoryIcon(t.categoria)} ${getCategoryName(t.categoria)}</td>
           <td><span class="badge badge-${t.tipo}">${t.tipo === 'income' ? 'Ingreso' : 'Gasto'}</span></td>
-          <td style="font-family:'Orbitron';font-weight:700;color:${t.tipo==='income'?'var(--accent-green)':'var(--accent-red)'};">${curr.symbol}${t.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+          <td style="font-family:'Orbitron';font-weight:700;color:${t.tipo==='income'?'var(--positive)':'var(--negative)'};">${curr.symbol}${t.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
           <td><button class="btn btn-danger" style="padding:6px 14px;font-size:12px;" onclick="deleteTransaction('${t.id}')">🗑️</button></td>
         </tr>
       `).join('');
@@ -1212,12 +1214,12 @@
               <span>${getCategoryIcon(p.categoria)} ${getCategoryName(p.categoria)}</span>
               <span>📅 ${getFrequencyName(p.frecuencia)}</span>
               <span>⏰ Día ${p.dia} a las ${p.hora}</span>
-              <span style="color:${p.activo ? 'var(--accent-green)' : 'var(--text-muted)'}">${p.activo ? '● Activo' : '○ Pausado'}</span>
+              <span style="color:${p.activo ? 'var(--positive)' : 'var(--text-muted)'}">${p.activo ? '● Activo' : '○ Pausado'}</span>
             </div>
           </div>
           <div class="scheduled-amount ${p.tipo}">${curr.symbol}${p.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
           <div style="display:flex;gap:8px;">
-            <button class="btn" style="padding:6px 12px;font-size:12px;background:rgba(0,212,255,0.1);color:var(--accent-cyan);" onclick="toggleProgrammable('${p.id}', ${p.activo})">${p.activo ? '⏸️' : '▶️'}</button>
+            <button class="btn" style="padding:6px 12px;font-size:12px;background:rgba(0,212,255,0.1);color:var(--accent);" onclick="toggleProgrammable('${p.id}', ${p.activo})">${p.activo ? '⏸️' : '▶️'}</button>
             <button class="btn btn-danger" style="padding:6px 12px;font-size:12px;" onclick="deleteProgrammable('${p.id}')">🗑️</button>
           </div>
         </div>
@@ -1262,7 +1264,7 @@
               <div class="goal-card-icon" style="background:${g.color}22;color:${g.color};">${getGoalIcon(g.name)}</div>
               <div class="goal-card-title">${escapeHtml(g.name)}</div>
               <div class="goal-card-actions">
-                <button class="btn" style="padding:6px 10px;font-size:12px;background:rgba(0,212,255,0.1);color:var(--accent-cyan);" onclick="openEditGoal('${g.id}')">✏️</button>
+                <button class="btn" style="padding:6px 10px;font-size:12px;background:rgba(0,212,255,0.1);color:var(--accent);" onclick="openEditGoal('${g.id}')">✏️</button>
                 <button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="deleteGoal('${g.id}')">🗑️</button>
               </div>
             </div>
@@ -1281,7 +1283,7 @@
               <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 50)">+$50</button>
               <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 100)">+$100</button>
               <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 500)">+$500</button>
-              <button class="btn btn-goal-btn" style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-purple));color:#fff;" onclick="customContribute('${g.id}')">💰 Custom</button>
+              <button class="btn btn-goal-btn" style="background:linear-gradient(135deg,var(--accent),#a855f7);color:#fff;" onclick="customContribute('${g.id}')">💰 Custom</button>
             </div>
           </div>
         `;
@@ -1543,6 +1545,23 @@
         updateDashboard();
       }
     });
+
+    // Mobile nav - auto-switch to icons on small screens
+    function updateNavLabels() {
+      const isMobile = window.innerWidth <= 480;
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        const short = tab.dataset.short;
+        const full = tab.textContent.trim();
+        if (isMobile) {
+          if (!tab.dataset.full) tab.dataset.full = full;
+          tab.textContent = short;
+        } else {
+          tab.textContent = tab.dataset.full || full;
+        }
+      });
+    }
+    window.addEventListener('resize', updateNavLabels);
+    updateNavLabels();
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
