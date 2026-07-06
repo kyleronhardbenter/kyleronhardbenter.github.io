@@ -22,6 +22,12 @@
   --accent-dim: rgba(34, 211, 238, 0.08);
   --accent-glow: rgba(34, 211, 238, 0.15);
 
+  /* Legacy aliases for backward compatibility */
+  --accent-cyan: #22d3ee;
+  --accent-purple: #a855f7;
+  --accent-green: #34d399;
+  --accent-red: #f87171;
+
   /* Semantic colors — muted, desaturated */
   --positive: #34d399;
   --positive-dim: rgba(52, 211, 153, 0.08);
@@ -976,22 +982,73 @@ body {
 }
 
 /* ===== RESPONSIVE ===== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .app { padding: 20px 24px; }
+  .charts-grid { grid-template-columns: 1fr; }
+  .config-grid { grid-template-columns: 1fr; }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
-  .app { padding: 16px; }
+  .app { padding: 12px 16px; }
+
+  /* Header mejorado */
   .header {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
   }
+  .logo {
+    font-size: 18px;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+
+  /* Menú hamburguesa / compacto */
   .nav-tabs {
-    justify-content: center;
-    overflow-x: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 6px;
+    border-radius: 12px;
+    overflow: visible;
+    background: var(--bg-tertiary);
   }
+  .nav-tab {
+    padding: 10px 4px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 8px;
+    text-align: center;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .nav-tab.active::after {
+    display: none;
+  }
+
   .user-profile {
     justify-content: center;
+    padding-top: 4px;
   }
+
+  /* Stats */
   .stats-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
   }
+  .stats-grid .card {
+    padding: 16px;
+  }
+  .stat-value {
+    font-size: 20px;
+  }
+
+  /* Grids */
   .goals-grid {
     grid-template-columns: 1fr;
   }
@@ -1001,22 +1058,146 @@ body {
   .form-grid {
     grid-template-columns: 1fr;
   }
+  .currency-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .currency-card.main-currency {
+    grid-column: 1 / -1;
+  }
+
+  /* Tablas */
   .data-table {
-    font-size: 12px;
+    font-size: 11px;
   }
   .data-table thead th,
   .data-table tbody td {
-    padding: 10px 8px;
+    padding: 8px 6px;
+  }
+
+  /* Cards */
+  .card {
+    padding: 16px;
   }
   .scheduled-card {
-    flex-direction: column;
-    text-align: center;
+    flex-direction: row;
+    text-align: left;
+    padding: 14px;
+    gap: 10px;
   }
+  .scheduled-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+  .scheduled-amount {
+    font-size: 14px;
+  }
+
   .goal-card-buttons {
-    justify-content: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
+  .btn-goal-btn {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  /* Auth */
+  .auth-container {
+    padding: 24px 20px;
+    margin: 16px;
+  }
+
+  /* Charts */
+  .chart-container {
+    height: 220px;
+  }
+
+  /* Section titles */
+  .section-title {
+    font-size: 16px;
+    margin-bottom: 14px;
+  }
+
+  /* Toggle group */
+  .toggle-group {
+    width: 100%;
+  }
+  .toggle-btn {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  /* Form inputs */
+  .form-input, .form-select {
+    padding: 12px 14px;
+    font-size: 16px; /* Previene zoom en iOS */
+  }
+
+  /* Modals */
+  .modal {
+    padding: 20px;
+    margin: 16px;
+  }
+
+  /* Config */
+  .config-card-header {
+    padding: 16px 20px 12px;
+  }
+  .config-section {
+    padding: 16px 20px 20px;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .app { padding: 10px 12px; }
+
+  .nav-tabs {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }
+  .nav-tab {
+    padding: 8px 2px;
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .stats-grid .card {
+    padding: 12px;
+  }
+  .stat-value {
+    font-size: 18px;
+  }
+  .stat-label {
+    font-size: 10px;
+  }
+  .stat-change {
+    font-size: 10px;
+  }
+
   .currency-grid {
     grid-template-columns: 1fr;
+  }
+
+  .logo {
+    font-size: 16px;
+  }
+
+  .progress-text {
+    font-size: 24px;
+  }
+
+  .goal-card-buttons {
+    gap: 4px;
+  }
+  .btn-goal-btn {
+    padding: 5px 8px;
+    font-size: 10px;
   }
 }
 
