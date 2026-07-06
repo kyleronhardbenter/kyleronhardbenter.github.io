@@ -28,7 +28,20 @@
         <button class="nav-tab" onclick="showPage('configuracion')">⚙️ Config</button>
       </nav>
 
-      <!-- Mobile hamburger menu -->
+      <!-- User profile with avatar upload -->
+      <div class="user-profile" id="user-profile">
+        <div class="avatar-wrapper" onclick="openAvatarModal()" title="Cambiar foto de perfil">
+          <img class="user-avatar-img" id="user-avatar-img" src="" alt="Avatar" style="display:none;">
+          <div class="user-avatar" id="user-avatar">U</div>
+          <div class="avatar-overlay">📷</div>
+        </div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">Usuario</div>
+          <button class="logout-btn desktop-only" onclick="logout()">🚪 Salir</button>
+        </div>
+      </div>
+
+      <!-- Mobile hamburger menu (a la derecha del perfil) -->
       <div class="mobile-menu-wrapper">
         <button class="hamburger-btn" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menú">
           <span></span>
@@ -45,19 +58,6 @@
           <div class="mobile-nav-divider"></div>
           <button class="mobile-nav-item logout" onclick="logout(); toggleMobileMenu()">🚪 Cerrar Sesión</button>
         </nav>
-      </div>
-
-      <!-- User profile with avatar upload -->
-      <div class="user-profile" id="user-profile">
-        <div class="avatar-wrapper" onclick="openAvatarModal()" title="Cambiar foto de perfil">
-          <img class="user-avatar-img" id="user-avatar-img" src="" alt="Avatar" style="display:none;">
-          <div class="user-avatar" id="user-avatar">U</div>
-          <div class="avatar-overlay">📷</div>
-        </div>
-        <div class="user-info">
-          <div class="user-name" id="user-name">Usuario</div>
-          <button class="logout-btn desktop-only" onclick="logout()">🚪 Salir</button>
-        </div>
       </div>
     </header>
 
