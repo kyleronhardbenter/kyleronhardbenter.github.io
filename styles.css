@@ -1162,6 +1162,7 @@ body {
   .logo {
     font-size: 16px;
     letter-spacing: 2px;
+    margin-right: auto;
   }
 
   /* Ocultar nav desktop, mostrar hamburguesa */
@@ -1170,17 +1171,24 @@ body {
   }
   .mobile-menu-wrapper {
     display: block;
+    order: 3;
+    margin-left: 8px;
   }
   .hamburger-btn {
     display: flex;
   }
 
-  /* User profile compacto */
+  /* User profile: entre logo y hamburguesa */
   .user-profile {
     gap: 8px;
+    order: 2;
+    margin-left: auto;
   }
   .user-info {
-    display: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
   }
   .desktop-only {
     display: none;
