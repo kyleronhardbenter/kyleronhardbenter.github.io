@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="styles.css">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
   <div class="bg-grid"></div>
@@ -65,22 +66,22 @@
     <div id="page-dashboard" class="page active">
       <div class="stats-grid">
         <div class="card">
-          <div class="stat-label">Ingresos del Mes</div>
+          <div class="stat-label" data-i18n="month_income">Ingresos del Mes</div>
           <div class="stat-value income" id="dash-income">$0.00</div>
-          <div class="stat-change up">▲ +12.5% vs mes anterior</div>
+          <div class="stat-change" id="dash-income-change">—</div>
         </div>
         <div class="card">
-          <div class="stat-label">Gastos del Mes</div>
+          <div class="stat-label" data-i18n="month_expense">Gastos del Mes</div>
           <div class="stat-value expense" id="dash-expense">$0.00</div>
-          <div class="stat-change down">▼ -3.2% vs mes anterior</div>
+          <div class="stat-change" id="dash-expense-change">—</div>
         </div>
         <div class="card">
-          <div class="stat-label">Balance Neto</div>
+          <div class="stat-label" data-i18n="net_balance">Balance Neto</div>
           <div class="stat-value balance" id="dash-balance">$0.00</div>
-          <div class="stat-change up">▲ Tendencia positiva</div>
+          <div class="stat-change" id="dash-balance-change">—</div>
         </div>
         <div class="card">
-          <div class="stat-label">Ahorro Acumulado</div>
+          <div class="stat-label" data-i18n="accumulated_savings">Ahorro Acumulado</div>
           <div class="stat-value savings" id="dash-savings">$0.00</div>
           <div class="stat-change" id="dash-savings-change">—</div>
         </div>
@@ -591,40 +592,140 @@
 
   <!-- LOGIN/REGISTER SCREEN -->
   <div class="auth-screen" id="auth-screen">
-    <div class="auth-container">
-      <div class="auth-logo">FIN<span>TECH</span> OS</div>
+    <!-- Animated background particles -->
+    <div class="auth-bg-particles">
+      <div class="particle p1"></div>
+      <div class="particle p2"></div>
+      <div class="particle p3"></div>
+      <div class="particle p4"></div>
+      <div class="particle p5"></div>
+    </div>
+    <div class="auth-bg-grid"></div>
+    <div class="auth-bg-glow auth-glow-1"></div>
+    <div class="auth-bg-glow auth-glow-2"></div>
 
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-login" onclick="showAuthTab('login')">Iniciar Sesión</button>
-        <button class="auth-tab" id="tab-register" onclick="showAuthTab('register')">Crear Cuenta</button>
+    <div class="auth-wrapper">
+      <!-- Left panel: branding -->
+      <div class="auth-brand-panel">
+        <div class="auth-brand-content">
+          <div class="auth-brand-logo">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="12" width="16" height="24" rx="3" fill="rgba(34,211,238,0.2)" stroke="#22d3ee" stroke-width="1.5"/>
+              <rect x="20" y="8" width="16" height="32" rx="3" fill="rgba(34,211,238,0.15)" stroke="#22d3ee" stroke-width="1.5"/>
+              <rect x="36" y="16" width="8" height="16" rx="2" fill="rgba(34,211,238,0.1)" stroke="#22d3ee" stroke-width="1.5"/>
+              <circle cx="12" cy="24" r="2" fill="#22d3ee"/>
+              <circle cx="28" cy="24" r="2" fill="#22d3ee"/>
+              <circle cx="40" cy="24" r="1.5" fill="#22d3ee"/>
+            </svg>
+          </div>
+          <h1 class="auth-brand-title">FIN<span>TECH</span> OS</h1>
+          <p class="auth-brand-tagline" data-i18n="auth_tagline">Tu dashboard financiero inteligente</p>
+          <div class="auth-brand-features">
+            <div class="auth-feature">
+              <span class="auth-feature-icon">📊</span>
+              <span class="auth-feature-text" data-i18n="auth_feat_dashboard">Análisis en tiempo real</span>
+            </div>
+            <div class="auth-feature">
+              <span class="auth-feature-icon">🎯</span>
+              <span class="auth-feature-text" data-i18n="auth_feat_goals">Metas de ahorro</span>
+            </div>
+            <div class="auth-feature">
+              <span class="auth-feature-icon">💱</span>
+              <span class="auth-feature-text" data-i18n="auth_feat_currencies">Múltiples divisas</span>
+            </div>
+            <div class="auth-feature">
+              <span class="auth-feature-icon">🔐</span>
+              <span class="auth-feature-text" data-i18n="auth_feat_secure">Seguro y privado</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div id="auth-login">
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label class="form-label" data-i18n-label="email">Email</label>
-          <input type="email" class="form-input" id="login-email" data-i18n-placeholder="placeholder_email" placeholder="tu@email.com">
-        </div>
-        <div class="form-group" style="margin-bottom: 24px;">
-          <label class="form-label" data-i18n-label="password">Contraseña</label>
-          <input type="password" class="form-input" id="login-password" data-i18n-placeholder="placeholder_password" placeholder="••••••••">
-        </div>
-        <button class="btn btn-primary" style="width:100%;" id="login-btn" onclick="login()">🚀 Ingresar</button>
-      </div>
+      <!-- Right panel: form -->
+      <div class="auth-form-panel">
+        <div class="auth-form-card">
+          <!-- Language selector -->
+          <div class="auth-lang-bar">
+            <button class="auth-lang-btn" onclick="setLanguage('es')" data-lang="es" title="Español">🇪🇸</button>
+            <button class="auth-lang-btn" onclick="setLanguage('en')" data-lang="en" title="English">🇬🇧</button>
+            <button class="auth-lang-btn" onclick="setLanguage('tl')" data-lang="tl" title="Tagalog">🇵🇭</button>
+            <button class="auth-lang-btn" onclick="setLanguage('zh')" data-lang="zh" title="中文">🇨🇳</button>
+            <button class="auth-lang-btn" onclick="setLanguage('ja')" data-lang="ja" title="日本語">🇯🇵</button>
+            <button class="auth-lang-btn" onclick="setLanguage('ca')" data-lang="ca" title="Català">🇦🇩</button>
+            <button class="auth-lang-btn" onclick="setLanguage('fr')" data-lang="fr" title="Français">🇫🇷</button>
+          </div>
 
-      <div id="auth-register" style="display:none;">
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label class="form-label" data-i18n-label="full_name">Nombre Completo</label>
-          <input type="text" class="form-input" id="reg-name" data-i18n-placeholder="placeholder_name" placeholder="Tu nombre">
+          <div class="auth-form-header">
+            <h2 class="auth-form-title" id="auth-form-title" data-i18n="login">Iniciar Sesión</h2>
+            <p class="auth-form-subtitle" id="auth-form-subtitle" data-i18n="auth_welcome">Bienvenido de vuelta</p>
+          </div>
+
+          <!-- Tabs -->
+          <div class="auth-tabs-modern">
+            <button class="auth-tab-modern active" id="tab-login" onclick="showAuthTab('login')">
+              <span data-i18n="login">Iniciar Sesión</span>
+            </button>
+            <button class="auth-tab-modern" id="tab-register" onclick="showAuthTab('register')">
+              <span data-i18n="register">Crear Cuenta</span>
+            </button>
+            <div class="auth-tab-indicator" id="auth-tab-indicator"></div>
+          </div>
+
+          <!-- Login Form -->
+          <div id="auth-login" class="auth-form-body">
+            <div class="auth-input-group">
+              <label class="auth-input-label" data-i18n-label="email">Email</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">📧</span>
+                <input type="email" class="auth-input" id="login-email" data-i18n-placeholder="placeholder_email" placeholder="tu@email.com" autocomplete="email">
+              </div>
+            </div>
+            <div class="auth-input-group">
+              <label class="auth-input-label" data-i18n-label="password">Contraseña</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">🔒</span>
+                <input type="password" class="auth-input" id="login-password" data-i18n-placeholder="placeholder_password" placeholder="••••••••" autocomplete="current-password">
+              </div>
+            </div>
+            <button class="auth-submit-btn" id="login-btn" onclick="login()">
+              <span class="auth-submit-text" data-i18n="login_btn">🚀 Ingresar</span>
+              <span class="auth-submit-arrow">→</span>
+            </button>
+          </div>
+
+          <!-- Register Form -->
+          <div id="auth-register" class="auth-form-body" style="display:none;">
+            <div class="auth-input-group">
+              <label class="auth-input-label" data-i18n-label="full_name">Nombre Completo</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">👤</span>
+                <input type="text" class="auth-input" id="reg-name" data-i18n-placeholder="placeholder_name" placeholder="Tu nombre" autocomplete="name">
+              </div>
+            </div>
+            <div class="auth-input-group">
+              <label class="auth-input-label" data-i18n-label="email">Email</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">📧</span>
+                <input type="email" class="auth-input" id="reg-email" data-i18n-placeholder="placeholder_email" placeholder="tu@email.com" autocomplete="email">
+              </div>
+            </div>
+            <div class="auth-input-group">
+              <label class="auth-input-label" data-i18n-label="password">Contraseña</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">🔒</span>
+                <input type="password" class="auth-input" id="reg-password" data-i18n-placeholder="min_password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+              </div>
+            </div>
+            <button class="auth-submit-btn auth-submit-btn--register" id="reg-btn" onclick="register()">
+              <span class="auth-submit-text" data-i18n="register_btn">✨ Crear Cuenta</span>
+              <span class="auth-submit-arrow">→</span>
+            </button>
+          </div>
+
+          <div class="auth-footer">
+            <p class="auth-footer-text" data-i18n="auth_footer">💡 Tu información está protegida con encriptación de extremo a extremo</p>
+          </div>
         </div>
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label class="form-label" data-i18n-label="email">Email</label>
-          <input type="email" class="form-input" id="reg-email" data-i18n-placeholder="placeholder_email" placeholder="tu@email.com">
-        </div>
-        <div class="form-group" style="margin-bottom: 24px;">
-          <label class="form-label" data-i18n-label="password">Contraseña</label>
-          <input type="password" class="form-input" id="reg-password" data-i18n-placeholder="min_password" placeholder="Mínimo 6 caracteres">
-        </div>
-        <button class="btn btn-success" style="width:100%;" id="reg-btn" onclick="register()">✨ Crear Cuenta</button>
       </div>
     </div>
   </div>
@@ -877,7 +978,22 @@
     "account_created_ok": "✅ Cuenta creada exitosamente",
     "language": "Idioma",
     "select_language": "Selecciona tu idioma",
-    "auto_detect": "🔍 Detectar automáticamente"
+    "auto_detect": "🔍 Detectar automáticamente",
+    "auth_tagline": "Tu dashboard financiero inteligente",
+    "auth_welcome": "Bienvenido de vuelta",
+    "auth_join": "Únete a FinTech OS",
+    "auth_footer": "💡 Tu información está protegida con encriptación de extremo a extremo",
+    "auth_feat_dashboard": "Análisis en tiempo real",
+    "auth_feat_goals": "Metas de ahorro",
+    "auth_feat_currencies": "Múltiples divisas",
+    "auth_feat_secure": "Seguro y privado",
+    "new": "Nouveau",
+    "new": "Nou",
+    "new": "新規",
+    "new": "新增",
+    "new": "Bago",
+    "new": "New",
+    "new": "Nuevo"
   },
   "en": {
     "login": "Sign In",
@@ -1028,7 +1144,15 @@
     "account_created_ok": "✅ Account created successfully",
     "language": "Language",
     "select_language": "Select your language",
-    "auto_detect": "🔍 Auto-detect"
+    "auto_detect": "🔍 Auto-detect",
+    "auth_tagline": "Your smart financial dashboard",
+    "auth_welcome": "Welcome back",
+    "auth_join": "Join FinTech OS",
+    "auth_footer": "💡 Your information is protected with end-to-end encryption",
+    "auth_feat_dashboard": "Real-time analytics",
+    "auth_feat_goals": "Savings goals",
+    "auth_feat_currencies": "Multiple currencies",
+    "auth_feat_secure": "Safe and private"
   },
   "tl": {
     "login": "Mag-sign In",
@@ -1179,7 +1303,15 @@
     "account_created_ok": "✅ Matagumpay na ginawa ang account",
     "language": "Wika",
     "select_language": "Pumili ng iyong wika",
-    "auto_detect": "🔍 Awtomatikong tukuyin"
+    "auto_detect": "🔍 Awtomatikong tukuyin",
+    "auth_tagline": "Iyong smart na financial dashboard",
+    "auth_welcome": "Maligayang pagbabalik",
+    "auth_join": "Sumali sa FinTech OS",
+    "auth_footer": "💡 Ang iyong impormasyon ay protektado ng end-to-end encryption",
+    "auth_feat_dashboard": "Real-time na analytics",
+    "auth_feat_goals": "Mga layunin sa pag-iipon",
+    "auth_feat_currencies": "Maraming pera",
+    "auth_feat_secure": "Ligtas at pribado"
   },
   "zh": {
     "login": "登录",
@@ -1330,7 +1462,15 @@
     "account_created_ok": "✅ 账户创建成功",
     "language": "语言",
     "select_language": "选择您的语言",
-    "auto_detect": "🔍 自动检测"
+    "auto_detect": "🔍 自动检测",
+    "auth_tagline": "您的智能财务仪表板",
+    "auth_welcome": "欢迎回来",
+    "auth_join": "加入 FinTech OS",
+    "auth_footer": "💡 您的信息受端到端加密保护",
+    "auth_feat_dashboard": "实时分析",
+    "auth_feat_goals": "储蓄目标",
+    "auth_feat_currencies": "多种货币",
+    "auth_feat_secure": "安全私密"
   },
   "ja": {
     "login": "ログイン",
@@ -1481,7 +1621,15 @@
     "account_created_ok": "✅ アカウントが正常に作成されました",
     "language": "言語",
     "select_language": "言語を選択",
-    "auto_detect": "🔍 自動検出"
+    "auto_detect": "🔍 自動検出",
+    "auth_tagline": "あなたのスマートな財務ダッシュボード",
+    "auth_welcome": "おかえりなさい",
+    "auth_join": "FinTech OS に参加",
+    "auth_footer": "💡 あなたの情報はエンドツーエンド暗号化で保護されています",
+    "auth_feat_dashboard": "リアルタイム分析",
+    "auth_feat_goals": "貯蓄目標",
+    "auth_feat_currencies": "複数通貨",
+    "auth_feat_secure": "安全でプライベート"
   },
   "ca": {
     "login": "Iniciar Sessió",
@@ -1632,7 +1780,15 @@
     "account_created_ok": "✅ Compte creat amb èxit",
     "language": "Idioma",
     "select_language": "Selecciona el teu idioma",
-    "auto_detect": "🔍 Detectar automàticament"
+    "auto_detect": "🔍 Detectar automàticament",
+    "auth_tagline": "El teu panell financer intel·ligent",
+    "auth_welcome": "Benvingut de nou",
+    "auth_join": "Uneix-te a FinTech OS",
+    "auth_footer": "💡 La teva informació està protegida amb encriptació d'extrem a extrem",
+    "auth_feat_dashboard": "Analítica en temps real",
+    "auth_feat_goals": "Objectius d'estalvi",
+    "auth_feat_currencies": "Múltiples divises",
+    "auth_feat_secure": "Segur i privat"
   },
   "fr": {
     "login": "Connexion",
@@ -1783,7 +1939,15 @@
     "account_created_ok": "✅ Compte créé avec succès",
     "language": "Langue",
     "select_language": "Sélectionnez votre langue",
-    "auto_detect": "🔍 Détection automatique"
+    "auto_detect": "🔍 Détection automatique",
+    "auth_tagline": "Votre tableau de bord financier intelligent",
+    "auth_welcome": "Bon retour",
+    "auth_join": "Rejoindre FinTech OS",
+    "auth_footer": "💡 Vos informations sont protégées par un chiffrement de bout en bout",
+    "auth_feat_dashboard": "Analyses en temps réel",
+    "auth_feat_goals": "Objectifs d'épargne",
+    "auth_feat_currencies": "Devises multiples",
+    "auth_feat_secure": "Sûr et privé"
   }
 };
 
@@ -1883,6 +2047,35 @@
       updateText('tab-register', 'register');
       updateText('login-btn', 'login_btn');
       updateText('reg-btn', 'register_btn');
+
+      // Update auth screen modern elements
+      const authTitle = document.getElementById('auth-form-title');
+      const authSubtitle = document.getElementById('auth-form-subtitle');
+      if (authTitle && authTitle.dataset.i18n) authTitle.textContent = T[authTitle.dataset.i18n] || authTitle.textContent;
+      if (authSubtitle && authSubtitle.dataset.i18n) authSubtitle.textContent = T[authSubtitle.dataset.i18n] || authSubtitle.textContent;
+
+      // Update auth features
+      document.querySelectorAll('.auth-feature-text').forEach(el => {
+        const key = el.dataset.i18n;
+        if (key && T[key]) el.textContent = T[key];
+      });
+
+      // Update auth brand tagline
+      const brandTagline = document.querySelector('.auth-brand-tagline');
+      if (brandTagline && brandTagline.dataset.i18n && T[brandTagline.dataset.i18n]) {
+        brandTagline.textContent = T[brandTagline.dataset.i18n];
+      }
+
+      // Update auth footer
+      const authFooter = document.querySelector('.auth-footer-text');
+      if (authFooter && authFooter.dataset.i18n && T[authFooter.dataset.i18n]) {
+        authFooter.textContent = T[authFooter.dataset.i18n];
+      }
+
+      // Update active language button
+      document.querySelectorAll('.auth-lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === window.currentLang);
+      });
 
       // Update labels
       const labels = document.querySelectorAll('[data-i18n-label]');
@@ -2232,10 +2425,33 @@
 
     // Auth functions
     window.showAuthTab = (tab) => {
-      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-      document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-      document.getElementById('auth-login').style.display = tab === 'login' ? 'block' : 'none';
-      document.getElementById('auth-register').style.display = tab === 'register' ? 'block' : 'none';
+      const loginTab = document.getElementById('tab-login');
+      const regTab = document.getElementById('tab-register');
+      const indicator = document.getElementById('auth-tab-indicator');
+      const loginForm = document.getElementById('auth-login');
+      const regForm = document.getElementById('auth-register');
+      const title = document.getElementById('auth-form-title');
+      const subtitle = document.getElementById('auth-form-subtitle');
+
+      if (tab === 'login') {
+        loginTab.classList.add('active');
+        regTab.classList.remove('active');
+        indicator.style.transform = 'translateX(0)';
+        loginForm.style.display = 'block';
+        loginForm.style.animation = 'authFormIn 0.3s ease forwards';
+        regForm.style.display = 'none';
+        if (title) { title.textContent = t('login'); title.dataset.i18n = 'login'; }
+        if (subtitle) { subtitle.textContent = t('auth_welcome') || 'Bienvenido de vuelta'; subtitle.dataset.i18n = 'auth_welcome'; }
+      } else {
+        loginTab.classList.remove('active');
+        regTab.classList.add('active');
+        indicator.style.transform = 'translateX(100%)';
+        loginForm.style.display = 'none';
+        regForm.style.display = 'block';
+        regForm.style.animation = 'authFormIn 0.3s ease forwards';
+        if (title) { title.textContent = t('register'); title.dataset.i18n = 'register'; }
+        if (subtitle) { subtitle.textContent = t('auth_join') || 'Únete a FinTech OS'; subtitle.dataset.i18n = 'auth_join'; }
+      }
     };
 
     window.register = async () => {
@@ -2976,28 +3192,37 @@
 
     function updateStatChange(elementId, current, previous, type) {
       const el = document.getElementById(elementId);
-      if (previous === 0) {
-        if (current === 0) {
-          el.textContent = '—';
-          el.className = 'stat-change';
-        } else {
-          el.textContent = '▲ Nuevo';
-          el.className = 'stat-change up';
-        }
+      if (!el) return;
+
+      // Si no hay datos del mes anterior
+      if (previous === 0 && current === 0) {
+        el.textContent = '—';
+        el.className = 'stat-change';
         return;
       }
-      const pct = ((current - previous) / previous) * 100;
+
+      // Si hay datos actuales pero no del mes anterior
+      if (previous === 0) {
+        el.textContent = '▲ ' + (t('new') || 'Nuevo');
+        el.className = 'stat-change up';
+        return;
+      }
+
+      const pct = ((current - previous) / Math.abs(previous)) * 100;
       const absPct = Math.abs(pct).toFixed(1);
       const isUp = pct >= 0;
 
-      // For income: up is good, for expense: down is good, for balance: up is good
+      // Para ingresos: subir es bueno (up)
+      // Para gastos: bajar es bueno (down = up visualmente)
+      // Para balance: subir es bueno (up)
       let isGood = isUp;
       if (type === 'expense') isGood = !isUp;
 
       const arrow = isUp ? '▲' : '▼';
       const sign = isUp ? '+' : '';
 
-      el.textContent = `${arrow} ${sign}${absPct}% ${t('vs_prev_month') || 'vs mes anterior'}`;
+      const vsText = t('vs_prev_month') || 'vs mes anterior';
+      el.textContent = `${arrow} ${sign}${absPct}% ${vsText}`;
       el.className = isGood ? 'stat-change up' : 'stat-change down';
     }
 
