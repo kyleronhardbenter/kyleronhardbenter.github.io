@@ -588,7 +588,9 @@
         </div>
       </div>
     </div>
-  </div>
+  
+
+    
 
   <!-- LOGIN/REGISTER SCREEN -->
   <div class="auth-screen" id="auth-screen">
@@ -3603,6 +3605,9 @@
       }
     }
 
+    
+
+
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeEditModal();
@@ -3610,42 +3615,7 @@
   </script>
 
   <!-- LANGUAGE FAB (Floating Action Button) -->
-  <div class="lang-fab-wrapper" id="lang-fab-wrapper">
-    <button class="lang-fab" id="lang-fab-btn" onclick="toggleLangMenu()" title="Cambiar idioma">
-      <span class="lang-fab-flag" id="lang-fab-flag">🇪🇸</span>
-      <span class="lang-fab-name" id="lang-fab-name">Español</span>
-    </button>
-    <div class="lang-fab-menu" id="lang-fab-menu">
-      <button class="lang-fab-item" onclick="setLanguage('es')" data-lang="es">
-        <span class="lang-fab-item-flag">🇪🇸</span>
-        <span>Español</span>
-      </button>
-      <button class="lang-fab-item" onclick="setLanguage('en')" data-lang="en">
-        <span class="lang-fab-item-flag">🇬🇧</span>
-        <span>English</span>
-      </button>
-      <button class="lang-fab-item" onclick="setLanguage('tl')" data-lang="tl">
-        <span class="lang-fab-item-flag">🇵🇭</span>
-        <span>Tagalog</span>
-      </button>
-      <button class="lang-fab-item" onclick="setLanguage('zh')" data-lang="zh">
-        <span class="lang-fab-item-flag">🇨🇳</span>
-        <span>中文</span>
-      </button>
-      <button class="lang-fab-item" onclick="setLanguage('ja')" data-lang="ja">
-        <span class="lang-fab-item-flag">🇯🇵</span>
-        <span>日本語</span>
-      </button>
-      <button class="lang-fab-item" onclick="setLanguage('ca')" data-lang="ca">
-        <span class="lang-fab-item-flag">🇦🇩</span>
-        <span>Català</span>
-      </button>
-      <button class="lang-fab-item" onclick="setLanguage('fr')" data-lang="fr">
-        <span class="lang-fab-item-flag">🇫🇷</span>
-        <span>Français</span>
-      </button>
-    </div>
-  </div>
+  
 
 </body>
 </html>
