@@ -17,16 +17,16 @@
 
   <div class="app" id="app-container" style="display:none;">
     <header class="header">
-      <div class="logo">FIN<span>TECH</span> OS</div>
+      <div class="logo"><span class="emoji-pulse" style="display:inline-block;">◈</span> FIN<span>TECH</span> OS</div>
 
       <!-- Desktop nav -->
       <nav class="nav-tabs desktop-nav" id="main-nav">
-        <button class="nav-tab active" onclick="showPage('dashboard')">📊 Dashboard</button>
-        <button class="nav-tab" onclick="showPage('registros')">📝 Registros</button>
-        <button class="nav-tab" onclick="showPage('programables')">⏰ Programables</button>
-        <button class="nav-tab" onclick="showPage('metas')">🎯 Metas</button>
-        <button class="nav-tab" onclick="showPage('divisas')">💱 Divisas</button>
-        <button class="nav-tab" onclick="showPage('configuracion')">⚙️ Config</button>
+        <button class="nav-tab active" onclick="showPage('dashboard')"><span class="emoji-animated">📊</span> Dashboard</button>
+        <button class="nav-tab" onclick="showPage('registros')"><span class="emoji-animated">📝</span> Registros</button>
+        <button class="nav-tab" onclick="showPage('programables')"><span class="emoji-animated">⏰</span> Programables</button>
+        <button class="nav-tab" onclick="showPage('metas')"><span class="emoji-animated">🎯</span> Metas</button>
+        <button class="nav-tab" onclick="showPage('divisas')"><span class="emoji-animated">💱</span> Divisas</button>
+        <button class="nav-tab" onclick="showPage('configuracion')"><span class="emoji-animated">⚙️</span> Config</button>
       </nav>
 
       <!-- User profile with avatar upload -->
@@ -50,12 +50,12 @@
           <span></span>
         </button>
         <nav class="mobile-nav" id="mobile-nav">
-          <button class="mobile-nav-item active" onclick="showPage('dashboard'); toggleMobileMenu()">📊 Dashboard</button>
-          <button class="mobile-nav-item" onclick="showPage('registros'); toggleMobileMenu()">📝 Registros</button>
-          <button class="mobile-nav-item" onclick="showPage('programables'); toggleMobileMenu()">⏰ Programables</button>
-          <button class="mobile-nav-item" onclick="showPage('metas'); toggleMobileMenu()">🎯 Metas</button>
-          <button class="mobile-nav-item" onclick="showPage('divisas'); toggleMobileMenu()">💱 Divisas</button>
-          <button class="mobile-nav-item" onclick="showPage('configuracion'); toggleMobileMenu()">⚙️ Configuración</button>
+          <button class="mobile-nav-item active" onclick="showPage('dashboard'); toggleMobileMenu()"><span class="emoji-animated">📊</span> Dashboard</button>
+          <button class="mobile-nav-item" onclick="showPage('registros'); toggleMobileMenu()"><span class="emoji-animated">📝</span> Registros</button>
+          <button class="mobile-nav-item" onclick="showPage('programables'); toggleMobileMenu()"><span class="emoji-animated">⏰</span> Programables</button>
+          <button class="mobile-nav-item" onclick="showPage('metas'); toggleMobileMenu()"><span class="emoji-animated">🎯</span> Metas</button>
+          <button class="mobile-nav-item" onclick="showPage('divisas'); toggleMobileMenu()"><span class="emoji-animated">💱</span> Divisas</button>
+          <button class="mobile-nav-item" onclick="showPage('configuracion'); toggleMobileMenu()"><span class="emoji-animated">⚙️</span> Configuración</button>
           <div class="mobile-nav-divider"></div>
           <button class="mobile-nav-item logout" onclick="logout(); toggleMobileMenu()">🚪 Cerrar Sesión</button>
         </nav>
@@ -89,27 +89,27 @@
 
       <div class="charts-grid" style="margin-bottom: 24px;">
         <div class="card">
-          <div class="card-title" data-i18n="monthly_evolution">📈 Evolución Mensual</div>
+          <div class="card-title" data-i18n="monthly_evolution"><span class="emoji-animated">📈</span> Evolución Mensual</div>
           <div class="chart-container" id="main-chart"></div>
         </div>
         <div class="card">
-          <div class="card-title" data-i18n="goal_progress">🎯 Progreso de Metas</div>
+          <div class="card-title" data-i18n="goal_progress"><span class="emoji-animated">🎯</span> Progreso de Metas</div>
           <div class="progress-ring" id="savings-ring"></div>
         </div>
       </div>
 
       <div class="card" style="margin-bottom: 24px;">
-        <div class="card-title" data-i18n="saving_goals">🎯 Objetivos de Ahorro</div>
+        <div class="card-title" data-i18n="saving_goals"><span class="emoji-animated">🎯</span> Objetivos de Ahorro</div>
         <div class="goals-grid" id="goals-container"></div>
       </div>
 
       <div class="charts-grid">
         <div class="card">
-          <div class="card-title" data-i18n="expense_dist">📊 Distribución de Gastos</div>
+          <div class="card-title" data-i18n="expense_dist"><span class="emoji-animated">📊</span> Distribución de Gastos</div>
           <div class="chart-container" id="expense-chart"></div>
         </div>
         <div class="card">
-          <div class="card-title" data-i18n="income_dist">💰 Distribución de Ingresos</div>
+          <div class="card-title" data-i18n="income_dist"><span class="emoji-animated">💰</span> Distribución de Ingresos</div>
           <div class="chart-container" id="income-chart"></div>
         </div>
       </div>
@@ -163,7 +163,7 @@
           </div>
         </div>
         <button class="btn btn-primary" onclick="addTransaction()" style="margin-top: 10px;">
-          ➕ Agregar Registro
+          <span class="emoji-animated">➕</span> Agregar Registro
         </button>
       </div>
 
@@ -235,7 +235,7 @@
         </div>
 
         <div id="transactions-empty" class="empty-state" style="display:none;">
-          <div class="empty-state-icon">📭</div>
+          <div class="empty-state-icon"><span class="emoji-animated" style="font-size: 48px;">📭</span></div>
           <p>No hay registros que coincidan con los filtros.</p>
         </div>
       </div>
@@ -305,14 +305,14 @@
           </div>
         </div>
         <button class="btn btn-primary" onclick="addProgrammable()" style="margin-top: 10px;">
-          ⏰ Programar Movimiento
+          <span class="emoji-animated">⏰</span> Programar Movimiento
         </button>
       </div>
 
       <h2 class="section-title" data-i18n="scheduled_moves">Movimientos Programados</h2>
       <div id="programables-container"></div>
       <div id="programables-empty" class="empty-state" style="display:none;">
-        <div class="empty-state-icon">⏳</div>
+        <div class="empty-state-icon"><span class="emoji-animated" style="font-size: 48px;">⏳</span></div>
         <p data-i18n="no_scheduled">No hay movimientos programados. ¡Programa tus gastos e ingresos recurrentes!</p>
       </div>
     </div>
@@ -350,14 +350,14 @@
           </div>
         </div>
         <button class="btn btn-primary" onclick="addGoal()" style="margin-top: 10px;">
-          🎯 Crear Meta
+          <span class="emoji-animated">🎯</span> Crear Meta
         </button>
       </div>
 
       <h2 class="section-title" data-i18n="my_goals">Mis Metas de Ahorro</h2>
       <div id="metas-list-container"></div>
       <div id="metas-empty" class="empty-state" style="display:none;">
-        <div class="empty-state-icon">🎯</div>
+        <div class="empty-state-icon"><span class="emoji-animated" style="font-size: 48px;">🎯</span></div>
         <p data-i18n="no_goals">No tienes metas de ahorro aún. ¡Crea tu primera meta!</p>
       </div>
     </div>
@@ -444,7 +444,7 @@
 
     <!-- CONFIGURACION PAGE -->
     <div id="page-configuracion" class="page">
-      <h2 class="section-title" data-i18n="settings">⚙️ Configuración</h2>
+      <h2 class="section-title" data-i18n="settings"><span class="emoji-animated">⚙️</span> Configuración</h2>
 
       <div class="config-grid">
         <!-- Perfil Card -->
@@ -558,7 +558,7 @@
               <input type="password" class="form-input" id="confirm-password" placeholder="Repite la nueva contraseña">
             </div>
             <button class="btn btn-primary" onclick="changePassword()" style="width: 100%; margin-top: 8px;">
-              🔒 Cambiar Contraseña
+              <span class="emoji-animated">🔒</span> Cambiar Contraseña
             </button>
           </div>
         </div>
@@ -575,10 +575,10 @@
           <div class="config-section">
             <div style="display: flex; flex-direction: column; gap: 12px;">
               <button class="btn btn-danger" onclick="deleteAllData()" style="width: 100%;">
-                🗑️ Eliminar Todos los Datos
+                <span class="emoji-animated">🗑️</span> Eliminar Todos los Datos
               </button>
               <button class="btn btn-danger" onclick="deleteAccount()" style="width: 100%;">
-                🚫 Eliminar Cuenta Permanentemente
+                <span class="emoji-animated">🚫</span> Eliminar Cuenta Permanentemente
               </button>
             </div>
             <p style="margin-top: 12px; font-size: 12px; color: var(--text-muted); text-align: center;">
@@ -844,13 +844,13 @@
     "placeholder_name": "Tu nombre",
     "min_password": "Mínimo 6 caracteres",
     "logout": "🚪 Salir",
-    "dashboard": "📊 Dashboard",
-    "records": "📝 Registros",
-    "scheduled": "⏰ Programables",
-    "goals": "🎯 Metas",
-    "currencies": "💱 Divisas",
-    "config": "⚙️ Config",
-    "config_full": "⚙️ Configuración",
+    "dashboard": "<span class="emoji-animated">📊</span> Dashboard",
+    "records": "<span class="emoji-animated">📝</span> Registros",
+    "scheduled": "<span class="emoji-animated">⏰</span> Programables",
+    "goals": "<span class="emoji-animated">🎯</span> Metas",
+    "currencies": "<span class="emoji-animated">💱</span> Divisas",
+    "config": "<span class="emoji-animated">⚙️</span> Config",
+    "config_full": "<span class="emoji-animated">⚙️</span> Configuración",
     "logout_menu": "🚪 Cerrar Sesión",
     "month_income": "Ingresos del Mes",
     "month_expense": "Gastos del Mes",
@@ -860,11 +860,11 @@
     "vs_prev_month_down": "▼ {pct}% vs mes anterior",
     "positive_trend": "▲ Tendencia positiva",
     "goal_pct": "▲ Meta al {pct}%",
-    "monthly_evolution": "📈 Evolución Mensual",
-    "goal_progress": "🎯 Progreso de Metas",
-    "saving_goals": "🎯 Objetivos de Ahorro",
-    "expense_dist": "📊 Distribución de Gastos",
-    "income_dist": "💰 Distribución de Ingresos",
+    "monthly_evolution": "<span class="emoji-animated">📈</span> Evolución Mensual",
+    "goal_progress": "<span class="emoji-animated">🎯</span> Progreso de Metas",
+    "saving_goals": "<span class="emoji-animated">🎯</span> Objetivos de Ahorro",
+    "expense_dist": "<span class="emoji-animated">📊</span> Distribución de Gastos",
+    "income_dist": "<span class="emoji-animated">💰</span> Distribución de Ingresos",
     "global_goal": "Meta Global",
     "new_record": "Nuevo Registro",
     "concept": "Concepto",
@@ -873,7 +873,7 @@
     "date": "Fecha",
     "notes": "Notas (opcional)",
     "notes_placeholder": "Detalles adicionales...",
-    "add_record": "➕ Agregar Registro",
+    "add_record": "<span class="emoji-animated">➕</span> Agregar Registro",
     "record_history": "Historial de Registros",
     "income": "Ingreso",
     "expense": "Gasto",
@@ -911,7 +911,7 @@
     "time": "Hora",
     "start_date": "Fecha Inicio",
     "end_date": "Fecha Fin (opcional)",
-    "schedule_btn": "⏰ Programar Movimiento",
+    "schedule_btn": "<span class="emoji-animated">⏰</span> Programar Movimiento",
     "scheduled_moves": "Movimientos Programados",
     "monthly": "📅 Mensual",
     "weekly": "📆 Semanal",
@@ -926,7 +926,7 @@
     "goal_target": "Monto Objetivo",
     "goal_current": "Monto Actual",
     "color": "Color",
-    "create_goal": "🎯 Crear Meta",
+    "create_goal": "<span class="emoji-animated">🎯</span> Crear Meta",
     "my_goals": "Mis Metas de Ahorro",
     "remaining": "Faltan:",
     "completed": "completado",
@@ -944,7 +944,7 @@
     "code": "Código",
     "rate_vs_usd": "Tasa vs USD",
     "trend": "Tendencia",
-    "settings": "⚙️ Configuración",
+    "settings": "<span class="emoji-animated">⚙️</span> Configuración",
     "user_profile": "Perfil de Usuario",
     "personal_data": "Tus datos personales",
     "name": "Nombre",
@@ -962,11 +962,11 @@
     "confirm_password": "Confirmar Nueva Contraseña",
     "min_6_chars": "Mínimo 6 caracteres",
     "repeat_password": "Repite la nueva contraseña",
-    "change_password_btn": "🔒 Cambiar Contraseña",
+    "change_password_btn": "<span class="emoji-animated">🔒</span> Cambiar Contraseña",
     "danger_zone": "Zona de Peligro",
     "irreversible": "Acciones irreversibles",
-    "delete_all_data": "🗑️ Eliminar Todos los Datos",
-    "delete_account": "🚫 Eliminar Cuenta Permanentemente",
+    "delete_all_data": "<span class="emoji-animated">🗑️</span> Eliminar Todos los Datos",
+    "delete_account": "<span class="emoji-animated">🚫</span> Eliminar Cuenta Permanentemente",
     "warning_irreversible": "Estas acciones no se pueden deshacer. ¡Ten cuidado!",
     "edit_goal": "✏️ Editar Meta",
     "save": "💾 Guardar",
@@ -1010,7 +1010,7 @@
     "placeholder_name": "Your name",
     "min_password": "Minimum 6 characters",
     "logout": "🚪 Log Out",
-    "dashboard": "📊 Dashboard",
+    "dashboard": "<span class="emoji-animated">📊</span> Dashboard",
     "records": "📝 Records",
     "scheduled": "⏰ Scheduled",
     "goals": "🎯 Goals",
@@ -1169,7 +1169,7 @@
     "placeholder_name": "Iyong pangalan",
     "min_password": "Minimum na 6 character",
     "logout": "🚪 Mag-log Out",
-    "dashboard": "📊 Dashboard",
+    "dashboard": "<span class="emoji-animated">📊</span> Dashboard",
     "records": "📝 Talaan",
     "scheduled": "⏰ Iskedyul",
     "goals": "🎯 Mga Layunin",
@@ -1651,8 +1651,8 @@
     "scheduled": "⏰ Programats",
     "goals": "🎯 Objectius",
     "currencies": "💱 Divises",
-    "config": "⚙️ Config",
-    "config_full": "⚙️ Configuració",
+    "config": "<span class="emoji-animated">⚙️</span> Config",
+    "config_full": "<span class="emoji-animated">⚙️</span> Configuració",
     "logout_menu": "🚪 Tancar Sessió",
     "month_income": "Ingressos del Mes",
     "month_expense": "Despeses del Mes",
@@ -1746,7 +1746,7 @@
     "code": "Codi",
     "rate_vs_usd": "Taxa vs USD",
     "trend": "Tendència",
-    "settings": "⚙️ Configuració",
+    "settings": "<span class="emoji-animated">⚙️</span> Configuració",
     "user_profile": "Perfil d'Usuari",
     "personal_data": "Les teves dades personals",
     "name": "Nom",
@@ -3614,8 +3614,5 @@
     });
   </script>
 
-  <!-- LANGUAGE FAB (Floating Action Button) -->
-  
-
-</body>
+  </body>
 </html>
