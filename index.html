@@ -2042,40 +2042,47 @@
         if (el) el.textContent = T[key] || key;
       };
 
-      // Update auth screen
-      updateText('tab-login', 'login');
-      updateText('tab-register', 'register');
-      updateText('login-btn', 'login_btn');
-      updateText('reg-btn', 'register_btn');
+      // Check if auth screen is visible (user not logged in)
+      const authScreen = document.getElementById('auth-screen');
+      const isAuthVisible = authScreen && authScreen.style.display !== 'none';
 
-      // Update auth screen modern elements
-      const authTitle = document.getElementById('auth-form-title');
-      const authSubtitle = document.getElementById('auth-form-subtitle');
-      if (authTitle && authTitle.dataset.i18n) authTitle.textContent = T[authTitle.dataset.i18n] || authTitle.textContent;
-      if (authSubtitle && authSubtitle.dataset.i18n) authSubtitle.textContent = T[authSubtitle.dataset.i18n] || authSubtitle.textContent;
+      // Only update auth screen elements if auth screen is visible
+      if (isAuthVisible) {
+        // Update auth screen (legacy)
+        updateText('tab-login', 'login');
+        updateText('tab-register', 'register');
+        updateText('login-btn', 'login_btn');
+        updateText('reg-btn', 'register_btn');
 
-      // Update auth features
-      document.querySelectorAll('.auth-feature-text').forEach(el => {
-        const key = el.dataset.i18n;
-        if (key && T[key]) el.textContent = T[key];
-      });
+        // Update auth screen modern elements
+        const authTitle = document.getElementById('auth-form-title');
+        const authSubtitle = document.getElementById('auth-form-subtitle');
+        if (authTitle && authTitle.dataset.i18n) authTitle.textContent = T[authTitle.dataset.i18n] || authTitle.textContent;
+        if (authSubtitle && authSubtitle.dataset.i18n) authSubtitle.textContent = T[authSubtitle.dataset.i18n] || authSubtitle.textContent;
 
-      // Update auth brand tagline
-      const brandTagline = document.querySelector('.auth-brand-tagline');
-      if (brandTagline && brandTagline.dataset.i18n && T[brandTagline.dataset.i18n]) {
-        brandTagline.textContent = T[brandTagline.dataset.i18n];
+        // Update auth features
+        document.querySelectorAll('.auth-feature-text').forEach(el => {
+          const key = el.dataset.i18n;
+          if (key && T[key]) el.textContent = T[key];
+        });
+
+        // Update auth brand tagline
+        const brandTagline = document.querySelector('.auth-brand-tagline');
+        if (brandTagline && brandTagline.dataset.i18n && T[brandTagline.dataset.i18n]) {
+          brandTagline.textContent = T[brandTagline.dataset.i18n];
+        }
+
+        // Update auth footer
+        const authFooter = document.querySelector('.auth-footer-text');
+        if (authFooter && authFooter.dataset.i18n && T[authFooter.dataset.i18n]) {
+          authFooter.textContent = T[authFooter.dataset.i18n];
+        }
+
+        // Update active language button
+        document.querySelectorAll('.auth-lang-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.lang === window.currentLang);
+        });
       }
-
-      // Update auth footer
-      const authFooter = document.querySelector('.auth-footer-text');
-      if (authFooter && authFooter.dataset.i18n && T[authFooter.dataset.i18n]) {
-        authFooter.textContent = T[authFooter.dataset.i18n];
-      }
-
-      // Update active language button
-      document.querySelectorAll('.auth-lang-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.lang === window.currentLang);
-      });
 
       // Update labels
       const labels = document.querySelectorAll('[data-i18n-label]');
@@ -2160,8 +2167,12 @@
           if (window.userProfile.currency) {
             window.userCurrency = window.userProfile.currency;
           }
-          // Load saved language
-          if (window.userProfile.language && I18N[window.userProfile.language]) {
+          // Load saved language - ONLY if user hasn't manually set a preference in this session
+          // Priority: localStorage > profile > browser detection
+          const savedLang = localStorage.getItem('fintech-lang');
+          if (savedLang && I18N[savedLang]) {
+            window.currentLang = savedLang;
+          } else if (window.userProfile.language && I18N[window.userProfile.language]) {
             window.currentLang = window.userProfile.language;
             localStorage.setItem('fintech-lang', window.currentLang);
           }
@@ -2171,8 +2182,8 @@
         const langSelect = document.getElementById('config-language');
         if (langSelect) langSelect.value = window.currentLang;
 
-        // Update auth language buttons
-        document.querySelectorAll('.lang-btn').forEach(btn => {
+        // Update auth language buttons (both old and new)
+        document.querySelectorAll('.lang-btn, .auth-lang-btn').forEach(btn => {
           btn.classList.toggle('active', btn.dataset.lang === window.currentLang);
         });
 
@@ -2185,7 +2196,7 @@
         // Detect and apply language for auth screen
         const detectedLang = detectLanguage();
         window.currentLang = detectedLang;
-        document.querySelectorAll('.lang-btn').forEach(btn => {
+        document.querySelectorAll('.lang-btn, .auth-lang-btn').forEach(btn => {
           btn.classList.toggle('active', btn.dataset.lang === detectedLang);
         });
         applyLanguage();
