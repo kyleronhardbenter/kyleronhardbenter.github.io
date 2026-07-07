@@ -336,6 +336,41 @@ body {
   display: block;
 }
 
+
+/* ===== LANGUAGE SELECTOR ===== */
+.language-selector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  padding: 0 8px;
+}
+.lang-btn {
+  padding: 6px 12px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.lang-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-medium);
+  color: var(--text-secondary);
+}
+.lang-btn.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 8px var(--accent-glow);
+}
+
 /* ===== PAGE SYSTEM ===== */
 .page { display: none; }
 .page.active { display: block; animation: fadeIn 0.3s ease; }
@@ -1200,6 +1235,27 @@ body {
   text-align: center;
 }
 
+
+/* ===== SCHEDULER INDICATOR ===== */
+.scheduled-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Execution badge */
+.exec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--positive-dim);
+  color: var(--positive);
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
 /* ===== RESPONSIVE ===== */
 
 /* Tablet */
@@ -1441,6 +1497,14 @@ body {
   }
   .pagination-info {
     font-size: 12px;
+  }
+
+  .language-selector {
+    gap: 4px;
+  }
+  .lang-btn {
+    padding: 5px 8px;
+    font-size: 11px;
   }
 }
 /* Scrollbar */
