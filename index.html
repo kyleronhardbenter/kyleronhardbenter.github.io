@@ -1,2021 +1,1144 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FinTech OS - Dashboard Financiero Futurista</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-<base target="_blank">
-<base target="_blank">
-
-  <style>
-    /* ===== LOADING OVERLAY ===== */
-    .loading-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: var(--bg-primary);
-      z-index: 1000;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-    }
-    .loading-overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-    .loading-overlay .auth-logo {
-      margin-bottom: 40px;
-      animation: loadingPulse 1.5s ease-in-out infinite;
-    }
-    @keyframes loadingPulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.6; transform: scale(0.98); }
-    }
-    .loading-spinner {
-      width: 48px;
-      height: 48px;
-      border: 2px solid var(--border-subtle);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-bottom: 24px;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    .loading-text {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 14px;
-      color: var(--text-secondary);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      animation: loadingFade 1.2s ease-in-out infinite;
-    }
-    @keyframes loadingFade {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 1; }
-    }
-    .loading-dots::after {
-      content: '';
-      animation: dots 1.5s steps(4, end) infinite;
-    }
-    @keyframes dots {
-      0% { content: ''; }
-      25% { content: '.'; }
-      50% { content: '..'; }
-      75% { content: '...'; }
-    }
-  </style>
-
-
-  <style>
-    /* Confirm Modal Styles */
-    #confirm-modal .modal {
-      animation: modalIn 0.25s ease;
-    }
-    #confirm-action-btn {
-      transition: all 0.2s ease;
-    }
-    #confirm-action-btn:hover {
-      filter: brightness(1.2);
-    }
-    #confirm-input {
-      font-family: 'Orbitron', sans-serif;
-      letter-spacing: 1px;
-    }
-    .modal-overlay {
-      transition: opacity 0.2s ease;
-    }
-  </style>
-
-
-  <style>
-    /* Status indicator pulse */
-    .status-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      margin-right: 6px;
-      vertical-align: middle;
-    }
-    .status-dot.active {
-      background: var(--positive);
-      box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4);
-      animation: pulse-green 1.5s ease-in-out infinite;
-    }
-    .status-dot.paused {
-      background: var(--negative);
-      box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.4);
-      animation: pulse-red 1.5s ease-in-out infinite;
-    }
-    @keyframes pulse-green {
-      0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4); }
-      70% { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); }
-    }
-    @keyframes pulse-red {
-      0% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.4); }
-      70% { box-shadow: 0 0 0 6px rgba(248, 113, 113, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(248, 113, 113, 0); }
-    }
-  </style>
-
-
-  <style>
-    /* Fix: Goal cards missing card background */
-    .goal-card {
-      background: var(--bg-secondary) !important;
-      border: 1px solid var(--border-subtle) !important;
-      border-radius: 12px !important;
-      padding: 20px !important;
-      transition: all 0.2s ease;
-    }
-    .goal-card:hover {
-      border-color: var(--border-medium) !important;
-      background: var(--bg-tertiary) !important;
-    }
-
-    /* Fix: Data table rows as cards */
-    .data-table {
-      border-collapse: separate;
-      border-spacing: 0 8px;
-    }
-    .data-table tbody tr {
-      background: var(--bg-secondary);
-      border: 1px solid var(--border-subtle);
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .data-table tbody tr:hover {
-      background: var(--bg-tertiary);
-      border-color: var(--border-medium);
-    }
-    .data-table tbody td {
-      border-bottom: none !important;
-    }
-    .data-table tbody tr td:first-child {
-      border-top-left-radius: 10px;
-      border-bottom-left-radius: 10px;
-    }
-    .data-table tbody tr td:last-child {
-      border-top-right-radius: 10px;
-      border-bottom-right-radius: 10px;
-    }
-    .data-table thead th {
-      border-bottom: 1px solid var(--border-subtle);
-    }
-  </style>
-
-
-  <style>
-    /* Ensure scheduled-cards with .card class look right */
-    .scheduled-grid .card.scheduled-card {
-      padding: 18px;
-    }
-    .goals-grid .card.goal-card {
-      padding: 20px;
-    }
-  </style>
-
-<base target="_blank">
-</head>
-<body>
-
-  <!-- LOADING OVERLAY -->
-  <div class="loading-overlay" id="loading-overlay">
-    <div class="auth-logo">FIN<span>TECH</span> OS</div>
-    <div class="loading-spinner"></div>
-    <div class="loading-text" id="loading-text">Iniciando sesión<span class="loading-dots"></span></div>
-  </div>
-
-  <div class="bg-grid"></div>
-  <div class="bg-glow bg-glow-1"></div>
-  <div class="bg-glow bg-glow-2"></div>
-
-  <div class="app" id="app-container" style="display:none;">
-    <header class="header">
-      <div class="logo">FIN<span>TECH</span> OS</div>
-      <nav class="nav-tabs" id="main-nav">
-        <button class="nav-tab active" onclick="showPage('dashboard')">📊 Dashboard</button>
-        <button class="nav-tab" onclick="showPage('registros')">📝 Registros</button>
-        <button class="nav-tab" onclick="showPage('programables')">⏰ Programables & Metas</button>
-        
-        <button class="nav-tab" onclick="showPage('divisas')">💱 Divisas</button>
-        <button class="nav-tab" onclick="showPage('configuracion')">⚙️ Config</button>
-      </nav>
-      <div class="user-profile" id="user-profile">
-        <div class="user-avatar" id="user-avatar">U</div>
-        <div class="user-info">
-          <div class="user-name" id="user-name">Usuario</div>
-          <button class="logout-btn" onclick="logout()">🚪 Salir</button>
-        </div>
-      </div>
-    </header>
-
-    <!-- DASHBOARD PAGE -->
-    <div id="page-dashboard" class="page active">
-      <div class="stats-grid">
-        <div class="card">
-          <div class="stat-label">Ingresos del Mes</div>
-          <div class="stat-value income" id="dash-income">$0.00</div>
-          <div class="stat-change" id="dash-income-change">—</div>
-        </div>
-        <div class="card">
-          <div class="stat-label">Gastos del Mes</div>
-          <div class="stat-value expense" id="dash-expense">$0.00</div>
-          <div class="stat-change" id="dash-expense-change">—</div>
-        </div>
-        <div class="card">
-          <div class="stat-label">Balance Neto</div>
-          <div class="stat-value balance" id="dash-balance">$0.00</div>
-          <div class="stat-change up">▲ Tendencia positiva</div>
-        </div>
-        <div class="card">
-          <div class="stat-label">Ahorro Acumulado</div>
-          <div class="stat-value savings" id="dash-savings">$0.00</div>
-          <div class="stat-change" id="dash-savings-change">—</div>
-        </div>
-      </div>
-
-      <div class="charts-grid" style="margin-bottom: 24px;">
-        <div class="card">
-          <div class="card-title">📈 Evolución Mensual</div>
-          <div class="chart-container" id="main-chart"></div>
-        </div>
-        <div class="card">
-          <div class="card-title">🎯 Progreso de Metas</div>
-          <div class="progress-ring" id="savings-ring"></div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom: 24px;">
-        <div class="card-title">🎯 Objetivos de Ahorro</div>
-        <div class="goals-grid" id="goals-container"></div>
-      </div>
-
-      <div class="charts-grid">
-        <div class="card">
-          <div class="card-title">📊 Distribución de Gastos</div>
-          <div class="chart-container" id="expense-chart"></div>
-        </div>
-        <div class="card">
-          <div class="card-title">💰 Distribución de Ingresos</div>
-          <div class="chart-container" id="income-chart"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- REGISTROS PAGE -->
-    <div id="page-registros" class="page">
-      <h2 class="section-title">Nuevo Registro</h2>
-      <div class="card" style="margin-bottom: 30px;">
-        <div class="toggle-group" style="margin-bottom: 20px;">
-          <button class="toggle-btn active" id="btn-type-income" onclick="setTransactionType('income')">Ingreso</button>
-          <button class="toggle-btn" id="btn-type-expense" onclick="setTransactionType('expense')">Gasto</button>
-        </div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Concepto</label>
-            <input type="text" class="form-input" id="reg-concepto" placeholder="Ej: Sueldo, Alquiler...">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Monto (<span class="currency-label">USD</span>)</label>
-            <input type="number" class="form-input" id="reg-monto" placeholder="0.00" step="0.01">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Categoría</label>
-            <select class="form-select" id="reg-categoria">
-              <option value="">Seleccionar...</option>
-              <option value="salario">💼 Salario</option>
-              <option value="freelance">💻 Freelance</option>
-              <option value="inversiones">📈 Inversiones</option>
-              <option value="ventas">🛒 Ventas</option>
-              <option value="otros-ing">✨ Otros Ingresos</option>
-              <option value="vivienda">🏠 Vivienda</option>
-              <option value="alimentacion">🍽️ Alimentación</option>
-              <option value="transporte">🚗 Transporte</option>
-              <option value="servicios">⚡ Servicios</option>
-              <option value="entretenimiento">🎮 Entretenimiento</option>
-              <option value="salud">💊 Salud</option>
-              <option value="educacion">📚 Educación</option>
-              <option value="otros-gas">📌 Otros Gastos</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Fecha</label>
-            <input type="date" class="form-input" id="reg-fecha">
-          </div>
-        </div>
-        <div class="form-grid">
-          <div class="form-group" style="grid-column: 1 / -1;">
-            <label class="form-label">Notas (opcional)</label>
-            <input type="text" class="form-input" id="reg-notas" placeholder="Detalles adicionales...">
-          </div>
-        </div>
-        <button class="btn btn-primary" onclick="addTransaction()" style="margin-top: 10px;">
-          ➕ Agregar Registro
-        </button>
-      </div>
-
-      <h2 class="section-title">Historial de Registros</h2>
-      <div class="card">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Concepto</th>
-              <th>Categoría</th>
-              <th>Tipo</th>
-              <th>Monto</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="transactions-table" style="border-spacing: 0 8px;"></tbody>
-        </table>
-        <div id="transactions-empty" class="empty-state" style="display:none;">
-          <div class="empty-state-icon">📭</div>
-          <p>No hay registros aún. ¡Empieza a registrar tus movimientos!</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- PROGRAMABLES PAGE -->
-    <div id="page-programables" class="page">
-      <h2 class="section-title">Nuevo Programable</h2>
-      <div class="card" style="margin-bottom: 30px;">
-        <div class="toggle-group" style="margin-bottom: 20px;">
-          <button class="toggle-btn active" id="btn-prog-income" onclick="setProgrammableType('income')">Ingreso</button>
-          <button class="toggle-btn" id="btn-prog-expense" onclick="setProgrammableType('expense')">Gasto</button>
-        </div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Concepto</label>
-            <input type="text" class="form-input" id="prog-concepto" placeholder="Ej: Alquiler mensual...">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Monto (<span class="currency-label">USD</span>)</label>
-            <input type="number" class="form-input" id="prog-monto" placeholder="0.00" step="0.01">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Categoría</label>
-            <select class="form-select" id="prog-categoria">
-              <option value="">Seleccionar...</option>
-              <option value="salario">💼 Salario</option>
-              <option value="freelance">💻 Freelance</option>
-              <option value="inversiones">📈 Inversiones</option>
-              <option value="ventas">🛒 Ventas</option>
-              <option value="otros-ing">✨ Otros Ingresos</option>
-              <option value="vivienda">🏠 Vivienda</option>
-              <option value="alimentacion">🍽️ Alimentación</option>
-              <option value="transporte">🚗 Transporte</option>
-              <option value="servicios">⚡ Servicios</option>
-              <option value="entretenimiento">🎮 Entretenimiento</option>
-              <option value="salud">💊 Salud</option>
-              <option value="educacion">📚 Educación</option>
-              <option value="otros-gas">📌 Otros Gastos</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Frecuencia</label>
-            <select class="form-select" id="prog-frecuencia">
-              <option value="monthly">📅 Mensual</option>
-              <option value="weekly">📆 Semanal</option>
-              <option value="biweekly">🗓️ Quincenal</option>
-              <option value="daily">☀️ Diario</option>
-              <option value="yearly">🎉 Anual</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Día del Mes (1-31)</label>
-            <input type="number" class="form-input" id="prog-dia" min="1" max="31" placeholder="Ej: 1">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Hora</label>
-            <input type="time" class="form-input" id="prog-hora" value="00:00">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Fecha Inicio</label>
-            <input type="date" class="form-input" id="prog-inicio">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Fecha Fin (opcional)</label>
-            <input type="date" class="form-input" id="prog-fin">
-          </div>
-        </div>
-        <button class="btn btn-primary" onclick="addProgrammable()" style="margin-top: 10px;">
-          ⏰ Programar Movimiento
-        </button>
-      </div>
-
-      <h2 class="section-title">Movimientos Programados</h2>
-      <div id="programables-container"></div>
-      <div id="programables-empty" class="empty-state" style="display:none;">
-        <div class="empty-state-icon">⏳</div>
-        <p>No hay movimientos programados. ¡Programa tus gastos e ingresos recurrentes!</p>
-      </div>
-    
-    <!-- METAS SECTION (integrated into Programables) -->
-    <h2 class="section-title" style="margin-top: 40px;">🎯 Metas de Ahorro</h2>
-    <div class="card" style="margin-bottom: 30px;">
-      <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Nombre de la Meta</label>
-          <input type="text" class="form-input" id="meta-nombre" placeholder="Ej: Auto Nuevo, Vacaciones...">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Monto Objetivo (<span class="currency-label">USD</span>)</label>
-          <input type="number" class="form-input" id="meta-objetivo" placeholder="0.00" step="0.01">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Monto Actual (<span class="currency-label">USD</span>)</label>
-          <input type="number" class="form-input" id="meta-actual" placeholder="0.00" step="0.01" value="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Color</label>
-          <div class="color-picker">
-            <div class="color-option selected" style="background:#00d4ff" data-color="#00d4ff" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#a855f7" data-color="#a855f7" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#00ff88" data-color="#00ff88" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#f59e0b" data-color="#f59e0b" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#ff3366" data-color="#ff3366" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#6366f1" data-color="#6366f1" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#ec4899" data-color="#ec4899" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#14b8a6" data-color="#14b8a6" onclick="selectColor(this)"></div>
-          </div>
-          <input type="hidden" id="meta-color" value="#00d4ff">
-        </div>
-      </div>
-      <button class="btn btn-primary" onclick="addGoal()" style="margin-top: 10px;">
-        🎯 Crear Meta
-      </button>
-    </div>
-
-    <h2 class="section-title">Mis Metas de Ahorro</h2>
-    <div id="metas-list-container"></div>
-    <div id="metas-empty" class="empty-state" style="display:none;">
-      <div class="empty-state-icon">🎯</div>
-      <p>No tienes metas de ahorro aún. ¡Crea tu primera meta!</p>
-    </div>
-</div>
-
-<div id="page-divisas" class="page">
-      <h2 class="section-title">💱 Conversor de Divisas</h2>
-
-      <div class="card" style="margin-bottom: 30px;">
-        <div class="card-title">Tu Saldo en Todas las Divisas</div>
-        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">
-          Tu saldo total se convierte automáticamente a las principales divisas del mundo usando tasas de cambio en tiempo real.
-        </p>
-        <div class="currency-grid" id="currency-grid"></div>
-        <div style="margin-top: 16px; font-size: 12px; color: var(--text-muted); text-align: center;">
-          💡 Tasas actualizadas: Julio 2026 | Fuente: Federal Reserve & BSP
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🔧 Conversor Manual</div>
-        <div class="form-grid" style="margin-top: 16px;">
-          <div class="form-group">
-            <label class="form-label">Monto</label>
-            <input type="number" class="form-input" id="conv-monto" placeholder="0.00" step="0.01" oninput="convertCurrency()">
-          </div>
-          <div class="form-group">
-            <label class="form-label">De</label>
-            <select class="form-select" id="conv-from" onchange="convertCurrency()">
-              <option value="USD">🇺🇸 USD - Dólar Estadounidense</option>
-              <option value="EUR">🇪🇺 EUR - Euro</option>
-              <option value="GBP">🇬🇧 GBP - Libra Esterlina</option>
-              <option value="JPY">🇯🇵 JPY - Yen Japonés</option>
-              <option value="CNY">🇨🇳 CNY - Yuan Chino</option>
-              <option value="MXN">🇲🇽 MXN - Peso Mexicano</option>
-              <option value="COP">🇨🇴 COP - Peso Colombiano</option>
-              <option value="ARS">🇦🇷 ARS - Peso Argentino</option>
-              <option value="BRL">🇧🇷 BRL - Real Brasileño</option>
-              <option value="PHP">🇵🇭 PHP - Peso Filipino</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">A</label>
-            <select class="form-select" id="conv-to" onchange="convertCurrency()">
-              <option value="USD">🇺🇸 USD - Dólar Estadounidense</option>
-              <option value="EUR" selected>🇪🇺 EUR - Euro</option>
-              <option value="GBP">🇬🇧 GBP - Libra Esterlina</option>
-              <option value="JPY">🇯🇵 JPY - Yen Japonés</option>
-              <option value="CNY">🇨🇳 CNY - Yuan Chino</option>
-              <option value="MXN">🇲🇽 MXN - Peso Mexicano</option>
-              <option value="COP">🇨🇴 COP - Peso Colombiano</option>
-              <option value="ARS">🇦🇷 ARS - Peso Argentino</option>
-              <option value="BRL">🇧🇷 BRL - Real Brasileño</option>
-              <option value="PHP">🇵🇭 PHP - Peso Filipino</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Resultado</label>
-            <div class="form-input" id="conv-result" style="display:flex;align-items:center;font-family:'Orbitron';font-weight:700;color:var(--accent-cyan);">
-              $0.00
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top: 20px;">
-        <div class="card-title">📋 Tabla de Tasas de Cambio (Base USD)</div>
-        <div style="overflow-x: auto;">
-          <table class="data-table" id="rates-table">
-            <thead>
-              <tr>
-                <th>Divisa</th>
-                <th>Código</th>
-                <th>Tasa vs USD</th>
-                <th>1 USD =</th>
-                <th>Tendencia</th>
-              </tr>
-            </thead>
-            <tbody id="rates-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- CONFIGURACION PAGE -->
-    <div id="page-configuracion" class="page">
-      <h2 class="section-title">⚙️ Configuración</h2>
-
-      <div class="config-grid">
-        <!-- Perfil Card -->
-        <div class="card config-card">
-          <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(0, 212, 255, 0.15); color: var(--accent-cyan);">👤</div>
-            <div>
-              <div class="config-card-title">Perfil de Usuario</div>
-              <div class="config-card-subtitle">Tus datos personales</div>
-            </div>
-          </div>
-          <div class="config-section">
-            <div class="config-field">
-              <label class="config-label">Nombre</label>
-              <div class="config-value" id="config-name">—</div>
-            </div>
-            <div class="config-field">
-              <label class="config-label">Email</label>
-              <div class="config-value" id="config-email">—</div>
-            </div>
-            <div class="config-field">
-              <label class="config-label">UID</label>
-              <div class="config-value" id="config-uid" style="font-size: 11px; font-family: monospace;">—</div>
-            </div>
-            <div class="config-field">
-              <label class="config-label">Cuenta creada</label>
-              <div class="config-value" id="config-created">—</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Divisa Card -->
-        <div class="card config-card">
-          <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(168, 85, 247, 0.15); color: var(--accent-purple);">💱</div>
-            <div>
-              <div class="config-card-title">Divisa Principal</div>
-              <div class="config-card-subtitle">Moneda para todos tus registros</div>
-            </div>
-          </div>
-          <div class="config-section">
-            <div class="form-group">
-              <label class="form-label">Selecciona tu divisa</label>
-              <select class="form-select" id="config-currency" onchange="saveCurrencyPreference()">
-                <option value="USD">🇺🇸 USD - Dólar Estadounidense</option>
-                <option value="EUR">🇪🇺 EUR - Euro</option>
-                <option value="GBP">🇬🇧 GBP - Libra Esterlina</option>
-                <option value="JPY">🇯🇵 JPY - Yen Japonés</option>
-                <option value="CNY">🇨🇳 CNY - Yuan Chino</option>
-                <option value="MXN">🇲🇽 MXN - Peso Mexicano</option>
-                <option value="COP">🇨🇴 COP - Peso Colombiano</option>
-                <option value="ARS">🇦🇷 ARS - Peso Argentino</option>
-                <option value="BRL">🇧🇷 BRL - Real Brasileño</option>
-                <option value="PHP">🇵🇭 PHP - Peso Filipino</option>
-              </select>
-            </div>
-            <div style="margin-top: 12px; padding: 12px; background: rgba(0, 212, 255, 0.05); border-radius: 10px; border: 1px solid var(--glass-border);">
-              <div style="font-size: 12px; color: var(--text-muted);">
-                💡 Tu divisa actual: <strong id="current-currency-display" style="color: var(--accent-cyan);">USD</strong><br>
-                Todos los montos se mostrarán y registrarán en esta moneda.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Seguridad Card -->
-        <div class="card config-card">
-          <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(0, 255, 136, 0.15); color: var(--accent-green);">🔐</div>
-            <div>
-              <div class="config-card-title">Seguridad</div>
-              <div class="config-card-subtitle">Cambia tu contraseña</div>
-            </div>
-          </div>
-          <div class="config-section">
-            <div class="form-group">
-              <label class="form-label">Contraseña Actual</label>
-              <input type="password" class="form-input" id="curr-password" placeholder="••••••••">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Nueva Contraseña</label>
-              <input type="password" class="form-input" id="new-password" placeholder="Mínimo 6 caracteres">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Confirmar Nueva Contraseña</label>
-              <input type="password" class="form-input" id="confirm-password" placeholder="Repite la nueva contraseña">
-            </div>
-            <button class="btn btn-primary" onclick="changePassword()" style="width: 100%; margin-top: 8px;">
-              🔒 Cambiar Contraseña
-            </button>
-          </div>
-        </div>
-
-        <!-- Danger Zone Card -->
-        <div class="card config-card">
-          <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(255, 51, 102, 0.15); color: var(--accent-red);">⚠️</div>
-            <div>
-              <div class="config-card-title">Zona de Peligro</div>
-              <div class="config-card-subtitle">Acciones irreversibles</div>
-            </div>
-          </div>
-          <div class="config-section">
-            <div style="display: flex; flex-direction: column; gap: 12px;">
-              <button class="btn btn-danger" onclick="deleteAllData()" style="width: 100%;">
-                🗑️ Eliminar Todos los Datos
-              </button>
-              <button class="btn btn-danger" onclick="deleteAccount()" style="width: 100%;">
-                🚫 Eliminar Cuenta Permanentemente
-              </button>
-            </div>
-            <p style="margin-top: 12px; font-size: 12px; color: var(--text-muted); text-align: center;">
-              Estas acciones no se pueden deshacer. ¡Ten cuidado!
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- LOGIN/REGISTER SCREEN -->
-  <div class="auth-screen" id="auth-screen">
-    <div class="auth-container">
-      <div class="auth-logo">FIN<span>TECH</span> OS</div>
-      <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-login" onclick="showAuthTab('login')">Iniciar Sesión</button>
-        <button class="auth-tab" id="tab-register" onclick="showAuthTab('register')">Crear Cuenta</button>
-      </div>
-
-      <div id="auth-login">
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" id="login-email" placeholder="tu@email.com">
-        </div>
-        <div class="form-group" style="margin-bottom: 24px;">
-          <label class="form-label">Contraseña</label>
-          <input type="password" class="form-input" id="login-password" placeholder="••••••••">
-        </div>
-        <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Ingresar</button>
-      </div>
-
-      <div id="auth-register" style="display:none;">
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label class="form-label">Nombre Completo</label>
-          <input type="text" class="form-input" id="reg-name" placeholder="Tu nombre">
-        </div>
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label class="form-label">Email</label>
-          <input type="email" class="form-input" id="reg-email" placeholder="tu@email.com">
-        </div>
-        <div class="form-group" style="margin-bottom: 24px;">
-          <label class="form-label">Contraseña</label>
-          <input type="password" class="form-input" id="reg-password" placeholder="Mínimo 6 caracteres">
-        </div>
-        <button class="btn btn-success" style="width:100%;" onclick="register()">✨ Crear Cuenta</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- EDIT GOAL MODAL -->
-  <div class="modal-overlay" id="edit-modal" style="display:none;" onclick="closeEditModalOnOverlay(event)">
-    <div class="modal" onclick="event.stopPropagation()">
-      <h3 class="modal-title">✏️ Editar Meta</h3>
-      <input type="hidden" id="edit-meta-id">
-      <div class="form-group" style="margin-bottom: 12px;">
-        <label class="form-label">Nombre</label>
-        <input type="text" class="form-input" id="edit-meta-nombre">
-      </div>
-      <div class="form-group" style="margin-bottom: 12px;">
-        <label class="form-label">Monto Objetivo</label>
-        <input type="number" class="form-input" id="edit-meta-objetivo" step="0.01">
-      </div>
-      <div class="form-group" style="margin-bottom: 12px;">
-        <label class="form-label">Monto Actual</label>
-        <input type="number" class="form-input" id="edit-meta-actual" step="0.01">
-      </div>
-      <div class="form-group" style="margin-bottom: 20px;">
-        <label class="form-label">Color</label>
-        <div class="color-picker" id="edit-color-picker">
-          <div class="color-option" style="background:#00d4ff" data-color="#00d4ff" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#a855f7" data-color="#a855f7" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#00ff88" data-color="#00ff88" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#f59e0b" data-color="#f59e0b" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#ff3366" data-color="#ff3366" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#6366f1" data-color="#6366f1" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#ec4899" data-color="#ec4899" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#14b8a6" data-color="#14b8a6" onclick="selectEditColor(this)"></div>
-        </div>
-        <input type="hidden" id="edit-meta-color" value="#00d4ff">
-      </div>
-      <div style="display:flex;gap:12px;">
-        <button class="btn btn-primary" style="flex:1;" onclick="saveEditGoal()">💾 Guardar</button>
-        <button class="btn" style="background:rgba(100,116,139,0.2);color:var(--text-secondary);flex:1;" onclick="closeEditModal()">❌ Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue, remove, update, set, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyDmOVgHXXhLAp59JFI0UolZTW9pWyYZuoA",
-      authDomain: "finanzas-pagina.firebaseapp.com",
-      databaseURL: "https://finanzas-pagina-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "finanzas-pagina",
-      storageBucket: "finanzas-pagina.firebasestorage.app",
-      messagingSenderId: "138404823610",
-      appId: "1:138404823610:web:e404ba1b91c02c71d56b03"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
-
-    // ===== EXCHANGE RATES (Base USD) - July 2026 =====
-    const EXCHANGE_RATES = {
-      USD: { rate: 1.0, symbol: '$', name: 'Dólar Estadounidense', flag: '🇺🇸', decimals: 2 },
-      EUR: { rate: 0.8683, symbol: '€', name: 'Euro', flag: '🇪🇺', decimals: 2 },
-      GBP: { rate: 0.7497, symbol: '£', name: 'Libra Esterlina', flag: '🇬🇧', decimals: 2 },
-      JPY: { rate: 160.77, symbol: '¥', name: 'Yen Japonés', flag: '🇯🇵', decimals: 0 },
-      CNY: { rate: 6.7758, symbol: '¥', name: 'Yuan Chino', flag: '🇨🇳', decimals: 2 },
-      MXN: { rate: 17.3792, symbol: '$', name: 'Peso Mexicano', flag: '🇲🇽', decimals: 2 },
-      COP: { rate: 4085.0, symbol: '$', name: 'Peso Colombiano', flag: '🇨🇴', decimals: 0 },
-      ARS: { rate: 1075.0, symbol: '$', name: 'Peso Argentino', flag: '🇦🇷', decimals: 2 },
-      BRL: { rate: 5.1241, symbol: 'R$', name: 'Real Brasileño', flag: '🇧🇷', decimals: 2 },
-      PHP: { rate: 61.54, symbol: '₱', name: 'Peso Filipino', flag: '🇵🇭', decimals: 2 }
-    };
-
-    // Global state
-    window.currentUser = null;
-    window.transactions = [];
-    window.programmables = [];
-    window.savingsGoals = [];
-    window.currentTransType = 'income';
-    window.currentProgType = 'income';
-    window.userCurrency = 'USD';
-    window.userProfile = {};
-
-    // Auth state
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        window.currentUser = user;
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('app-container').style.display = 'block';
-        document.getElementById('user-name').textContent = user.displayName || user.email.split('@')[0];
-        document.getElementById('user-avatar').textContent = (user.displayName || user.email)[0].toUpperCase();
-
-        const profileSnap = await get(ref(db, `users/${user.uid}/profile`));
-        if (profileSnap.exists()) {
-          window.userProfile = profileSnap.val();
-          if (window.userProfile.currency) {
-            window.userCurrency = window.userProfile.currency;
-          }
-        }
-
-        updateCurrencyLabels();
-        setupUserData(user.uid);
-      } else {
-        window.currentUser = null;
-        document.getElementById('auth-screen').style.display = 'flex';
-        document.getElementById('app-container').style.display = 'none';
-      }
-    });
-
-    function setupUserData(uid) {
-      const transRef = ref(db, `users/${uid}/transactions`);
-      const progRef = ref(db, `users/${uid}/programmables`);
-      const goalsRef = ref(db, `users/${uid}/goals`);
-
-      onValue(transRef, (snapshot) => {
-        const data = snapshot.val();
-        window.transactions = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
-        renderTransactions();
-        updateDashboard();
-        renderCurrencyGrid();
-      });
-
-      onValue(progRef, (snapshot) => {
-        const data = snapshot.val();
-        window.programmables = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
-        renderProgrammables();
-      });
-
-      onValue(goalsRef, (snapshot) => {
-        const data = snapshot.val();
-        window.savingsGoals = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
-        renderGoals();
-        renderMetasPage();
-        updateDashboard();
-        renderCurrencyGrid();
-      });
-    }
-
-    // ===== CURRENCY FUNCTIONS =====
-    function updateCurrencyLabels() {
-      document.querySelectorAll('.currency-label').forEach(el => {
-        el.textContent = window.userCurrency;
-      });
-      document.getElementById('current-currency-display').textContent = window.userCurrency;
-      if (document.getElementById('config-currency')) {
-        document.getElementById('config-currency').value = window.userCurrency;
-      }
-    }
-
-    window.saveCurrencyPreference = async () => {
-      if (!window.currentUser) return;
-      const currency = document.getElementById('config-currency').value;
-      window.userCurrency = currency;
-      try {
-        await update(ref(db, `users/${window.currentUser.uid}/profile`), { currency });
-        updateCurrencyLabels();
-        updateDashboard();
-        renderCurrencyGrid();
-        showToast(`✅ Divisa cambiada a ${EXCHANGE_RATES[currency].name}`, 'success');
-      } catch (e) {
-        showToast('❌ Error al guardar preferencia', 'error');
-      }
-    };
-
-    function convertAmount(amount, fromCurrency, toCurrency) {
-      if (fromCurrency === toCurrency) return amount;
-      const usdAmount = amount / EXCHANGE_RATES[fromCurrency].rate;
-      return usdAmount * EXCHANGE_RATES[toCurrency].rate;
-    }
-
-    function formatCurrency(amount, currencyCode) {
-      const curr = EXCHANGE_RATES[currencyCode];
-      return curr.symbol + amount.toLocaleString('en-US', { 
-        minimumFractionDigits: curr.decimals, 
-        maximumFractionDigits: curr.decimals 
-      });
-    }
-
-    function getTotalBalance() {
-      const income = window.transactions.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0);
-      const expense = window.transactions.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
-      return income - expense;
-    }
-
-    window.renderCurrencyGrid = () => {
-      const grid = document.getElementById('currency-grid');
-      if (!grid) return;
-
-      const balance = getTotalBalance();
-      const userCurr = EXCHANGE_RATES[window.userCurrency];
-
-      let html = `
-        <div class="currency-card main-currency">
-          <div class="currency-flag">${userCurr.flag}</div>
-          <div class="currency-info">
-            <div class="currency-name">Tu Saldo (${window.userCurrency})</div>
-            <div class="currency-amount" style="color: var(--accent-cyan);">${formatCurrency(balance, window.userCurrency)}</div>
-          </div>
-        </div>
-      `;
-
-      Object.entries(EXCHANGE_RATES).forEach(([code, curr]) => {
-        if (code === window.userCurrency) return;
-        const converted = convertAmount(balance, window.userCurrency, code);
-        const trend = Math.random() > 0.5 ? 'up' : 'down';
-        html += `
-          <div class="currency-card">
-            <div class="currency-flag">${curr.flag}</div>
-            <div class="currency-info">
-              <div class="currency-name">${code} - ${curr.name}</div>
-              <div class="currency-amount">${formatCurrency(converted, code)}</div>
-              <div class="currency-rate">1 ${window.userCurrency} = ${(curr.rate / userCurr.rate).toFixed(4)} ${code}</div>
-            </div>
-            <div class="currency-trend ${trend}">${trend === 'up' ? '▲' : '▼'}</div>
-          </div>
-        `;
-      });
-
-      grid.innerHTML = html;
-    };
-
-    window.convertCurrency = () => {
-      const monto = parseFloat(document.getElementById('conv-monto').value) || 0;
-      const from = document.getElementById('conv-from').value;
-      const to = document.getElementById('conv-to').value;
-      const result = convertAmount(monto, from, to);
-      document.getElementById('conv-result').textContent = formatCurrency(result, to);
-    };
-
-    function renderRatesTable() {
-      const tbody = document.getElementById('rates-tbody');
-      if (!tbody) return;
-
-      const trends = {
-        USD: 'stable', EUR: 'up', GBP: 'up', JPY: 'down', CNY: 'up',
-        MXN: 'stable', COP: 'down', ARS: 'down', BRL: 'up', PHP: 'down'
-      };
-
-      tbody.innerHTML = Object.entries(EXCHANGE_RATES).map(([code, curr]) => {
-        const trend = trends[code] || 'stable';
-        const trendColor = trend === 'up' ? 'var(--accent-green)' : trend === 'down' ? 'var(--accent-red)' : 'var(--text-muted)';
-        const trendIcon = trend === 'up' ? '▲' : trend === 'down' ? '▼' : '—';
-        return `
-          <tr>
-            <td><span style="font-size: 20px;">${curr.flag}</span> ${curr.name}</td>
-            <td style="font-family: 'Orbitron'; font-weight: 700;">${code}</td>
-            <td style="font-family: 'Orbitron';">${curr.rate.toLocaleString()}</td>
-            <td style="font-family: 'Orbitron'; color: var(--accent-cyan);">${curr.symbol}1 = $${(1/curr.rate).toFixed(4)} USD</td>
-            <td style="color: ${trendColor}; font-weight: 700;">${trendIcon}</td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    // ===== CONFIGURATION FUNCTIONS =====
-    window.loadConfigData = async () => {
-      if (!window.currentUser) return;
-
-      const user = window.currentUser;
-      document.getElementById('config-name').textContent = user.displayName || '—';
-      document.getElementById('config-email').textContent = user.email || '—';
-      document.getElementById('config-uid').textContent = user.uid;
-
-      const profileSnap = await get(ref(db, `users/${user.uid}/profile`));
-      if (profileSnap.exists()) {
-        const profile = profileSnap.val();
-        document.getElementById('config-created').textContent = profile.createdAt 
-          ? new Date(profile.createdAt).toLocaleDateString('es-ES') 
-          : '—';
-        if (profile.currency) {
-          document.getElementById('config-currency').value = profile.currency;
-        }
-      }
-
-      renderRatesTable();
-    };
-
-    window.changePassword = async () => {
-      const currPass = document.getElementById('curr-password').value;
-      const newPass = document.getElementById('new-password').value;
-      const confirmPass = document.getElementById('confirm-password').value;
-
-      if (!currPass || !newPass || !confirmPass) {
-        showToast('⚠️ Completa todos los campos', 'error');
-        return;
-      }
-      if (newPass.length < 6) {
-        showToast('⚠️ La contraseña debe tener al menos 6 caracteres', 'error');
-        return;
-      }
-      if (newPass !== confirmPass) {
-        showToast('⚠️ Las contraseñas no coinciden', 'error');
-        return;
-      }
-
-      try {
-        const credential = EmailAuthProvider.credential(window.currentUser.email, currPass);
-        await reauthenticateWithCredential(window.currentUser, credential);
-        await updatePassword(window.currentUser, newPass);
-        showToast('✅ Contraseña actualizada correctamente', 'success');
-        document.getElementById('curr-password').value = '';
-        document.getElementById('new-password').value = '';
-        document.getElementById('confirm-password').value = '';
-      } catch (e) {
-        showToast('❌ ' + (e.code === 'auth/wrong-password' ? 'Contraseña actual incorrecta' : e.message), 'error');
-      }
-    };
-
-    window.deleteAllData = async () => {
-      const r1 = await showConfirm({
-        title: '¿Eliminar todos los datos?',
-        message: 'Se eliminarán TODOS tus registros, metas y programables. Esta acción no se puede deshacer.',
-        icon: '🗑️',
-        confirmText: 'Sí, eliminar',
-        danger: true
-      });
-      if (!r1.confirmed) return;
-
-      const r2 = await showConfirm({
-        title: '¿REALMENTE SEGURO?',
-        message: 'Última oportunidad para cancelar. Esta acción es irreversible.',
-        icon: '⚠️',
-        confirmText: 'Eliminar todo',
-        danger: true
-      });
-      if (!r2.confirmed) return;
-
-      try {
-        await remove(ref(db, `users/${window.currentUser.uid}/transactions`));
-        await remove(ref(db, `users/${window.currentUser.uid}/programmables`));
-        await remove(ref(db, `users/${window.currentUser.uid}/goals`));
-        showToast('🗑️ Todos los datos eliminados', 'success');
-      } catch (e) {
-        showToast('❌ Error: ' + e.message, 'error');
-      }
-    };
-
-    window.deleteAccount = async () => {
-      const r1 = await showConfirm({
-        title: '¿Eliminar cuenta permanentemente?',
-        message: 'Se borrará todo: tu perfil, datos financieros, metas y configuración. ¡IRREVERSIBLE!',
-        icon: '🚫',
-        confirmText: 'Continuar',
-        danger: true
-      });
-      if (!r1.confirmed) return;
-
-      const r2 = await showConfirm({
-        title: 'Confirmación de seguridad',
-        message: 'Escribe "ELIMINAR" para confirmar que deseas eliminar tu cuenta permanentemente.',
-        icon: '🔐',
-        confirmText: 'Eliminar cuenta',
-        cancelText: 'Cancelar',
-        danger: true,
-        input: true,
-        inputPlaceholder: 'Escribe ELIMINAR',
-        inputHint: 'Debes escribir ELIMINAR en mayúsculas'
-      });
-      if (!r2.confirmed || r2.value !== 'ELIMINAR') {
-        showToast('❌ Confirmación incorrecta', 'error');
-        return;
-      }
-
-      try {
-        await remove(ref(db, `users/${window.currentUser.uid}`));
-        await deleteUser(window.currentUser);
-        showToast('👋 Cuenta eliminada', 'success');
-      } catch (e) {
-        showToast('❌ ' + e.message, 'error');
-      }
-    };
-
-    // Auth functions
-    window.showAuthTab = (tab) => {
-      document.getElementById('tab-login').classList.toggle('active', tab === 'login');
-      document.getElementById('tab-register').classList.toggle('active', tab === 'register');
-      document.getElementById('auth-login').style.display = tab === 'login' ? 'block' : 'none';
-      document.getElementById('auth-register').style.display = tab === 'register' ? 'block' : 'none';
-    };
-
-    window.register = async () => {
-      const name = document.getElementById('reg-name').value.trim();
-      const email = document.getElementById('reg-email').value.trim();
-      const password = document.getElementById('reg-password').value;
-
-      if (!name || !email || !password) {
-        showToast('⚠️ Completa todos los campos', 'error');
-        return;
-      }
-      if (password.length < 6) {
-        showToast('⚠️ La contraseña debe tener al menos 6 caracteres', 'error');
-        return;
-      }
-
-      try {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(cred.user, { displayName: name });
-        await set(ref(db, `users/${cred.user.uid}/profile`), { name, email, currency: 'USD', createdAt: Date.now() });
-        showToast('✅ Cuenta creada exitosamente', 'success');
-      } catch (e) {
-        showToast('❌ ' + e.message, 'error');
-      }
-    };
-
-    window.login = async () => {
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value;
-
-      if (!email || !password) {
-        showToast('⚠️ Ingresa email y contraseña', 'error');
-        return;
-      }
-
-      showLoading('Iniciando sesión');
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        await delay(1200);
-        hideLoading();
-        showToast('✅ Bienvenido de vuelta', 'success');
-      } catch (e) {
-        hideLoading();
-        showToast('❌ ' + e.message, 'error');
-      }
-    };
-
-    window.logout = async () => {
-      showLoading('Cerrando sesión');
-      await delay(800);
-      await signOut(auth);
-      window.transactions = [];
-      window.programmables = [];
-      window.savingsGoals = [];
-      window.userCurrency = 'USD';
-      hideLoading();
-      showToast('👋 Sesión cerrada', 'success');
-    };
-
-    // Page navigation
-    window.showPage = (pageId) => {
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-      document.getElementById('page-' + pageId).classList.add('active');
-      const btn = Array.from(document.querySelectorAll('.nav-tab')).find(b => b.getAttribute('onclick')?.includes(pageId));
-      if (btn) btn.classList.add('active');
-      if (pageId === 'dashboard') setTimeout(updateDashboard, 100);
-      
-      if (pageId === 'divisas') { renderCurrencyGrid(); renderRatesTable(); }
-      if (pageId === 'configuracion') loadConfigData();
-    };
-
-    // Transaction type toggle
-    window.setTransactionType = (type) => {
-      window.currentTransType = type;
-      document.getElementById('btn-type-income').classList.toggle('active', type === 'income');
-      document.getElementById('btn-type-expense').classList.toggle('active', type === 'expense');
-    };
-
-    window.setProgrammableType = (type) => {
-      window.currentProgType = type;
-      document.getElementById('btn-prog-income').classList.toggle('active', type === 'income');
-      document.getElementById('btn-prog-expense').classList.toggle('active', type === 'expense');
-    };
-
-    // Add transaction
-    window.addTransaction = async () => {
-      if (!window.currentUser) return;
-      const concepto = document.getElementById('reg-concepto').value.trim();
-      const monto = parseFloat(document.getElementById('reg-monto').value);
-      const categoria = document.getElementById('reg-categoria').value;
-      const fecha = document.getElementById('reg-fecha').value;
-      const notas = document.getElementById('reg-notas').value.trim();
-
-      if (!concepto || !monto || !categoria || !fecha) {
-        showToast('⚠️ Completa todos los campos obligatorios', 'error');
-        return;
-      }
-
-      const data = {
-        concepto, monto, categoria, fecha, notas,
-        tipo: window.currentTransType,
-        currency: window.userCurrency,
-        timestamp: Date.now()
-      };
-
-      try {
-        await push(ref(db, `users/${window.currentUser.uid}/transactions`), data);
-        showToast('✅ Registro agregado correctamente', 'success');
-        document.getElementById('reg-concepto').value = '';
-        document.getElementById('reg-monto').value = '';
-        document.getElementById('reg-categoria').value = '';
-        document.getElementById('reg-notas').value = '';
-      } catch (e) {
-        showToast('❌ Error al guardar: ' + e.message, 'error');
-      }
-    };
-
-    // Add programmable
-    window.addProgrammable = async () => {
-      if (!window.currentUser) return;
-      const concepto = document.getElementById('prog-concepto').value.trim();
-      const monto = parseFloat(document.getElementById('prog-monto').value);
-      const categoria = document.getElementById('prog-categoria').value;
-      const frecuencia = document.getElementById('prog-frecuencia').value;
-      const dia = parseInt(document.getElementById('prog-dia').value) || 1;
-      const hora = document.getElementById('prog-hora').value;
-      const inicio = document.getElementById('prog-inicio').value;
-      const fin = document.getElementById('prog-fin').value;
-
-      if (!concepto || !monto || !categoria || !inicio) {
-        showToast('⚠️ Completa todos los campos obligatorios', 'error');
-        return;
-      }
-
-      const data = {
-        concepto, monto, categoria, frecuencia, dia, hora,
-        inicio, fin: fin || null,
-        tipo: window.currentProgType,
-        currency: window.userCurrency,
-        activo: true,
-        timestamp: Date.now()
-      };
-
-      try {
-        await push(ref(db, `users/${window.currentUser.uid}/programmables`), data);
-        showToast('✅ Movimiento programado correctamente', 'success');
-        document.getElementById('prog-concepto').value = '';
-        document.getElementById('prog-monto').value = '';
-        document.getElementById('prog-categoria').value = '';
-        document.getElementById('prog-dia').value = '';
-        document.getElementById('prog-fin').value = '';
-      } catch (e) {
-        showToast('❌ Error al programar: ' + e.message, 'error');
-      }
-    };
-
-    // GOALS FUNCTIONS
-    window.selectColor = (el) => {
-      document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      document.getElementById('meta-color').value = el.dataset.color;
-    };
-
-    window.selectEditColor = (el) => {
-      document.querySelectorAll('#edit-color-picker .color-option').forEach(c => c.classList.remove('selected'));
-      el.classList.add('selected');
-      document.getElementById('edit-meta-color').value = el.dataset.color;
-    };
-
-    window.addGoal = async () => {
-      if (!window.currentUser) return;
-      const nombre = document.getElementById('meta-nombre').value.trim();
-      const objetivo = parseFloat(document.getElementById('meta-objetivo').value);
-      const actual = parseFloat(document.getElementById('meta-actual').value) || 0;
-      const color = document.getElementById('meta-color').value;
-
-      if (!nombre || !objetivo) {
-        showToast('⚠️ Ingresa nombre y monto objetivo', 'error');
-        return;
-      }
-
-      try {
-        await push(ref(db, `users/${window.currentUser.uid}/goals`), {
-          name: nombre, target: objetivo, current: actual, color,
-          currency: window.userCurrency,
-          createdAt: Date.now()
-        });
-        showToast('✅ Meta creada exitosamente', 'success');
-        document.getElementById('meta-nombre').value = '';
-        document.getElementById('meta-objetivo').value = '';
-        document.getElementById('meta-actual').value = '0';
-      } catch (e) {
-        showToast('❌ Error: ' + e.message, 'error');
-      }
-    };
-
-    window.openEditGoal = (id) => {
-      const goal = window.savingsGoals.find(g => g.id === id);
-      if (!goal) return;
-      document.getElementById('edit-meta-id').value = id;
-      document.getElementById('edit-meta-nombre').value = goal.name;
-      document.getElementById('edit-meta-objetivo').value = goal.target;
-      document.getElementById('edit-meta-actual').value = goal.current;
-      document.getElementById('edit-meta-color').value = goal.color;
-      document.querySelectorAll('#edit-color-picker .color-option').forEach(c => {
-        c.classList.toggle('selected', c.dataset.color === goal.color);
-      });
-      document.getElementById('edit-modal').style.display = 'flex';
-    };
-
-    window.saveEditGoal = async () => {
-      if (!window.currentUser) return;
-      const id = document.getElementById('edit-meta-id').value;
-      const nombre = document.getElementById('edit-meta-nombre').value.trim();
-      const objetivo = parseFloat(document.getElementById('edit-meta-objetivo').value);
-      const actual = parseFloat(document.getElementById('edit-meta-actual').value);
-      const color = document.getElementById('edit-meta-color').value;
-
-      if (!nombre || !objetivo) {
-        showToast('⚠️ Ingresa nombre y monto objetivo', 'error');
-        return;
-      }
-
-      try {
-        await update(ref(db, `users/${window.currentUser.uid}/goals/${id}`), {
-          name: nombre, target: objetivo, current: actual, color
-        });
-        showToast('✅ Meta actualizada', 'success');
-        closeEditModal();
-      } catch (e) {
-        showToast('❌ Error: ' + e.message, 'error');
-      }
-    };
-
-    window.closeEditModal = () => {
-      document.getElementById('edit-modal').style.display = 'none';
-    };
-
-    window.closeEditModalOnOverlay = (e) => {
-      if (e.target === e.currentTarget) closeEditModal();
-    };
-
-    window.deleteGoal = async (id) => {
-      const r = await showConfirm({
-        title: '¿Eliminar meta?',
-        message: '¿Estás seguro de que deseas eliminar esta meta de ahorro?',
-        icon: '🎯',
-        confirmText: 'Eliminar',
-        danger: true
-      });
-      if (!r.confirmed) return;
-      try {
-        await remove(ref(db, `users/${window.currentUser.uid}/goals/${id}`));
-        showToast('🗑️ Meta eliminada', 'success');
-      } catch (e) {
-        showToast('❌ Error al eliminar', 'error');
-      }
-    };
-
-    window.contributeGoal = async (id, amount) => {
-      if (!window.currentUser) return;
-      const goal = window.savingsGoals.find(g => g.id === id);
-      if (!goal) return;
-      const newCurrent = goal.current + amount;
-      try {
-        await update(ref(db, `users/${window.currentUser.uid}/goals/${id}`), { current: newCurrent });
-        showToast(`✅ Aportaste ${formatMoney(amount)} a ${goal.name}`, 'success');
-      } catch (e) {
-        showToast('❌ Error: ' + e.message, 'error');
-      }
-    };
-
-    window.customContribute = async (id) => {
-      const r = await showConfirm({
-        title: 'Aportar a la meta',
-        message: 'Ingresa el monto que deseas aportar a esta meta de ahorro.',
-        icon: '💰',
-        confirmText: 'Aportar',
-        cancelText: 'Cancelar',
-        danger: false,
-        input: true,
-        inputPlaceholder: '0.00',
-        inputHint: 'Ingresa un monto válido'
-      });
-      if (!r.confirmed || !r.value) return;
-      const amount = parseFloat(r.value);
-      if (amount && amount > 0) contributeGoal(id, amount);
-    };
-
-    // Delete functions
-    window.deleteTransaction = async (id) => {
-      const r = await showConfirm({
-        title: '¿Eliminar registro?',
-        message: '¿Estás seguro de que deseas eliminar este registro financiero?',
-        icon: '📝',
-        confirmText: 'Eliminar',
-        danger: true
-      });
-      if (!r.confirmed) return;
-      try {
-        await remove(ref(db, `users/${window.currentUser.uid}/transactions/${id}`));
-        showToast('🗑️ Registro eliminado', 'success');
-      } catch (e) {
-        showToast('❌ Error al eliminar', 'error');
-      }
-    };
-
-    window.deleteProgrammable = async (id) => {
-      const r = await showConfirm({
-        title: '¿Eliminar programable?',
-        message: '¿Estás seguro de que deseas eliminar este movimiento programado?',
-        icon: '⏰',
-        confirmText: 'Eliminar',
-        danger: true
-      });
-      if (!r.confirmed) return;
-      try {
-        await remove(ref(db, `users/${window.currentUser.uid}/programmables/${id}`));
-        showToast('🗑️ Programable eliminado', 'success');
-      } catch (e) {
-        showToast('❌ Error al eliminar', 'error');
-      }
-    };
-
-    window.toggleProgrammable = async (id, activo) => {
-      try {
-        await update(ref(db, `users/${window.currentUser.uid}/programmables/${id}`), { activo: !activo });
-        showToast(activo ? '⏸️ Programable pausado' : '▶️ Programable activado', 'success');
-      } catch (e) {
-        showToast('❌ Error al actualizar', 'error');
-      }
-    };
-
-    // Render functions
-    function renderTransactions() {
-      const tbody = document.getElementById('transactions-table');
-      const empty = document.getElementById('transactions-empty');
-      const table = tbody.closest('table');
-
-      if (window.transactions.length === 0) {
-        table.style.display = 'none';
-        empty.style.display = 'block';
-        return;
-      }
-
-      table.style.display = 'table';
-      empty.style.display = 'none';
-      const sorted = [...window.transactions].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-      const curr = EXCHANGE_RATES[window.userCurrency];
-
-      tbody.innerHTML = sorted.map(t => `
-        <tr>
-          <td>${formatDate(t.fecha)}</td>
-          <td><strong>${escapeHtml(t.concepto)}</strong>${t.notas ? `<br><small style="color:var(--text-muted)">${escapeHtml(t.notas)}</small>` : ''}</td>
-          <td>${getCategoryIcon(t.categoria)} ${getCategoryName(t.categoria)}</td>
-          <td><span class="badge badge-${t.tipo}">${t.tipo === 'income' ? 'Ingreso' : 'Gasto'}</span></td>
-          <td style="font-family:'Orbitron';font-weight:700;color:${t.tipo==='income'?'var(--accent-green)':'var(--accent-red)'};">${curr.symbol}${t.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-          <td><button class="btn btn-danger" style="padding:6px 14px;font-size:12px;" onclick="deleteTransaction('${t.id}')">🗑️</button></td>
-        </tr>
-      `).join('');
-    }
-
-    function renderProgrammables() {
-      const container = document.getElementById('programables-container');
-      const empty = document.getElementById('programables-empty');
-      const curr = EXCHANGE_RATES[window.userCurrency];
-
-      if (window.programmables.length === 0) {
-        container.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-      }
-
-      empty.style.display = 'none';
-      container.innerHTML = '<div class="scheduled-grid">' + window.programmables.map(p => `
-        <div class="scheduled-card ${p.tipo} card">
-          <div class="scheduled-icon ${p.tipo}">${p.tipo === 'income' ? '💰' : '💸'}</div>
-          <div class="scheduled-info">
-            <div class="scheduled-title">${escapeHtml(p.concepto)}</div>
-            <div class="scheduled-meta">
-              <span>${getCategoryIcon(p.categoria)} ${getCategoryName(p.categoria)}</span>
-              <span>📅 ${getFrequencyName(p.frecuencia)}</span>
-              <span>⏰ Día ${p.dia} a las ${p.hora}</span>
-              <span style="color:${p.activo ? 'var(--positive)' : 'var(--negative)'}"><span class="status-dot ${p.activo ? 'active' : 'paused'}"></span>${p.activo ? 'Activo' : 'Pausado'}</span>
-            </div>
-          </div>
-          <div class="scheduled-amount ${p.tipo}">${curr.symbol}${p.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
-          <div style="display:flex;gap:8px;">
-            <button class="btn" style="padding:6px 12px;font-size:12px;background:rgba(0,212,255,0.1);color:var(--accent-cyan);" onclick="toggleProgrammable('${p.id}', ${p.activo})">${p.activo ? '⏸️' : '▶️'}</button>
-            <button class="btn btn-danger" style="padding:6px 12px;font-size:12px;" onclick="deleteProgrammable('${p.id}')">🗑️</button>
-          </div>
-        </div>
-      `).join('') + '</div>';
-    }
-
-    function renderGoals() {
-      document.getElementById('goals-container').innerHTML = window.savingsGoals.map(g => {
-        const pct = Math.min(100, (g.current / g.target) * 100);
-        return `
-          <div class="goal-item">
-            <div class="goal-header">
-              <span class="goal-name">${escapeHtml(g.name)}</span>
-              <span class="goal-amount">${formatMoney(g.current)} / ${formatMoney(g.target)}</span>
-            </div>
-            <div class="goal-bar-bg">
-              <div class="goal-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${g.color},${g.color}88);"></div>
-            </div>
-            <div style="font-size:12px;color:var(--text-muted);text-align:right;">${pct.toFixed(1)}% completado</div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderMetasPage() {
-      const container = document.getElementById('metas-list-container');
-      const empty = document.getElementById('metas-empty');
-
-      if (window.savingsGoals.length === 0) {
-        container.innerHTML = '';
-        empty.style.display = 'block';
-        return;
-      }
-
-      empty.style.display = 'none';
-      container.innerHTML = '<div class="goals-grid">' + window.savingsGoals.map(g => {
-        const pct = Math.min(100, (g.current / g.target) * 100);
-        const remaining = g.target - g.current;
-        return `
-          <div class="card goal-card">
-            <div class="goal-card-header">
-              <div class="goal-card-icon" style="background:${g.color}22;color:${g.color};">${getGoalIcon(g.name)}</div>
-              <div class="goal-card-title">${escapeHtml(g.name)}</div>
-              <div class="goal-card-actions">
-                <button class="btn" style="padding:6px 10px;font-size:12px;background:rgba(0,212,255,0.1);color:var(--accent-cyan);" onclick="openEditGoal('${g.id}')">✏️</button>
-                <button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="deleteGoal('${g.id}')">🗑️</button>
-              </div>
-            </div>
-            <div class="goal-card-progress">
-              <div class="goal-card-bar-bg">
-                <div class="goal-card-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${g.color},${g.color}88);"></div>
-              </div>
-              <div class="goal-card-stats">
-                <span>${formatMoney(g.current)} / ${formatMoney(g.target)}</span>
-                <span style="color:${g.color};font-weight:700;">${pct.toFixed(1)}%</span>
-              </div>
-            </div>
-            <div class="goal-card-remaining">Faltan: <strong>${formatMoney(Math.max(0, remaining))}</strong></div>
-            <div class="goal-card-buttons">
-              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 10)">+$10</button>
-              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 50)">+$50</button>
-              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 100)">+$100</button>
-              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 500)">+$500</button>
-              <button class="btn btn-goal-btn" style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-purple));color:#fff;" onclick="customContribute('${g.id}')">💰 Custom</button>
-            </div>
-          </div>
-        `;
-      }).join('') + '</div>';
-    }
-
-    function getGoalIcon(name) {
-      if (name.includes('Auto') || name.includes('Coche')) return '🚗';
-      if (name.includes('Vacaciones') || name.includes('Viaje')) return '🏖️';
-      if (name.includes('Casa') || name.includes('Hogar') || name.includes('Emergencia')) return '🏠';
-      if (name.includes('Curso') || name.includes('Estudio') || name.includes('Educación')) return '🎓';
-      if (name.includes('Boda')) return '💍';
-      if (name.includes('Negocio')) return '💼';
-      return '🎯';
-    }
-
-    function updateDashboard() {
-      const now = new Date();
-      const currentMonth = now.toISOString().slice(0, 7);
-      const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const prevMonth = prevDate.toISOString().slice(0, 7);
-      const monthTrans = window.transactions.filter(t => t.fecha.startsWith(currentMonth));
-      const prevMonthTrans = window.transactions.filter(t => t.fecha.startsWith(prevMonth));
-      const curr = EXCHANGE_RATES[window.userCurrency];
-
-      const income = monthTrans.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0);
-      const expense = monthTrans.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
-      const prevIncome = prevMonthTrans.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0);
-      const prevExpense = prevMonthTrans.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
-      const balance = income - expense;
-      const savings = window.transactions.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0)
-                    - window.transactions.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
-
-      document.getElementById('dash-income').textContent = curr.symbol + income.toLocaleString('en-US', {minimumFractionDigits: 2});
-      document.getElementById('dash-expense').textContent = curr.symbol + expense.toLocaleString('en-US', {minimumFractionDigits: 2});
-      document.getElementById('dash-balance').textContent = curr.symbol + balance.toLocaleString('en-US', {minimumFractionDigits: 2});
-      document.getElementById('dash-savings').textContent = curr.symbol + Math.max(0, savings).toLocaleString('en-US', {minimumFractionDigits: 2});
-
-      // Real month-over-month percentages
-      const incomePct = prevIncome > 0 ? ((income - prevIncome) / prevIncome * 100) : (income > 0 ? 100 : 0);
-      const expensePct = prevExpense > 0 ? ((expense - prevExpense) / prevExpense * 100) : (expense > 0 ? 100 : 0);
-
-      document.getElementById('dash-income-change').className = 'stat-change ' + (incomePct >= 0 ? 'up' : 'down');
-      document.getElementById('dash-income-change').textContent = (incomePct >= 0 ? '▲ +' : '▼ ') + Math.abs(incomePct).toFixed(1) + '% vs mes anterior';
-      document.getElementById('dash-expense-change').className = 'stat-change ' + (expensePct >= 0 ? 'up' : 'down');
-      document.getElementById('dash-expense-change').textContent = (expensePct >= 0 ? '▲ +' : '▼ ') + Math.abs(expensePct).toFixed(1) + '% vs mes anterior';
-
-      // Real savings goal progress
-      const totalTarget = window.savingsGoals.reduce((s, g) => s + g.target, 0);
-      const totalCurrent = window.savingsGoals.reduce((s, g) => s + g.current, 0);
-      const savingsGoalPct = totalTarget > 0 ? (totalCurrent / totalTarget * 100) : 0;
-      document.getElementById('dash-savings-change').className = 'stat-change ' + (savingsGoalPct >= 68 ? 'up' : (savingsGoalPct >= 40 ? 'up' : 'down'));
-      document.getElementById('dash-savings-change').textContent = '▲ Meta al ' + savingsGoalPct.toFixed(0) + '%';
-
-      renderMainChart();
-      renderSavingsRing();
-      renderGoals();
-      renderDistributionCharts();
-    }
-
-    function renderMainChart() {
-      const container = document.getElementById('main-chart');
-      const months = [];
-      for (let i = 5; i >= 0; i--) {
-        const d = new Date(); d.setMonth(d.getMonth() - i);
-        months.push(d.toISOString().slice(0, 7));
-      }
-
-      const incomeData = months.map(m => window.transactions.filter(t => t.fecha.startsWith(m) && t.tipo === 'income').reduce((s, t) => s + t.monto, 0));
-      const expenseData = months.map(m => window.transactions.filter(t => t.fecha.startsWith(m) && t.tipo === 'expense').reduce((s, t) => s + t.monto, 0));
-
-      const maxVal = Math.max(...incomeData, ...expenseData, 100);
-      const w = container.clientWidth || 600;
-      const h = 300;
-      const pad = { t: 20, r: 20, b: 40, l: 60 };
-      const cw = w - pad.l - pad.r;
-      const ch = h - pad.t - pad.b;
-
-      const points = (data) => data.map((v, i) => {
-        const x = pad.l + (i / (data.length - 1)) * cw;
-        const y = pad.t + ch - (v / maxVal) * ch;
-        return `${x},${y}`;
-      }).join(' ');
-
-      const area = (data) => {
-        const pts = data.map((v, i) => {
-          const x = pad.l + (i / (data.length - 1)) * cw;
-          const y = pad.t + ch - (v / maxVal) * ch;
-          return `${x},${y}`;
-        }).join(' ');
-        return `${pad.l},${pad.t + ch} ${pts} ${pad.l + cw},${pad.t + ch}`;
-      };
-
-      const monthLabels = months.map(m => {
-        const [y, mo] = m.split('-');
-        return ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][parseInt(mo)-1];
-      });
-
-      container.innerHTML = `
-        <svg class="chart-svg" viewBox="0 0 ${w} ${h}">
-          <defs>
-            <linearGradient id="gradInc" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#00ff88" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="#00ff88" stop-opacity="0"/>
-            </linearGradient>
-            <linearGradient id="gradExp" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ff3366" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="#ff3366" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-          ${[0, 0.25, 0.5, 0.75, 1].map(p => {
-            const y = pad.t + ch * p;
-            return `<line class="chart-grid-line" x1="${pad.l}" y1="${y}" x2="${w-pad.r}" y2="${y}"/>`;
-          }).join('')}
-          <polygon class="chart-area" points="${area(incomeData)}" fill="url(#gradInc)"/>
-          <polygon class="chart-area" points="${area(expenseData)}" fill="url(#gradExp)"/>
-          <polyline class="chart-line" points="${points(incomeData)}" stroke="#00ff88"/>
-          <polyline class="chart-line" points="${points(expenseData)}" stroke="#ff3366"/>
-          ${incomeData.map((v, i) => {
-            const x = pad.l + (i / (incomeData.length - 1)) * cw;
-            const y = pad.t + ch - (v / maxVal) * ch;
-            return `<circle cx="${x}" cy="${y}" r="4" fill="#00ff88" stroke="#0a0e17" stroke-width="2"/>`;
-          }).join('')}
-          ${expenseData.map((v, i) => {
-            const x = pad.l + (i / (expenseData.length - 1)) * cw;
-            const y = pad.t + ch - (v / maxVal) * ch;
-            return `<circle cx="${x}" cy="${y}" r="4" fill="#ff3366" stroke="#0a0e17" stroke-width="2"/>`;
-          }).join('')}
-          ${monthLabels.map((l, i) => {
-            const x = pad.l + (i / (monthLabels.length - 1)) * cw;
-            return `<text class="chart-axis-text" x="${x}" y="${h-10}" text-anchor="middle">${l}</text>`;
-          }).join('')}
-          ${[0, 0.5, 1].map(p => {
-            const val = Math.round(maxVal * (1 - p));
-            const y = pad.t + ch * p;
-            return `<text class="chart-axis-text" x="${pad.l-10}" y="${y+4}" text-anchor="end">$${val}</text>`;
-          }).join('')}
-        </svg>
-      `;
-    }
-
-    function renderSavingsRing() {
-      const totalTarget = window.savingsGoals.reduce((s, g) => s + g.target, 0);
-      const totalCurrent = window.savingsGoals.reduce((s, g) => s + g.current, 0);
-      const pct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
-      const r = 70;
-      const c = 2 * Math.PI * r;
-      const offset = c - (pct / 100) * c;
-
-      document.getElementById('savings-ring').innerHTML = `
-        <svg width="180" height="180" viewBox="0 0 180 180">
-          <circle class="progress-ring-bg" cx="90" cy="90" r="${r}"/>
-          <circle class="progress-ring-fill" cx="90" cy="90" r="${r}"
-            stroke="url(#ringGrad)" stroke-dasharray="${c}" stroke-dashoffset="${offset}"/>
-          <defs>
-            <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#00d4ff"/>
-              <stop offset="100%" stop-color="#a855f7"/>
-            </linearGradient>
-          </defs>
-        </svg>
-        <div class="progress-text">${Math.round(pct)}%</div>
-        <div class="progress-label">Meta Global</div>
-        <div style="font-size:14px;color:var(--text-muted);margin-top:4px;">${formatMoney(totalCurrent)} / ${formatMoney(totalTarget)}</div>
-      `;
-    }
-
-    function renderDistributionCharts() {
-      const catTotals = {};
-      window.transactions.forEach(t => {
-        if (!catTotals[t.categoria]) catTotals[t.categoria] = { income: 0, expense: 0 };
-        catTotals[t.categoria][t.tipo] += t.monto;
-      });
-
-      const renderPie = (containerId, type) => {
-        const container = document.getElementById(containerId);
-        const data = Object.entries(catTotals)
-          .filter(([_, v]) => v[type] > 0)
-          .map(([k, v]) => ({ cat: k, val: v[type] }))
-          .sort((a, b) => b.val - a.val);
-
-        if (data.length === 0) {
-          container.innerHTML = '<div class="empty-state" style="padding:40px;"><div class="empty-state-icon">📊</div><p>Sin datos para mostrar</p></div>';
-          return;
-        }
-
-        const total = data.reduce((s, d) => s + d.val, 0);
-        const w = container.clientWidth || 300;
-        const h = 280;
-        const cx = w / 2;
-        const cy = h / 2 - 10;
-        const r = Math.min(w, h) / 2 - 40;
-        const colors = ['#00d4ff','#a855f7','#00ff88','#f59e0b','#ff3366','#6366f1','#ec4899','#14b8a6'];
-
-        let startAngle = -Math.PI / 2;
-        let paths = '';
-        let legend = '';
-
-        data.forEach((d, i) => {
-          const angle = (d.val / total) * 2 * Math.PI;
-          const endAngle = startAngle + angle;
-          const x1 = cx + r * Math.cos(startAngle);
-          const y1 = cy + r * Math.sin(startAngle);
-          const x2 = cx + r * Math.cos(endAngle);
-          const y2 = cy + r * Math.sin(endAngle);
-          const largeArc = angle > Math.PI ? 1 : 0;
-          const c = colors[i % colors.length];
-
-          paths += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z" fill="${c}" opacity="0.85" class="chart-bar"/>`;
-          legend += `<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px;"><span style="width:10px;height:10px;border-radius:2px;background:${c};"></span><span style="color:var(--text-secondary);">${getCategoryName(d.cat)}</span><span style="margin-left:auto;font-family:'Orbitron';font-size:11px;">${((d.val/total)*100).toFixed(0)}%</span></div>`;
-          startAngle = endAngle;
-        });
-
-        container.innerHTML = `
-          <div style="display:flex;align-items:center;gap:20px;height:100%;">
-            <svg width="${w/2}" height="${h}" viewBox="0 0 ${w} ${h}">${paths}</svg>
-            <div style="flex:1;">${legend}</div>
-          </div>
-        `;
-      };
-
-      renderPie('expense-chart', 'expense');
-      renderPie('income-chart', 'income');
-    }
-
-    // Helpers
-    function formatMoney(n) {
-      return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function formatDate(d) {
-      const [y, m, day] = d.split('-');
-      return `${day}/${m}/${y}`;
-    }
-
-    function escapeHtml(s) {
-      const div = document.createElement('div');
-      div.textContent = s;
-      return div.innerHTML;
-    }
-
-    function getCategoryName(c) {
-      const names = {
-        salario: 'Salario', freelance: 'Freelance', inversiones: 'Inversiones',
-        ventas: 'Ventas', 'otros-ing': 'Otros Ingresos',
-        vivienda: 'Vivienda', alimentacion: 'Alimentación', transporte: 'Transporte',
-        servicios: 'Servicios', entretenimiento: 'Entretenimiento', salud: 'Salud',
-        educacion: 'Educación', 'otros-gas': 'Otros Gastos'
-      };
-      return names[c] || c;
-    }
-
-    function getCategoryIcon(c) {
-      const icons = {
-        salario: '💼', freelance: '💻', inversiones: '📈', ventas: '🛒', 'otros-ing': '✨',
-        vivienda: '🏠', alimentacion: '🍽️', transporte: '🚗', servicios: '⚡',
-        entretenimiento: '🎮', salud: '💊', educacion: '📚', 'otros-gas': '📌'
-      };
-      return icons[c] || '📋';
-    }
-
-    function getFrequencyName(f) {
-      const names = { monthly: 'Mensual', weekly: 'Semanal', biweekly: 'Quincenal', daily: 'Diario', yearly: 'Anual' };
-      return names[f] || f;
-    }
-
-    function showToast(msg, type) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.className = 'toast ' + type + ' show';
-      setTimeout(() => toast.classList.remove('show'), 3000);
-    }
-
-    // ===== LOADING OVERLAY HELPERS =====
-    function showLoading(text) {
-      const overlay = document.getElementById('loading-overlay');
-      const label = document.getElementById('loading-text');
-      label.innerHTML = text + '<span class="loading-dots"></span>';
-      overlay.classList.add('active');
-    }
-    function hideLoading() {
-      document.getElementById('loading-overlay').classList.remove('active');
-    }
-    function delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    // ===== CUSTOM CONFIRM/PROMPT SYSTEM =====
-    let confirmResolve = null;
-    let confirmReject = null;
-
-    function showConfirm({ title, message, icon = '⚠️', confirmText = 'Confirmar', cancelText = 'Cancelar', danger = true, input = false, inputPlaceholder = '', inputHint = '' }) {
-      return new Promise((resolve, reject) => {
-        confirmResolve = resolve;
-        confirmReject = reject;
-
-        document.getElementById('confirm-icon').textContent = icon;
-        document.getElementById('confirm-title').textContent = title;
-        document.getElementById('confirm-message').innerHTML = message.replace(/
-/g, '<br>');
-        document.getElementById('confirm-cancel-btn').textContent = cancelText;
-
-        const actionBtn = document.getElementById('confirm-action-btn');
-        actionBtn.textContent = confirmText;
-        actionBtn.className = danger ? 'btn btn-danger' : 'btn btn-primary';
-
-        const inputArea = document.getElementById('confirm-input-area');
-        const inputEl = document.getElementById('confirm-input');
-        if (input) {
-          inputArea.style.display = 'block';
-          inputEl.value = '';
-          inputEl.placeholder = inputPlaceholder;
-          document.getElementById('confirm-input-hint').textContent = inputHint;
-          setTimeout(() => inputEl.focus(), 100);
-        } else {
-          inputArea.style.display = 'none';
-        }
-
-        document.getElementById('confirm-modal').style.display = 'flex';
-      });
-    }
-
-    window.resolveConfirm = (confirmed) => {
-      const inputEl = document.getElementById('confirm-input');
-      const inputArea = document.getElementById('confirm-input-area');
-      const value = inputArea.style.display !== 'none' ? inputEl.value.trim() : null;
-
-      document.getElementById('confirm-modal').style.display = 'none';
-      if (confirmResolve) {
-        confirmResolve({ confirmed, value });
-        confirmResolve = null;
-        confirmReject = null;
-      }
-    };
-
-    window.closeConfirmModalOnOverlay = (e) => {
-      if (e.target === e.currentTarget) {
-        document.getElementById('confirm-modal').style.display = 'none';
-        if (confirmResolve) {
-          confirmResolve({ confirmed: false, value: null });
-          confirmResolve = null;
-          confirmReject = null;
-        }
-      }
-    };
-
-    // Keyboard support for confirm modal
-    document.addEventListener('keydown', (e) => {
-      const modal = document.getElementById('confirm-modal');
-      if (modal.style.display === 'flex' && e.key === 'Enter') {
-        e.preventDefault();
-        resolveConfirm(true);
-      }
-    });
-
-    // ===== PROGRAMMABLE SCHEDULER =====
-    // Checks every minute if any active programables should execute
-    async function checkAndExecuteProgrammables() {
-      if (!window.currentUser || window.programmables.length === 0) return;
-
-      const now = new Date();
-      const todayStr = now.toISOString().slice(0, 10); // YYYY-MM-DD
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
-      const currentDay = now.getDate();
-      const currentWeekDay = now.getDay(); // 0=Sun, 1=Mon...
-
-      for (const prog of window.programmables) {
-        if (!prog.activo) continue;
-
-        // Parse programmable time
-        const [progHour, progMinute] = (prog.hora || '00:00').split(':').map(Number);
-        const progStart = prog.inicio ? new Date(prog.inicio + 'T00:00:00') : null;
-        const progEnd = prog.fin ? new Date(prog.fin + 'T23:59:59') : null;
-
-        // Check if within date range
-        if (progStart && now < progStart) continue;
-        if (progEnd && now > progEnd) continue;
-
-        // Check if already executed today
-        const lastExec = prog.lastExecuted ? prog.lastExecuted.slice(0, 10) : null;
-        if (lastExec === todayStr) continue;
-
-        // Check if time matches (within same minute window)
-        if (currentHour !== progHour || currentMinute !== progMinute) continue;
-
-        // Check frequency/day conditions
-        let shouldExecute = false;
-        switch (prog.frecuencia) {
-          case 'daily':
-            shouldExecute = true;
-            break;
-          case 'weekly':
-            // Execute on the same weekday as start date, or if no specific day logic, just daily at that time
-            // For weekly, we use the "dia" as weekday (1=Mon...7=Sun) or just execute if it's the right time
-            shouldExecute = true; // Will be filtered by lastExecuted (once per day)
-            // Better: check if dia matches weekday
-            const targetWeekDay = (prog.dia || 1) % 7; // 1=Mon->1, 7=Sun->0
-            shouldExecute = (currentWeekDay === targetWeekDay);
-            break;
-          case 'biweekly':
-            // Execute on day 1 and 15 of month, or based on start date biweekly
-            shouldExecute = (currentDay === (prog.dia || 1)) || (currentDay === ((prog.dia || 1) + 14));
-            break;
-          case 'monthly':
-            shouldExecute = (currentDay === (prog.dia || 1));
-            break;
-          case 'yearly':
-            shouldExecute = (currentDay === (prog.dia || 1)) && (now.getMonth() === (progStart ? progStart.getMonth() : 0));
-            break;
-        }
-
-        if (!shouldExecute) continue;
-
-        // Execute: create transaction
-        try {
-          const transData = {
-            concepto: prog.concepto,
-            monto: prog.monto,
-            categoria: prog.categoria,
-            fecha: todayStr,
-            notas: 'Auto-generado por programable: ' + getFrequencyName(prog.frecuencia),
-            tipo: prog.tipo,
-            currency: prog.currency || window.userCurrency,
-            timestamp: Date.now(),
-            programmableId: prog.id
-          };
-
-          await push(ref(db, `users/${window.currentUser.uid}/transactions`), transData);
-          await update(ref(db, `users/${window.currentUser.uid}/programmables/${prog.id}`), {
-            lastExecuted: now.toISOString()
-          });
-
-          showToast(`✅ Programable ejecutado: ${prog.concepto} ${prog.tipo === 'income' ? '💰' : '💸'}`, 'success');
-        } catch (e) {
-          console.error('Error executing programmable:', e);
-        }
-      }
-    }
-
-    // Run scheduler every minute
-    setInterval(checkAndExecuteProgrammables, 60000);
-    // Also run immediately on load
-    setTimeout(checkAndExecuteProgrammables, 3000);
-
-    // Init
-    document.getElementById('reg-fecha').valueAsDate = new Date();
-    document.getElementById('prog-inicio').valueAsDate = new Date();
-    document.querySelector('.color-option').classList.add('selected');
-
-    window.addEventListener('resize', () => {
-      if (document.getElementById('page-dashboard').classList.contains('active')) {
-        updateDashboard();
-      }
-    });
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeEditModal();
-    });
-  </script>
-
-  <!-- CONFIRM MODAL -->
-  <div class="modal-overlay" id="confirm-modal" style="display:none;" onclick="closeConfirmModalOnOverlay(event)">
-    <div class="modal" onclick="event.stopPropagation()" style="max-width: 420px; text-align: center;">
-      <div id="confirm-icon" style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
-      <h3 class="modal-title" id="confirm-title" style="text-align: center;">¿Confirmar acción?</h3>
-      <p id="confirm-message" style="color: var(--text-secondary); font-size: 14px; line-height: 1.6; margin-bottom: 24px;"></p>
-      <div id="confirm-input-area" style="display:none; margin-bottom: 20px;">
-        <input type="text" class="form-input" id="confirm-input" placeholder="" style="text-align: center;">
-        <div id="confirm-input-hint" style="font-size: 11px; color: var(--text-muted); margin-top: 6px;"></div>
-      </div>
-      <div id="confirm-buttons" style="display: flex; gap: 12px;">
-        <button class="btn" id="confirm-cancel-btn" style="flex: 1; background: var(--bg-tertiary);" onclick="resolveConfirm(false)">Cancelar</button>
-        <button class="btn btn-danger" id="confirm-action-btn" style="flex: 1;" onclick="resolveConfirm(true)">Confirmar</button>
-      </div>
-    </div>
-  </div>
-
-</body>
-</html>
+/* ===== FINTECH OS — PROFESSIONAL EDITION ===== */
+/* Design philosophy: Minimal, clean, monochrome with single accent */
+
+:root {
+  /* Core palette — monochrome with one accent */
+  --bg-primary: #0c0e12;
+  --bg-secondary: #14171c;
+  --bg-tertiary: #1a1d24;
+  --bg-elevated: #1e222b;
+
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-medium: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.15);
+
+  --text-primary: #f0f1f3;
+  --text-secondary: #9ca3af;
+  --text-tertiary: #6b7280;
+  --text-muted: #4b5563;
+
+  /* Single accent — cyan, used sparingly */
+  --accent: #22d3ee;
+  --accent-dim: rgba(34, 211, 238, 0.08);
+  --accent-glow: rgba(34, 211, 238, 0.15);
+
+  /* Semantic colors — muted, desaturated */
+  --positive: #34d399;
+  --positive-dim: rgba(52, 211, 153, 0.08);
+  --negative: #f87171;
+  --negative-dim: rgba(248, 113, 113, 0.08);
+  --warning: #fbbf24;
+
+  /* Glass effect — very subtle */
+  --glass: rgba(20, 23, 28, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.05);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== BACKGROUND ===== */
+.bg-grid {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bg-glow {
+  position: fixed;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(34, 211, 238, 0.04) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(60px);
+}
+.bg-glow-1 { top: -150px; left: -150px; }
+.bg-glow-2 { bottom: -150px; right: -150px; background: radial-gradient(circle, rgba(34, 211, 238, 0.03) 0%, transparent 70%); }
+
+/* ===== APP CONTAINER ===== */
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 32px;
+}
+
+/* ===== HEADER ===== */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 24px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.logo {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.logo span { color: var(--accent); }
+
+/* Navigation */
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-secondary);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+}
+.nav-tab {
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.3px;
+}
+.nav-tab:hover { color: var(--text-secondary); background: rgba(255,255,255,0.03); }
+.nav-tab.active {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  border: 1px solid var(--border-medium);
+}
+
+/* User Profile */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.user-avatar {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--accent);
+}
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.user-name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+.logout-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.logout-btn:hover { color: var(--negative); }
+
+/* ===== PAGE SYSTEM ===== */
+.page { display: none; }
+.page.active { display: block; animation: fadeIn 0.3s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+/* ===== AUTH SCREEN ===== */
+.auth-screen {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  background: var(--bg-primary);
+}
+.auth-container {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+}
+.auth-logo {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 32px;
+  color: var(--text-primary);
+  letter-spacing: 3px;
+}
+.auth-logo span { color: var(--accent); }
+.auth-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: var(--bg-tertiary);
+  padding: 4px;
+  border-radius: 10px;
+}
+.auth-tab {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.auth-tab.active {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.2s ease;
+}
+.card:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-tertiary);
+}
+.card-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  padding: 10px 18px;
+  border: 1px solid var(--border-medium);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+}
+.btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+}
+.btn-primary {
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
+  font-weight: 600;
+}
+.btn-primary:hover {
+  background: var(--text-secondary);
+  border-color: var(--text-secondary);
+  color: var(--bg-primary);
+}
+.btn-success {
+  background: var(--positive);
+  color: #064e3b;
+  border-color: var(--positive);
+  font-weight: 600;
+}
+.btn-success:hover {
+  background: #6ee7b7;
+  border-color: #6ee7b7;
+}
+.btn-danger {
+  background: var(--negative-dim);
+  color: var(--negative);
+  border-color: rgba(248, 113, 113, 0.2);
+}
+.btn-danger:hover {
+  background: var(--negative);
+  color: white;
+  border-color: var(--negative);
+}
+
+/* Toggle Buttons */
+.toggle-group {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-tertiary);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  width: fit-content;
+}
+.toggle-btn {
+  flex: 1;
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.toggle-btn:hover { color: var(--text-secondary); }
+.toggle-btn.active {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-medium);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* ===== FORMS ===== */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.form-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.form-input, .form-select {
+  padding: 10px 14px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  transition: all 0.2s ease;
+  outline: none;
+}
+.form-input:focus, .form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%236b7280' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+.form-select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+/* Color Picker */
+.color-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 0;
+}
+.color-option {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+.color-option:hover {
+  transform: scale(1.1);
+}
+.color-option.selected {
+  border-color: var(--text-primary);
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 4px var(--accent);
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-value {
+  font-family: 'Inter', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 8px;
+  letter-spacing: -0.5px;
+}
+.stat-value.income { color: var(--positive); }
+.stat-value.expense { color: var(--negative); }
+.stat-value.balance { color: var(--text-primary); }
+.stat-value.savings { color: var(--accent); }
+.stat-label {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+.stat-change {
+  font-size: 12px;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+.stat-change.up { color: var(--positive); }
+.stat-change.down { color: var(--negative); }
+
+/* ===== CHARTS ===== */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+@media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
+
+.chart-container {
+  height: 280px;
+  position: relative;
+}
+.chart-svg { width: 100%; height: 100%; }
+.chart-line { fill: none; stroke-width: 2; stroke-linecap: round; }
+.chart-area { opacity: 0.1; }
+.chart-grid-line { stroke: var(--border-subtle); stroke-width: 0.5; }
+.chart-axis-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  fill: var(--text-muted);
+}
+.chart-bar {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.chart-bar:hover { opacity: 0.7; }
+
+/* ===== PROGRESS RING ===== */
+.progress-ring {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+.progress-ring svg { transform: rotate(-90deg); }
+.progress-ring-bg { fill: none; stroke: var(--border-subtle); stroke-width: 6; }
+.progress-ring-fill {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease;
+}
+.progress-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-top: 12px;
+  letter-spacing: -1px;
+}
+.progress-label {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ===== GOALS ===== */
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.goal-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.goal-name {
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+.goal-amount {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.goal-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.goal-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s ease;
+}
+
+/* Goal Cards (Metas Page) */
+.goal-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.goal-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.goal-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+}
+.goal-card-title {
+  flex: 1;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+.goal-card-actions {
+  display: flex;
+  gap: 6px;
+}
+.goal-card-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.goal-card-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.goal-card-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+.goal-card-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+.goal-card-remaining {
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+.goal-card-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn-goal-btn {
+  padding: 6px 14px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+.btn-goal-btn:hover {
+  background: var(--bg-elevated);
+  border-color: var(--border-medium);
+  color: var(--text-primary);
+}
+
+/* ===== SCHEDULED / PROGRAMMABLES ===== */
+.scheduled-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 12px;
+}
+.scheduled-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 18px;
+  transition: all 0.2s ease;
+}
+.scheduled-card:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-tertiary);
+}
+.scheduled-card.income { border-left: 2px solid var(--positive); }
+.scheduled-card.expense { border-left: 2px solid var(--negative); }
+
+.scheduled-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+}
+
+.scheduled-info {
+  flex: 1;
+  min-width: 0;
+}
+.scheduled-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.scheduled-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-tertiary);
+}
+.scheduled-amount {
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: -0.3px;
+}
+.scheduled-amount.income { color: var(--positive); }
+.scheduled-amount.expense { color: var(--negative); }
+
+/* ===== DATA TABLE ===== */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.data-table thead th {
+  text-align: left;
+  padding: 12px 16px;
+  color: var(--text-tertiary);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.data-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+  color: var(--text-secondary);
+}
+.data-table tbody tr {
+  transition: background 0.15s ease;
+}
+.data-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+.badge-income {
+  background: var(--positive-dim);
+  color: var(--positive);
+}
+.badge-expense {
+  background: var(--negative-dim);
+  color: var(--negative);
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  border-radius: 16px;
+  padding: 28px;
+  width: 100%;
+  max-width: 420px;
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+.modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: var(--text-primary);
+}
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 300;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+  border: 1px solid transparent;
+}
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.toast.success {
+  background: var(--positive-dim);
+  border-color: rgba(52, 211, 153, 0.2);
+  color: var(--positive);
+}
+.toast.error {
+  background: var(--negative-dim);
+  border-color: rgba(248, 113, 113, 0.2);
+  color: var(--negative);
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-muted);
+}
+.empty-state-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+.empty-state p {
+  font-size: 14px;
+  max-width: 280px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ===== CURRENCY / DIVISAS PAGE ===== */
+.currency-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+.currency-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+.currency-card:hover {
+  border-color: var(--border-medium);
+  background: var(--bg-tertiary);
+}
+.currency-card.main-currency {
+  grid-column: 1 / -1;
+  background: var(--bg-tertiary);
+  border-color: var(--border-medium);
+}
+.currency-flag {
+  font-size: 28px;
+  line-height: 1;
+}
+.currency-info {
+  flex: 1;
+  min-width: 0;
+}
+.currency-name {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+  font-weight: 500;
+}
+.currency-amount {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+.currency-rate {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.currency-trend {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.currency-trend.up {
+  color: var(--positive);
+  background: var(--positive-dim);
+}
+.currency-trend.down {
+  color: var(--negative);
+  background: var(--negative-dim);
+}
+
+/* ===== CONFIGURATION PAGE ===== */
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+.config-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.config-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.config-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+}
+.config-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.2px;
+}
+.config-card-subtitle {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+.config-section {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.config-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.config-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.config-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+/* Currency label in forms */
+.currency-label {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .app { padding: 16px; }
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .nav-tabs {
+    justify-content: center;
+    overflow-x: auto;
+  }
+  .user-profile {
+    justify-content: center;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .goals-grid {
+    grid-template-columns: 1fr;
+  }
+  .scheduled-grid {
+    grid-template-columns: 1fr;
+  }
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .data-table {
+    font-size: 12px;
+  }
+  .data-table thead th,
+  .data-table tbody td {
+    padding: 10px 8px;
+  }
+  .scheduled-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .goal-card-buttons {
+    justify-content: center;
+  }
+  .currency-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+/* ===== FINAL POLISH ===== */
+
+/* Smooth page transitions */
+.page {
+  animation: fadeIn 0.25s ease;
+}
+
+/* Card subtle lift on hover */
+.card {
+  position: relative;
+}
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+.card:hover::after {
+  opacity: 1;
+}
+
+/* Input focus ring */
+.form-input:focus, .form-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim), 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Table row hover */
+.data-table tbody tr {
+  transition: all 0.15s ease;
+}
+
+/* Stats cards */
+.stats-grid .card {
+  position: relative;
+  overflow: hidden;
+}
+.stats-grid .card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  opacity: 0.6;
+}
+.stats-grid .card:nth-child(1)::before { background: var(--positive); }
+.stats-grid .card:nth-child(2)::before { background: var(--negative); }
+.stats-grid .card:nth-child(3)::before { background: var(--text-primary); }
+.stats-grid .card:nth-child(4)::before { background: var(--accent); }
+
+/* Progress ring glow */
+.progress-ring-fill {
+  filter: drop-shadow(0 0 4px var(--accent-glow));
+}
+
+/* Currency card main highlight */
+.currency-card.main-currency .currency-amount {
+  font-size: 24px;
+  color: var(--accent);
+}
+
+/* Config card hover */
+.config-card:hover {
+  border-color: var(--border-medium);
+}
+
+/* Button active states */
+.btn:active {
+  transform: translateY(1px);
+}
+
+/* Nav tab active indicator */
+.nav-tab.active {
+  position: relative;
+}
+.nav-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
+/* Table wrapper for horizontal scroll */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+}
+.table-wrapper::-webkit-scrollbar {
+  height: 4px;
+}
+.table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+.table-wrapper::-webkit-scrollbar-thumb {
+  background: var(--border-medium);
+  border-radius: 2px;
+}
