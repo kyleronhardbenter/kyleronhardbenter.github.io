@@ -6,10 +6,8 @@
   <title>FinTech OS — Plataforma Financiera Empresarial</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-<base target="_blank">
-<base target="_blank">
 
-  <style>
+<style>
     .loading-overlay {
       position: fixed; top: 0; left: 0; right: 0; bottom: 0;
       background: var(--bg-primary); z-index: 1000;
@@ -802,6 +800,12 @@
           <input type="password" class="form-input" id="login-password" placeholder="••••••••">
           <span class="auth-input-icon">🔐</span>
         </div>
+        <div class="auth-checkbox-group" style="margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;">
+          <input type="checkbox" id="login-terms" style="width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:var(--accent);flex-shrink:0;">
+          <label for="login-terms" style="font-size:12px;color:var(--text-muted);line-height:1.5;cursor:pointer;">
+            Acepto los <a href="terminos.html" target="_blank" style="color:var(--accent);text-decoration:none;">Términos de Servicio</a> y la <a href="privacidad.html" target="_blank" style="color:var(--accent);text-decoration:none;">Política de Privacidad</a>
+          </label>
+        </div>
         <button class="auth-btn auth-btn-primary" onclick="login()">
           🚀 Ingresar al Sistema
         </button>
@@ -823,6 +827,12 @@
           <input type="password" class="form-input" id="reg-password" placeholder="Mínimo 6 caracteres">
           <span class="auth-input-icon">🔐</span>
         </div>
+        <div class="auth-checkbox-group" style="margin-bottom:20px;display:flex;align-items:flex-start;gap:10px;">
+          <input type="checkbox" id="reg-terms" style="width:18px;height:18px;margin-top:2px;cursor:pointer;accent-color:var(--accent);flex-shrink:0;">
+          <label for="reg-terms" style="font-size:12px;color:var(--text-muted);line-height:1.5;cursor:pointer;">
+            He leído y acepto los <a href="terminos.html" target="_blank" style="color:var(--accent);text-decoration:none;">Términos de Servicio</a> y la <a href="privacidad.html" target="_blank" style="color:var(--accent);text-decoration:none;">Política de Privacidad</a>
+          </label>
+        </div>
         <button class="auth-btn auth-btn-success" onclick="register()">
           ✨ Crear Cuenta
         </button>
@@ -831,7 +841,7 @@
       <div class="auth-divider">o continúa con</div>
 
       <div class="auth-footer">
-        Al continuar, aceptas los <a href="terminos.html" target="_blank">Términos de Servicio</a> y <a href="privacidad.html" target="_blank">Política de Privacidad</a>
+        © 2026 FinTech OS · <a href="terminos.html" target="_blank" style="color:var(--accent);text-decoration:none;">Términos</a> · <a href="privacidad.html" target="_blank" style="color:var(--accent);text-decoration:none;">Privacidad</a>
       </div>
     </div>
   </div>
@@ -1233,6 +1243,7 @@
       const name = document.getElementById('reg-name').value.trim();
       const email = document.getElementById('reg-email').value.trim();
       const password = document.getElementById('reg-password').value;
+      const termsAccepted = document.getElementById('reg-terms').checked;
 
       if (!name || !email || !password) {
         showToast('⚠️ Completa todos los campos', 'error');
@@ -1240,6 +1251,10 @@
       }
       if (password.length < 6) {
         showToast('⚠️ La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+      }
+      if (!termsAccepted) {
+        showToast('⚠️ Debes aceptar los Términos de Servicio y la Política de Privacidad', 'error');
         return;
       }
 
@@ -1256,7 +1271,9 @@
     window.login = async () => {
       const email = document.getElementById('login-email').value.trim();
       const password = document.getElementById('login-password').value;
+      const termsAccepted = document.getElementById('login-terms').checked;
       if (!email || !password) { showToast('⚠️ Ingresa email y contraseña', 'error'); return; }
+      if (!termsAccepted) { showToast('⚠️ Debes aceptar los Términos de Servicio y la Política de Privacidad', 'error'); return; }
       showLoading('Iniciando sesion');
       try {
         await signInWithEmailAndPassword(auth, email, password);
