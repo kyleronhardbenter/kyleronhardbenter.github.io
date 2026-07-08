@@ -2,42 +2,42 @@
 /* Design philosophy: Minimal, clean, monochrome with single accent */
 
 :root {
-  /* Core palette — monochrome with one accent */
-  --bg-primary: #0c0e12;
-  --bg-secondary: #14171c;
-  --bg-tertiary: #1a1d24;
-  --bg-elevated: #1e222b;
+  /* Corporate palette — Navy, Slate, Gold */
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #0f1525;
+  --bg-tertiary: #141b2d;
+  --bg-elevated: #1a2340;
 
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-medium: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-medium: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
 
-  --text-primary: #f0f1f3;
-  --text-secondary: #9ca3af;
-  --text-tertiary: #6b7280;
-  --text-muted: #4b5563;
+  --text-primary: #f0f2f7;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-muted: #475569;
 
-  /* Single accent — cyan, used sparingly */
-  --accent: #22d3ee;
-  --accent-dim: rgba(34, 211, 238, 0.08);
-  --accent-glow: rgba(34, 211, 238, 0.15);
+  /* Premium gold accent */
+  --accent: #d4a853;
+  --accent-dim: rgba(212, 168, 83, 0.08);
+  --accent-glow: rgba(212, 168, 83, 0.15);
 
-  /* Semantic colors — muted, desaturated */
+  /* Semantic colors — muted, sophisticated */
   --positive: #34d399;
   --positive-dim: rgba(52, 211, 153, 0.08);
   --negative: #f87171;
   --negative-dim: rgba(248, 113, 113, 0.08);
   --warning: #fbbf24;
 
-  /* Glass effect — very subtle */
-  --glass: rgba(20, 23, 28, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  /* Glass effect */
+  --glass: rgba(15, 21, 37, 0.75);
+  --glass-border: rgba(212, 168, 83, 0.08);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
   min-height: 100vh;
@@ -93,7 +93,7 @@ body {
 }
 
 .logo {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Inter', 'SF Pro Display', sans-serif;
   font-size: 22px;
   font-weight: 700;
   color: var(--text-primary);
@@ -146,7 +146,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Inter', 'SF Pro Display', sans-serif;
   font-weight: 700;
   font-size: 14px;
   color: var(--accent);
@@ -210,7 +210,7 @@ body {
   max-width: 400px;
 }
 .auth-logo {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Inter', 'SF Pro Display', sans-serif;
   font-size: 26px;
   font-weight: 700;
   text-align: center;
