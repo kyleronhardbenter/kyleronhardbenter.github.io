@@ -1321,25 +1321,21 @@
       document.getElementById('dash-balance').textContent = curr.symbol + balance.toLocaleString('en-US', {minimumFractionDigits: 2});
       document.getElementById('dash-savings').textContent = curr.symbol + Math.max(0, savings).toLocaleString('en-US', {minimumFractionDigits: 2});
 
+      // Real month-over-month percentages
+      const incomePct = prevIncome > 0 ? ((income - prevIncome) / prevIncome * 100) : (income > 0 ? 100 : 0);
+      const expensePct = prevExpense > 0 ? ((expense - prevExpense) / prevExpense * 100) : (expense > 0 ? 100 : 0);
+
+      document.getElementById('dash-income-change').className = 'stat-change ' + (incomePct >= 0 ? 'up' : 'down');
+      document.getElementById('dash-income-change').textContent = (incomePct >= 0 ? '▲ +' : '▼ ') + Math.abs(incomePct).toFixed(1) + '% vs mes anterior';
+      document.getElementById('dash-expense-change').className = 'stat-change ' + (expensePct >= 0 ? 'up' : 'down');
+      document.getElementById('dash-expense-change').textContent = (expensePct >= 0 ? '▲ +' : '▼ ') + Math.abs(expensePct).toFixed(1) + '% vs mes anterior';
+
       // Real savings goal progress
       const totalTarget = window.savingsGoals.reduce((s, g) => s + g.target, 0);
       const totalCurrent = window.savingsGoals.reduce((s, g) => s + g.current, 0);
       const savingsGoalPct = totalTarget > 0 ? (totalCurrent / totalTarget * 100) : 0;
       document.getElementById('dash-savings-change').className = 'stat-change ' + (savingsGoalPct >= 68 ? 'up' : (savingsGoalPct >= 40 ? 'up' : 'down'));
       document.getElementById('dash-savings-change').textContent = '▲ Meta al ' + savingsGoalPct.toFixed(0) + '%';
-
-      // Real month-over-month percentages
-      const incomePct = prevIncome > 0 ? ((income - prevIncome) / prevIncome * 100) : (income > 0 ? 100 : 0);
-      const expensePct = prevExpense > 0 ? ((expense - prevExpense) / prevExpense * 100) : (expense > 0 ? 100 : 0);
-      const balanceTrend = balance >= 0 ? 'up' : 'down';
-      const totalTarget = window.savingsGoals.reduce((s, g) => s + g.target, 0);
-      const totalCurrent = window.savingsGoals.reduce((s, g) => s + g.current, 0);
-      const savingsPct = totalTarget > 0 ? (totalCurrent / totalTarget * 100) : 0;
-
-      document.getElementById('dash-income-change').className = 'stat-change ' + (incomePct >= 0 ? 'up' : 'down');
-      document.getElementById('dash-income-change').textContent = (incomePct >= 0 ? '▲ +' : '▼ ') + Math.abs(incomePct).toFixed(1) + '% vs mes anterior';
-      document.getElementById('dash-expense-change').className = 'stat-change ' + (expensePct >= 0 ? 'up' : 'down');
-      document.getElementById('dash-expense-change').textContent = (expensePct >= 0 ? '▲ +' : '▼ ') + Math.abs(expensePct).toFixed(1) + '% vs mes anterior';
 
       renderMainChart();
       renderSavingsRing();
