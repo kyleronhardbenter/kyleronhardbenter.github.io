@@ -25,31 +25,18 @@
     @keyframes loadingFade { 0%,100%{opacity:0.4} 50%{opacity:1} }
     .loading-dots::after { content: ''; animation: dots 1.5s steps(4,end) infinite; }
     @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
-  </style>
-
-
-  <style>
-    #confirm-modal .modal { animation: modalIn 0.25s ease; }
-    #confirm-action-btn { transition: all 0.2s ease; }
-    #confirm-action-btn:hover { filter: brightness(1.2); }
-    #confirm-input { font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
-  </style>
-
-
-  <style>
     .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
     .status-dot.active { background: var(--positive); box-shadow: 0 0 0 0 rgba(52,211,153,0.4); animation: pulse-green 1.5s ease-in-out infinite; }
     .status-dot.paused { background: var(--negative); box-shadow: 0 0 0 0 rgba(248,113,113,0.4); animation: pulse-red 1.5s ease-in-out infinite; }
     @keyframes pulse-green { 0%{box-shadow:0 0 0 0 rgba(52,211,153,0.4)} 70%{box-shadow:0 0 0 6px rgba(52,211,153,0)} 100%{box-shadow:0 0 0 0 rgba(52,211,153,0)} }
     @keyframes pulse-red { 0%{box-shadow:0 0 0 0 rgba(248,113,113,0.4)} 70%{box-shadow:0 0 0 6px rgba(248,113,113,0)} 100%{box-shadow:0 0 0 0 rgba(248,113,113,0)} }
-  </style>
-
-
-  <style>
     .scheduled-grid .card.scheduled-card { padding: 18px; }
     .goals-grid .card.goal-card { padding: 20px; }
+    #confirm-modal .modal { animation: modalIn 0.25s ease; }
+    #confirm-action-btn { transition: all 0.2s ease; }
+    #confirm-action-btn:hover { filter: brightness(1.2); }
+    #confirm-input { font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
   </style>
-
 <base target="_blank">
 </head>
 <body>
@@ -653,6 +640,53 @@
     window.currentProgType = 'income';
     window.userCurrency = 'USD';
     window.userProfile = {};
+    // ===== HELPER FUNCTIONS =====
+    function showLoading(text) {
+      const overlay = document.getElementById('loading-overlay');
+      const label = document.getElementById('loading-text');
+      label.innerHTML = text + '<span class="loading-dots"></span>';
+      overlay.classList.add('active');
+    }
+    function hideLoading() {
+      document.getElementById('loading-overlay').classList.remove('active');
+    }
+    function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    let confirmResolve = null;
+    function showConfirm(opts) {
+      return new Promise((resolve) => {
+        confirmResolve = resolve;
+        document.getElementById('confirm-icon').textContent = opts.icon || '⚠️';
+        document.getElementById('confirm-title').textContent = opts.title;
+        document.getElementById('confirm-message').innerHTML = (opts.message || '').replace(/\n/g, '<br>');
+        document.getElementById('confirm-cancel-btn').textContent = opts.cancelText || 'Cancelar';
+        const actionBtn = document.getElementById('confirm-action-btn');
+        actionBtn.textContent = opts.confirmText || 'Confirmar';
+        actionBtn.className = opts.danger !== false ? 'btn btn-danger' : 'btn btn-primary';
+        const inputArea = document.getElementById('confirm-input-area');
+        const inputEl = document.getElementById('confirm-input');
+        if (opts.input) {
+          inputArea.style.display = 'block'; inputEl.value = '';
+          inputEl.placeholder = opts.inputPlaceholder || '';
+          document.getElementById('confirm-input-hint').textContent = opts.inputHint || '';
+          setTimeout(() => inputEl.focus(), 100);
+        } else { inputArea.style.display = 'none'; }
+        document.getElementById('confirm-modal').style.display = 'flex';
+      });
+    }
+    window.resolveConfirm = (confirmed) => {
+      const inputArea = document.getElementById('confirm-input-area');
+      const value = inputArea.style.display !== 'none' ? document.getElementById('confirm-input').value.trim() : null;
+      document.getElementById('confirm-modal').style.display = 'none';
+      if (confirmResolve) { confirmResolve({ confirmed, value }); confirmResolve = null; }
+    };
+    window.closeConfirmModalOnOverlay = (e) => {
+      if (e.target === e.currentTarget) {
+        document.getElementById('confirm-modal').style.display = 'none';
+        if (confirmResolve) { confirmResolve({ confirmed: false, value: null }); confirmResolve = null; }
+      }
+    };
+
 
     // Auth state
     onAuthStateChanged(auth, async (user) => {
@@ -680,99 +714,6 @@
       }
     });
 
-    // ===== LOADING OVERLAY HELPERS =====
-    function showLoading(text) {
-      const overlay = document.getElementById('loading-overlay');
-      const label = document.getElementById('loading-text');
-      label.innerHTML = text + '<span class="loading-dots"></span>';
-      overlay.classList.add('active');
-    }
-    function hideLoading() {
-      document.getElementById('loading-overlay').classList.remove('active');
-    }
-    function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-    // ===== CUSTOM CONFIRM/PROMPT SYSTEM =====
-    let confirmResolve = null;
-    function showConfirm({ title, message, icon='⚠️', confirmText='Confirmar', cancelText='Cancelar', danger=true, input=false, inputPlaceholder='', inputHint='' }) {
-      return new Promise((resolve) => {
-        confirmResolve = resolve;
-        document.getElementById('confirm-icon').textContent = icon;
-        document.getElementById('confirm-title').textContent = title;
-        document.getElementById('confirm-message').innerHTML = message.replace(/\n/g, '<br>');
-        document.getElementById('confirm-cancel-btn').textContent = cancelText;
-        const actionBtn = document.getElementById('confirm-action-btn');
-        actionBtn.textContent = confirmText;
-        actionBtn.className = danger ? 'btn btn-danger' : 'btn btn-primary';
-        const inputArea = document.getElementById('confirm-input-area');
-        const inputEl = document.getElementById('confirm-input');
-        if (input) {
-          inputArea.style.display = 'block'; inputEl.value = '';
-          inputEl.placeholder = inputPlaceholder;
-          document.getElementById('confirm-input-hint').textContent = inputHint;
-          setTimeout(() => inputEl.focus(), 100);
-        } else { inputArea.style.display = 'none'; }
-        document.getElementById('confirm-modal').style.display = 'flex';
-      });
-    }
-    window.resolveConfirm = (confirmed) => {
-      const inputArea = document.getElementById('confirm-input-area');
-      const value = inputArea.style.display !== 'none' ? document.getElementById('confirm-input').value.trim() : null;
-      document.getElementById('confirm-modal').style.display = 'none';
-      if (confirmResolve) { confirmResolve({ confirmed, value }); confirmResolve = null; }
-    };
-    window.closeConfirmModalOnOverlay = (e) => {
-      if (e.target === e.currentTarget) {
-        document.getElementById('confirm-modal').style.display = 'none';
-        if (confirmResolve) { confirmResolve({ confirmed: false, value: null }); confirmResolve = null; }
-      }
-    };
-    document.addEventListener('keydown', (e) => {
-      const modal = document.getElementById('confirm-modal');
-      if (modal.style.display === 'flex' && e.key === 'Enter') { e.preventDefault(); resolveConfirm(true); }
-    });
-
-    // ===== CUSTOM CONFIRM/PROMPT SYSTEM =====
-    let confirmResolve = null;
-    function showConfirm({ title, message, icon='⚠️', confirmText='Confirmar', cancelText='Cancelar', danger=true, input=false, inputPlaceholder='', inputHint='' }) {
-      return new Promise((resolve) => {
-        confirmResolve = resolve;
-        document.getElementById('confirm-icon').textContent = icon;
-        document.getElementById('confirm-title').textContent = title;
-        document.getElementById('confirm-message').innerHTML = message.replace(/\n/g, '<br>');
-        document.getElementById('confirm-cancel-btn').textContent = cancelText;
-        const actionBtn = document.getElementById('confirm-action-btn');
-        actionBtn.textContent = confirmText;
-        actionBtn.className = danger ? 'btn btn-danger' : 'btn btn-primary';
-        const inputArea = document.getElementById('confirm-input-area');
-        const inputEl = document.getElementById('confirm-input');
-        if (input) {
-          inputArea.style.display = 'block'; inputEl.value = '';
-          inputEl.placeholder = inputPlaceholder;
-          document.getElementById('confirm-input-hint').textContent = inputHint;
-          setTimeout(() => inputEl.focus(), 100);
-        } else { inputArea.style.display = 'none'; }
-        document.getElementById('confirm-modal').style.display = 'flex';
-      });
-    }
-    window.resolveConfirm = (confirmed) => {
-      const inputArea = document.getElementById('confirm-input-area');
-      const value = inputArea.style.display !== 'none' ? document.getElementById('confirm-input').value.trim() : null;
-      document.getElementById('confirm-modal').style.display = 'none';
-      if (confirmResolve) { confirmResolve({ confirmed, value }); confirmResolve = null; }
-    };
-    window.closeConfirmModalOnOverlay = (e) => {
-      if (e.target === e.currentTarget) {
-        document.getElementById('confirm-modal').style.display = 'none';
-        if (confirmResolve) { confirmResolve({ confirmed: false, value: null }); confirmResolve = null; }
-      }
-    };
-    document.addEventListener('keydown', (e) => {
-      const modal = document.getElementById('confirm-modal');
-      if (modal.style.display === 'flex' && e.key === 'Enter') { e.preventDefault(); resolveConfirm(true); }
-    });
-
-    
     function setupUserData(uid) {
       const transRef = ref(db, `users/${uid}/transactions`);
       const progRef = ref(db, `users/${uid}/programmables`);
@@ -973,28 +914,33 @@
     };
 
     window.deleteAllData = async () => {
-      const r1 = await showConfirm({ title: '¿Eliminar todos los datos?', message: 'Se eliminaran TODOS tus registros, metas y programables. Esta accion no se puede deshacer.', icon: '🗑️', confirmText: 'Si, eliminar', danger: true });
-      if (!r1.confirmed) return;
-      const r2 = await showConfirm({ title: '¿REALMENTE SEGURO?', message: 'Ultima oportunidad para cancelar. Esta accion es irreversible.', icon: '⚠️', confirmText: 'Eliminar todo', danger: true });
-      if (!r2.confirmed) return;
+      if (!confirm('⚠️ ¿ESTÁS SEGURO?\n\nSe eliminarán TODOS tus registros, metas y programables. Esta acción no se puede deshacer.')) return;
+      if (!confirm('¿REALMENTE SEGURO? Última oportunidad para cancelar.')) return;
+
       try {
         await remove(ref(db, `users/${window.currentUser.uid}/transactions`));
         await remove(ref(db, `users/${window.currentUser.uid}/programmables`));
         await remove(ref(db, `users/${window.currentUser.uid}/goals`));
         showToast('🗑️ Todos los datos eliminados', 'success');
-      } catch (e) { showToast('❌ Error: ' + e.message, 'error'); }
+      } catch (e) {
+        showToast('❌ Error: ' + e.message, 'error');
+      }
     };
 
     window.deleteAccount = async () => {
-      const r1 = await showConfirm({ title: '¿Eliminar cuenta permanentemente?', message: 'Se borrara todo: tu perfil, datos financieros, metas y configuracion. ¡IRREVERSIBLE!', icon: '🚫', confirmText: 'Continuar', danger: true });
-      if (!r1.confirmed) return;
-      const r2 = await showConfirm({ title: 'Confirmacion de seguridad', message: 'Escribe "ELIMINAR" para confirmar que deseas eliminar tu cuenta permanentemente.', icon: '🔐', confirmText: 'Eliminar cuenta', cancelText: 'Cancelar', danger: true, input: true, inputPlaceholder: 'Escribe ELIMINAR', inputHint: 'Debes escribir ELIMINAR en mayusculas' });
-      if (!r2.confirmed || r2.value !== 'ELIMINAR') { showToast('❌ Confirmacion incorrecta', 'error'); return; }
+      if (!confirm('⚠️ ¿ELIMINAR CUENTA PERMANENTEMENTE?\n\nSe borrará todo: tu perfil, datos financieros, metas y configuración. ¡IRREVERSIBLE!')) return;
+      if (prompt('Escribe "ELIMINAR" para confirmar:') !== 'ELIMINAR') {
+        showToast('❌ Confirmación incorrecta', 'error');
+        return;
+      }
+
       try {
         await remove(ref(db, `users/${window.currentUser.uid}`));
         await deleteUser(window.currentUser);
         showToast('👋 Cuenta eliminada', 'success');
-      } catch (e) { showToast('❌ ' + e.message, 'error'); }
+      } catch (e) {
+        showToast('❌ ' + e.message, 'error');
+      }
     };
 
     // Auth functions
@@ -1673,6 +1619,7 @@
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
 
+
     // ===== PROGRAMMABLE SCHEDULER =====
     async function checkAndExecuteProgrammables() {
       if (!window.currentUser || window.programmables.length === 0) return;
@@ -1682,7 +1629,6 @@
       const currentMinute = now.getMinutes();
       const currentDay = now.getDate();
       const currentWeekDay = now.getDay();
-
       for (const prog of window.programmables) {
         if (!prog.activo) continue;
         const [progHour, progMinute] = (prog.hora || '00:00').split(':').map(Number);
@@ -1693,35 +1639,26 @@
         const lastExec = prog.lastExecuted ? prog.lastExecuted.slice(0, 10) : null;
         if (lastExec === todayStr) continue;
         if (currentHour !== progHour || currentMinute !== progMinute) continue;
-
         let shouldExecute = false;
         switch (prog.frecuencia) {
           case 'daily': shouldExecute = true; break;
-          case 'weekly':
-            const targetWeekDay = (prog.dia || 1) % 7;
-            shouldExecute = (currentWeekDay === targetWeekDay);
-            break;
-          case 'biweekly':
-            shouldExecute = (currentDay === (prog.dia || 1)) || (currentDay === ((prog.dia || 1) + 14));
-            break;
+          case 'weekly': shouldExecute = (currentWeekDay === ((prog.dia || 1) % 7)); break;
+          case 'biweekly': shouldExecute = (currentDay === (prog.dia || 1)) || (currentDay === ((prog.dia || 1) + 14)); break;
           case 'monthly': shouldExecute = (currentDay === (prog.dia || 1)); break;
-          case 'yearly':
-            shouldExecute = (currentDay === (prog.dia || 1)) && (now.getMonth() === (progStart ? progStart.getMonth() : 0));
-            break;
+          case 'yearly': shouldExecute = (currentDay === (prog.dia || 1)) && (now.getMonth() === (progStart ? progStart.getMonth() : 0)); break;
         }
         if (!shouldExecute) continue;
-
         try {
           const transData = {
             concepto: prog.concepto, monto: prog.monto, categoria: prog.categoria,
-            fecha: todayStr, notas: 'Auto-generado por programable: ' + getFrequencyName(prog.frecuencia),
+            fecha: todayStr, notas: 'Auto-generado: ' + getFrequencyName(prog.frecuencia),
             tipo: prog.tipo, currency: prog.currency || window.userCurrency,
             timestamp: Date.now(), programmableId: prog.id
           };
           await push(ref(db, `users/${window.currentUser.uid}/transactions`), transData);
           await update(ref(db, `users/${window.currentUser.uid}/programmables/${prog.id}`), { lastExecuted: now.toISOString() });
-          showToast(`✅ Programable ejecutado: ${prog.concepto} ${prog.tipo === 'income' ? '💰' : '💸'}`, 'success');
-        } catch (e) { console.error('Error executing programmable:', e); }
+          showToast('✅ Programable ejecutado: ' + prog.concepto, 'success');
+        } catch (e) { console.error(e); }
       }
     }
     setInterval(checkAndExecuteProgrammables, 60000);
@@ -1743,7 +1680,6 @@
       if (e.key === 'Escape') closeEditModal();
     });
   </script>
-
   <!-- CONFIRM MODAL -->
   <div class="modal-overlay" id="confirm-modal" style="display:none;" onclick="closeConfirmModalOnOverlay(event)">
     <div class="modal" onclick="event.stopPropagation()" style="max-width:420px;text-align:center;">
