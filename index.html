@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FinTech OS - Dashboard Financiero Futurista</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>FinTech OS — Plataforma Financiera Empresarial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 <base target="_blank">
 <base target="_blank">
@@ -21,7 +21,7 @@
     @keyframes loadingPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.98)} }
     .loading-spinner { width: 48px; height: 48px; border: 2px solid var(--border-subtle); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 24px; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-text { font-family: 'Orbitron', sans-serif; font-size: 14px; color: var(--text-secondary); letter-spacing: 2px; text-transform: uppercase; animation: loadingFade 1.2s ease-in-out infinite; }
+    .loading-text { font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text-secondary); letter-spacing: 2px; text-transform: uppercase; animation: loadingFade 1.2s ease-in-out infinite; }
     @keyframes loadingFade { 0%,100%{opacity:0.4} 50%{opacity:1} }
     .loading-dots::after { content: ''; animation: dots 1.5s steps(4,end) infinite; }
     @keyframes dots { 0%{content:''} 25%{content:'.'} 50%{content:'..'} 75%{content:'...'} }
@@ -35,8 +35,266 @@
     #confirm-modal .modal { animation: modalIn 0.25s ease; }
     #confirm-action-btn { transition: all 0.2s ease; }
     #confirm-action-btn:hover { filter: brightness(1.2); }
-    #confirm-input { font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+    #confirm-input { font-family: 'Inter', sans-serif; letter-spacing: 1px; }
   </style>
+
+  <style>
+    /* ===== ENHANCED AUTH SCREEN ===== */
+    .auth-screen {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      background: 
+        radial-gradient(ellipse at 20% 50%, rgba(34, 211, 238, 0.03) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 50%, rgba(168, 85, 247, 0.03) 0%, transparent 50%),
+        var(--bg-primary);
+      overflow: hidden;
+    }
+    .auth-screen::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.008) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.008) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+    .auth-container {
+      background: var(--glass);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+      animation: authSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes authSlideIn {
+      from { opacity: 0; transform: translateY(30px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .auth-container::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      opacity: 0.3;
+    }
+    .auth-logo {
+      font-family: 'Inter', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+      letter-spacing: 4px;
+      animation: authFadeIn 0.8s ease 0.2s both;
+    }
+    .auth-logo span { color: var(--accent); }
+    .auth-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-bottom: 36px;
+      letter-spacing: 0.5px;
+      animation: authFadeIn 0.8s ease 0.3s both;
+    }
+    @keyframes authFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .auth-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 32px;
+      background: var(--bg-tertiary);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      animation: authFadeIn 0.8s ease 0.4s both;
+    }
+    .auth-tab {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-tertiary);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .auth-tab:hover { color: var(--text-secondary); }
+    .auth-tab.active {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      border: 1px solid var(--border-medium);
+    }
+    .auth-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 20px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 1px;
+    }
+    .auth-form {
+      animation: authFadeIn 0.8s ease 0.5s both;
+    }
+    .auth-input-group {
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .auth-input-group .form-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+    .auth-input-group .form-input {
+      padding: 14px 16px 14px 44px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 14px;
+      width: 100%;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+    .auth-input-group .form-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim), 0 1px 2px rgba(0,0,0,0.1);
+      background: var(--bg-elevated);
+    }
+    .auth-input-group .form-input::placeholder {
+      color: var(--text-muted);
+    }
+    .auth-input-icon {
+      position: absolute;
+      left: 14px;
+      bottom: 14px;
+      font-size: 18px;
+      color: var(--text-muted);
+      pointer-events: none;
+      transition: color 0.3s ease;
+    }
+    .auth-input-group .form-input:focus + .auth-input-icon,
+    .auth-input-group .form-input:not(:placeholder-shown) + .auth-input-icon {
+      color: var(--accent);
+    }
+    .auth-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.5px;
+    }
+    .auth-btn-primary {
+      background: linear-gradient(135deg, var(--accent), #b8943c);
+      color: var(--bg-primary);
+      box-shadow: 0 4px 15px rgba(212, 168, 83, 0.2);
+    }
+    .auth-btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(212, 168, 83, 0.3);
+      filter: brightness(1.1);
+    }
+    .auth-btn-primary:active {
+      transform: translateY(0);
+    }
+    .auth-btn-success {
+      background: linear-gradient(135deg, var(--positive), #059669);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(52, 211, 153, 0.2);
+    }
+    .auth-btn-success:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(52, 211, 153, 0.3);
+      filter: brightness(1.1);
+    }
+    .auth-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 28px 0;
+      color: var(--text-muted);
+      font-size: 12px;
+      animation: authFadeIn 0.8s ease 0.6s both;
+    }
+    .auth-divider::before,
+    .auth-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-subtle);
+    }
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-muted);
+      animation: authFadeIn 0.8s ease 0.7s both;
+    }
+    .auth-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+    .auth-glow {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+      pointer-events: none;
+      filter: blur(40px);
+      animation: authGlowFloat 6s ease-in-out infinite;
+    }
+    .auth-glow-1 { top: -60px; left: -60px; animation-delay: 0s; }
+    .auth-glow-2 { bottom: -60px; right: -60px; background: radial-gradient(circle, rgba(168, 85, 247, 0.08) 0%, transparent 70%); animation-delay: 3s; }
+    @keyframes authGlowFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(20px, -20px) scale(1.1); }
+      66% { transform: translate(-10px, 10px) scale(0.95); }
+    }
+  </style>
+
 <base target="_blank">
 </head>
 <body>
@@ -293,16 +551,16 @@
         <div class="form-group">
           <label class="form-label">Color</label>
           <div class="color-picker">
-            <div class="color-option selected" style="background:#00d4ff" data-color="#00d4ff" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#a855f7" data-color="#a855f7" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#00ff88" data-color="#00ff88" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#f59e0b" data-color="#f59e0b" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#ff3366" data-color="#ff3366" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#6366f1" data-color="#6366f1" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#ec4899" data-color="#ec4899" onclick="selectColor(this)"></div>
-            <div class="color-option" style="background:#14b8a6" data-color="#14b8a6" onclick="selectColor(this)"></div>
+            <div class="color-option selected" style="background:#d4a853" data-color="#d4a853" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#8b7355" data-color="#8b7355" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#34d399" data-color="#34d399" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#d4a853" data-color="#d4a853" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#f87171" data-color="#f87171" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#64748b" data-color="#64748b" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#94a3b8" data-color="#94a3b8" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#475569" data-color="#475569" onclick="selectColor(this)"></div>
           </div>
-          <input type="hidden" id="meta-color" value="#00d4ff">
+          <input type="hidden" id="meta-color" value="#d4a853">
         </div>
       </div>
       <button class="btn btn-primary" onclick="addGoal()" style="margin-top: 10px;">🎯 Crear Meta</button>
@@ -370,7 +628,7 @@
           </div>
           <div class="form-group">
             <label class="form-label">Resultado</label>
-            <div class="form-input" id="conv-result" style="display:flex;align-items:center;font-family:'Orbitron';font-weight:700;color:var(--accent-cyan);">
+            <div class="form-input" id="conv-result" style="display:flex;align-items:center;font-family:'Inter', sans-serif;font-weight:700;color:var(--accent);">
               $0.00
             </div>
           </div>
@@ -404,7 +662,7 @@
         <!-- Perfil Card -->
         <div class="card config-card">
           <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(0, 212, 255, 0.15); color: var(--accent-cyan);">👤</div>
+            <div class="config-icon" style="background: rgba(0, 212, 255, 0.15); color: var(--accent);">👤</div>
             <div>
               <div class="config-card-title">Perfil de Usuario</div>
               <div class="config-card-subtitle">Tus datos personales</div>
@@ -433,7 +691,7 @@
         <!-- Divisa Card -->
         <div class="card config-card">
           <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(168, 85, 247, 0.15); color: var(--accent-purple);">💱</div>
+            <div class="config-icon" style="background: rgba(168, 85, 247, 0.15); color: var(--accent);">💱</div>
             <div>
               <div class="config-card-title">Divisa Principal</div>
               <div class="config-card-subtitle">Moneda para todos tus registros</div>
@@ -457,7 +715,7 @@
             </div>
             <div style="margin-top: 12px; padding: 12px; background: rgba(0, 212, 255, 0.05); border-radius: 10px; border: 1px solid var(--glass-border);">
               <div style="font-size: 12px; color: var(--text-muted);">
-                💡 Tu divisa actual: <strong id="current-currency-display" style="color: var(--accent-cyan);">USD</strong><br>
+                💡 Tu divisa actual: <strong id="current-currency-display" style="color: var(--accent);">USD</strong><br>
                 Todos los montos se mostrarán y registrarán en esta moneda.
               </div>
             </div>
@@ -467,7 +725,7 @@
         <!-- Seguridad Card -->
         <div class="card config-card">
           <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(0, 255, 136, 0.15); color: var(--accent-green);">🔐</div>
+            <div class="config-icon" style="background: rgba(52, 211, 153, 0.15); color: var(--positive);">🔐</div>
             <div>
               <div class="config-card-title">Seguridad</div>
               <div class="config-card-subtitle">Cambia tu contraseña</div>
@@ -495,7 +753,7 @@
         <!-- Danger Zone Card -->
         <div class="card config-card">
           <div class="config-card-header">
-            <div class="config-icon" style="background: rgba(255, 51, 102, 0.15); color: var(--accent-red);">⚠️</div>
+            <div class="config-icon" style="background: rgba(248, 113, 113, 0.15); color: var(--negative);">⚠️</div>
             <div>
               <div class="config-card-title">Zona de Peligro</div>
               <div class="config-card-subtitle">Acciones irreversibles</div>
@@ -522,38 +780,58 @@
   <!-- LOGIN/REGISTER SCREEN -->
   <div class="auth-screen" id="auth-screen">
     <div class="auth-container">
+      <div class="auth-glow auth-glow-1"></div>
+      <div class="auth-glow auth-glow-2"></div>
+
       <div class="auth-logo">FIN<span>TECH</span> OS</div>
+      <div class="auth-subtitle">Gestión financiera empresarial</div>
+
       <div class="auth-tabs">
         <button class="auth-tab active" id="tab-login" onclick="showAuthTab('login')">Iniciar Sesión</button>
         <button class="auth-tab" id="tab-register" onclick="showAuthTab('register')">Crear Cuenta</button>
       </div>
 
-      <div id="auth-login">
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label class="form-label">Email</label>
+      <div id="auth-login" class="auth-form">
+        <div class="auth-input-group">
+          <label class="form-label">📧 Email</label>
           <input type="email" class="form-input" id="login-email" placeholder="tu@email.com">
+          <span class="auth-input-icon">✉️</span>
         </div>
-        <div class="form-group" style="margin-bottom: 24px;">
-          <label class="form-label">Contraseña</label>
+        <div class="auth-input-group">
+          <label class="form-label">🔒 Contraseña</label>
           <input type="password" class="form-input" id="login-password" placeholder="••••••••">
+          <span class="auth-input-icon">🔐</span>
         </div>
-        <button class="btn btn-primary" style="width:100%;" onclick="login()">🚀 Ingresar</button>
+        <button class="auth-btn auth-btn-primary" onclick="login()">
+          🚀 Ingresar al Sistema
+        </button>
       </div>
 
-      <div id="auth-register" style="display:none;">
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label class="form-label">Nombre Completo</label>
+      <div id="auth-register" class="auth-form" style="display:none;">
+        <div class="auth-input-group">
+          <label class="form-label">👤 Nombre Completo</label>
           <input type="text" class="form-input" id="reg-name" placeholder="Tu nombre">
+          <span class="auth-input-icon">🧑</span>
         </div>
-        <div class="form-group" style="margin-bottom: 16px;">
-          <label class="form-label">Email</label>
+        <div class="auth-input-group">
+          <label class="form-label">📧 Email</label>
           <input type="email" class="form-input" id="reg-email" placeholder="tu@email.com">
+          <span class="auth-input-icon">✉️</span>
         </div>
-        <div class="form-group" style="margin-bottom: 24px;">
-          <label class="form-label">Contraseña</label>
+        <div class="auth-input-group">
+          <label class="form-label">🔒 Contraseña</label>
           <input type="password" class="form-input" id="reg-password" placeholder="Mínimo 6 caracteres">
+          <span class="auth-input-icon">🔐</span>
         </div>
-        <button class="btn btn-success" style="width:100%;" onclick="register()">✨ Crear Cuenta</button>
+        <button class="auth-btn auth-btn-success" onclick="register()">
+          ✨ Crear Cuenta
+        </button>
+      </div>
+
+      <div class="auth-divider">o continúa con</div>
+
+      <div class="auth-footer">
+        Al continuar, aceptas los <a href="#">Términos de Servicio</a> y <a href="#">Política de Privacidad</a>
       </div>
     </div>
   </div>
@@ -578,16 +856,16 @@
       <div class="form-group" style="margin-bottom: 20px;">
         <label class="form-label">Color</label>
         <div class="color-picker" id="edit-color-picker">
-          <div class="color-option" style="background:#00d4ff" data-color="#00d4ff" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#a855f7" data-color="#a855f7" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#00ff88" data-color="#00ff88" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#f59e0b" data-color="#f59e0b" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#ff3366" data-color="#ff3366" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#6366f1" data-color="#6366f1" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#ec4899" data-color="#ec4899" onclick="selectEditColor(this)"></div>
-          <div class="color-option" style="background:#14b8a6" data-color="#14b8a6" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#d4a853" data-color="#d4a853" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#8b7355" data-color="#8b7355" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#34d399" data-color="#34d399" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#d4a853" data-color="#d4a853" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#f87171" data-color="#f87171" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#64748b" data-color="#64748b" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#94a3b8" data-color="#94a3b8" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#475569" data-color="#475569" onclick="selectEditColor(this)"></div>
         </div>
-        <input type="hidden" id="edit-meta-color" value="#00d4ff">
+        <input type="hidden" id="edit-meta-color" value="#d4a853">
       </div>
       <div style="display:flex;gap:12px;">
         <button class="btn btn-primary" style="flex:1;" onclick="saveEditGoal()">💾 Guardar</button>
@@ -801,7 +1079,7 @@
           <div class="currency-flag">${userCurr.flag}</div>
           <div class="currency-info">
             <div class="currency-name">Tu Saldo (${window.userCurrency})</div>
-            <div class="currency-amount" style="color: var(--accent-cyan);">${formatCurrency(balance, window.userCurrency)}</div>
+            <div class="currency-amount" style="color: var(--accent);">${formatCurrency(balance, window.userCurrency)}</div>
           </div>
         </div>
       `;
@@ -845,14 +1123,14 @@
 
       tbody.innerHTML = Object.entries(EXCHANGE_RATES).map(([code, curr]) => {
         const trend = trends[code] || 'stable';
-        const trendColor = trend === 'up' ? 'var(--accent-green)' : trend === 'down' ? 'var(--accent-red)' : 'var(--text-muted)';
+        const trendColor = trend === 'up' ? 'var(--positive)' : trend === 'down' ? 'var(--negative)' : 'var(--text-muted)';
         const trendIcon = trend === 'up' ? '▲' : trend === 'down' ? '▼' : '—';
         return `
           <tr>
             <td><span style="font-size: 20px;">${curr.flag}</span> ${curr.name}</td>
-            <td style="font-family: 'Orbitron'; font-weight: 700;">${code}</td>
-            <td style="font-family: 'Orbitron';">${curr.rate.toLocaleString()}</td>
-            <td style="font-family: 'Orbitron'; color: var(--accent-cyan);">${curr.symbol}1 = $${(1/curr.rate).toFixed(4)} USD</td>
+            <td style="font-family: 'Inter', sans-serif; font-weight: 700;">${code}</td>
+            <td style="font-family: 'Inter', sans-serif;">${curr.rate.toLocaleString()}</td>
+            <td style="font-family: 'Inter', sans-serif; color: var(--accent);">${curr.symbol}1 = $${(1/curr.rate).toFixed(4)} USD</td>
             <td style="color: ${trendColor}; font-weight: 700;">${trendIcon}</td>
           </tr>
         `;
@@ -1252,7 +1530,7 @@
           <td><strong>${escapeHtml(t.concepto)}</strong>${t.notas ? `<br><small style="color:var(--text-muted)">${escapeHtml(t.notas)}</small>` : ''}</td>
           <td>${getCategoryIcon(t.categoria)} ${getCategoryName(t.categoria)}</td>
           <td><span class="badge badge-${t.tipo}">${t.tipo === 'income' ? 'Ingreso' : 'Gasto'}</span></td>
-          <td style="font-family:'Orbitron';font-weight:700;color:${t.tipo==='income'?'var(--accent-green)':'var(--accent-red)'};">${curr.symbol}${t.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+          <td style="font-family:'Inter', sans-serif;font-weight:700;color:${t.tipo==='income'?'var(--positive)':'var(--negative)'};">${curr.symbol}${t.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
           <td><button class="btn btn-danger" style="padding:6px 14px;font-size:12px;" onclick="deleteTransaction('${t.id}')">🗑️</button></td>
         </tr>
       `).join('');
@@ -1284,7 +1562,7 @@
           </div>
           <div class="scheduled-amount ${p.tipo}">${curr.symbol}${p.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
           <div style="display:flex;gap:8px;">
-            <button class="btn" style="padding:6px 12px;font-size:12px;background:rgba(0,212,255,0.1);color:var(--accent-cyan);" onclick="toggleProgrammable('${p.id}', ${p.activo})">${p.activo ? '⏸️' : '▶️'}</button>
+            <button class="btn" style="padding:6px 12px;font-size:12px;background:rgba(212, 168, 83, 0.1);color:var(--accent);" onclick="toggleProgrammable('${p.id}', ${p.activo})">${p.activo ? '⏸️' : '▶️'}</button>
             <button class="btn btn-danger" style="padding:6px 12px;font-size:12px;" onclick="deleteProgrammable('${p.id}')">🗑️</button>
           </div>
         </div>
@@ -1292,6 +1570,7 @@
     }
 
     function renderGoals() {
+      const curr = EXCHANGE_RATES[window.userCurrency];
       document.getElementById('goals-container').innerHTML = window.savingsGoals.map(g => {
         const pct = Math.min(100, (g.current / g.target) * 100);
         return `
@@ -1310,6 +1589,7 @@
     }
 
     function renderMetasPage() {
+      const curr = EXCHANGE_RATES[window.userCurrency];
       const container = document.getElementById('metas-list-container');
       const empty = document.getElementById('metas-empty');
 
@@ -1329,7 +1609,7 @@
               <div class="goal-card-icon" style="background:${g.color}22;color:${g.color};">${getGoalIcon(g.name)}</div>
               <div class="goal-card-title">${escapeHtml(g.name)}</div>
               <div class="goal-card-actions">
-                <button class="btn" style="padding:6px 10px;font-size:12px;background:rgba(0,212,255,0.1);color:var(--accent-cyan);" onclick="openEditGoal('${g.id}')">✏️</button>
+                <button class="btn" style="padding:6px 10px;font-size:12px;background:rgba(212, 168, 83, 0.1);color:var(--accent);" onclick="openEditGoal('${g.id}')">✏️</button>
                 <button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="deleteGoal('${g.id}')">🗑️</button>
               </div>
             </div>
@@ -1344,11 +1624,11 @@
             </div>
             <div class="goal-card-remaining">Faltan: <strong>${formatMoney(Math.max(0, remaining))}</strong></div>
             <div class="goal-card-buttons">
-              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 10)">+$10</button>
-              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 50)">+$50</button>
-              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 100)">+$100</button>
-              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 500)">+$500</button>
-              <button class="btn btn-goal-btn" style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-purple));color:#fff;" onclick="customContribute('${g.id}')">💰 Custom</button>
+              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 10)">+${curr.symbol}10</button>
+              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 50)">+${curr.symbol}50</button>
+              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 100)">+${curr.symbol}100</button>
+              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 500)">+${curr.symbol}500</button>
+              <button class="btn btn-goal-btn" style="background:linear-gradient(135deg,var(--accent),var(--accent-glow));color:#fff;" onclick="customContribute('${g.id}')">💰 Custom</button>
             </div>
           </div>
         `;
@@ -1407,6 +1687,7 @@
     }
 
     function renderMainChart() {
+      const curr = EXCHANGE_RATES[window.userCurrency];
       const container = document.getElementById('main-chart');
       const months = [];
       for (let i = 5; i >= 0; i--) {
@@ -1448,12 +1729,12 @@
         <svg class="chart-svg" viewBox="0 0 ${w} ${h}">
           <defs>
             <linearGradient id="gradInc" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#00ff88" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="#00ff88" stop-opacity="0"/>
+              <stop offset="0%" stop-color="#34d399" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#34d399" stop-opacity="0"/>
             </linearGradient>
             <linearGradient id="gradExp" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#ff3366" stop-opacity="0.3"/>
-              <stop offset="100%" stop-color="#ff3366" stop-opacity="0"/>
+              <stop offset="0%" stop-color="#f87171" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#f87171" stop-opacity="0"/>
             </linearGradient>
           </defs>
           ${[0, 0.25, 0.5, 0.75, 1].map(p => {
@@ -1462,17 +1743,17 @@
           }).join('')}
           <polygon class="chart-area" points="${area(incomeData)}" fill="url(#gradInc)"/>
           <polygon class="chart-area" points="${area(expenseData)}" fill="url(#gradExp)"/>
-          <polyline class="chart-line" points="${points(incomeData)}" stroke="#00ff88"/>
-          <polyline class="chart-line" points="${points(expenseData)}" stroke="#ff3366"/>
+          <polyline class="chart-line" points="${points(incomeData)}" stroke="#34d399"/>
+          <polyline class="chart-line" points="${points(expenseData)}" stroke="#f87171"/>
           ${incomeData.map((v, i) => {
             const x = pad.l + (i / (incomeData.length - 1)) * cw;
             const y = pad.t + ch - (v / maxVal) * ch;
-            return `<circle cx="${x}" cy="${y}" r="4" fill="#00ff88" stroke="#0a0e17" stroke-width="2"/>`;
+            return `<circle cx="${x}" cy="${y}" r="4" fill="#34d399" stroke="#0a0e17" stroke-width="2"/>`;
           }).join('')}
           ${expenseData.map((v, i) => {
             const x = pad.l + (i / (expenseData.length - 1)) * cw;
             const y = pad.t + ch - (v / maxVal) * ch;
-            return `<circle cx="${x}" cy="${y}" r="4" fill="#ff3366" stroke="#0a0e17" stroke-width="2"/>`;
+            return `<circle cx="${x}" cy="${y}" r="4" fill="#f87171" stroke="#0a0e17" stroke-width="2"/>`;
           }).join('')}
           ${monthLabels.map((l, i) => {
             const x = pad.l + (i / (monthLabels.length - 1)) * cw;
@@ -1481,13 +1762,14 @@
           ${[0, 0.5, 1].map(p => {
             const val = Math.round(maxVal * (1 - p));
             const y = pad.t + ch * p;
-            return `<text class="chart-axis-text" x="${pad.l-10}" y="${y+4}" text-anchor="end">$${val}</text>`;
+            return `<text class="chart-axis-text" x="${pad.l-10}" y="${y+4}" text-anchor="end">${curr.symbol}${val}</text>`;
           }).join('')}
         </svg>
       `;
     }
 
     function renderSavingsRing() {
+      const curr = EXCHANGE_RATES[window.userCurrency];
       const totalTarget = window.savingsGoals.reduce((s, g) => s + g.target, 0);
       const totalCurrent = window.savingsGoals.reduce((s, g) => s + g.current, 0);
       const pct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
@@ -1502,8 +1784,8 @@
             stroke="url(#ringGrad)" stroke-dasharray="${c}" stroke-dashoffset="${offset}"/>
           <defs>
             <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#00d4ff"/>
-              <stop offset="100%" stop-color="#a855f7"/>
+              <stop offset="0%" stop-color="#d4a853"/>
+              <stop offset="100%" stop-color="#b8943c"/>
             </linearGradient>
           </defs>
         </svg>
@@ -1514,6 +1796,7 @@
     }
 
     function renderDistributionCharts() {
+      const curr = EXCHANGE_RATES[window.userCurrency];
       const catTotals = {};
       window.transactions.forEach(t => {
         if (!catTotals[t.categoria]) catTotals[t.categoria] = { income: 0, expense: 0 };
@@ -1538,7 +1821,7 @@
         const cx = w / 2;
         const cy = h / 2 - 10;
         const r = Math.min(w, h) / 2 - 40;
-        const colors = ['#00d4ff','#a855f7','#00ff88','#f59e0b','#ff3366','#6366f1','#ec4899','#14b8a6'];
+        const colors = ['#d4a853','#8b7355','#34d399','#d4a853','#f87171','#64748b','#94a3b8','#475569'];
 
         let startAngle = -Math.PI / 2;
         let paths = '';
@@ -1555,7 +1838,7 @@
           const c = colors[i % colors.length];
 
           paths += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z" fill="${c}" opacity="0.85" class="chart-bar"/>`;
-          legend += `<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px;"><span style="width:10px;height:10px;border-radius:2px;background:${c};"></span><span style="color:var(--text-secondary);">${getCategoryName(d.cat)}</span><span style="margin-left:auto;font-family:'Orbitron';font-size:11px;">${((d.val/total)*100).toFixed(0)}%</span></div>`;
+          legend += `<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px;"><span style="width:10px;height:10px;border-radius:2px;background:${c};"></span><span style="color:var(--text-secondary);">${getCategoryName(d.cat)}</span><span style="margin-left:auto;font-family:'Inter', sans-serif;font-size:11px;">${((d.val/total)*100).toFixed(0)}%</span></div>`;
           startAngle = endAngle;
         });
 
@@ -1573,7 +1856,8 @@
 
     // Helpers
     function formatMoney(n) {
-      return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const curr = EXCHANGE_RATES[window.userCurrency];
+      return curr.symbol + (n || 0).toLocaleString('en-US', { minimumFractionDigits: curr.decimals, maximumFractionDigits: curr.decimals });
     }
 
     function formatDate(d) {
