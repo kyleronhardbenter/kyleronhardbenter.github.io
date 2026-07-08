@@ -21,8 +21,8 @@
       <nav class="nav-tabs" id="main-nav">
         <button class="nav-tab active" onclick="showPage('dashboard')">📊 Dashboard</button>
         <button class="nav-tab" onclick="showPage('registros')">📝 Registros</button>
-        <button class="nav-tab" onclick="showPage('programables')">⏰ Programables</button>
-        <button class="nav-tab" onclick="showPage('metas')">🎯 Metas</button>
+        <button class="nav-tab" onclick="showPage('programables')">⏰ Programables & Metas</button>
+        
         <button class="nav-tab" onclick="showPage('divisas')">💱 Divisas</button>
         <button class="nav-tab" onclick="showPage('configuracion')">⚙️ Config</button>
       </nav>
@@ -236,55 +236,52 @@
         <div class="empty-state-icon">⏳</div>
         <p>No hay movimientos programados. ¡Programa tus gastos e ingresos recurrentes!</p>
       </div>
-    </div>
-
-    <!-- METAS PAGE -->
-    <div id="page-metas" class="page">
-      <h2 class="section-title">Nueva Meta de Ahorro</h2>
-      <div class="card" style="margin-bottom: 30px;">
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">Nombre de la Meta</label>
-            <input type="text" class="form-input" id="meta-nombre" placeholder="Ej: Auto Nuevo, Vacaciones...">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Monto Objetivo (<span class="currency-label">USD</span>)</label>
-            <input type="number" class="form-input" id="meta-objetivo" placeholder="0.00" step="0.01">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Monto Actual (<span class="currency-label">USD</span>)</label>
-            <input type="number" class="form-input" id="meta-actual" placeholder="0.00" step="0.01" value="0">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Color</label>
-            <div class="color-picker">
-              <div class="color-option selected" style="background:#00d4ff" data-color="#00d4ff" onclick="selectColor(this)"></div>
-              <div class="color-option" style="background:#a855f7" data-color="#a855f7" onclick="selectColor(this)"></div>
-              <div class="color-option" style="background:#00ff88" data-color="#00ff88" onclick="selectColor(this)"></div>
-              <div class="color-option" style="background:#f59e0b" data-color="#f59e0b" onclick="selectColor(this)"></div>
-              <div class="color-option" style="background:#ff3366" data-color="#ff3366" onclick="selectColor(this)"></div>
-              <div class="color-option" style="background:#6366f1" data-color="#6366f1" onclick="selectColor(this)"></div>
-              <div class="color-option" style="background:#ec4899" data-color="#ec4899" onclick="selectColor(this)"></div>
-              <div class="color-option" style="background:#14b8a6" data-color="#14b8a6" onclick="selectColor(this)"></div>
-            </div>
-            <input type="hidden" id="meta-color" value="#00d4ff">
-          </div>
+    
+    <!-- METAS SECTION (integrated into Programables) -->
+    <h2 class="section-title" style="margin-top: 40px;">🎯 Metas de Ahorro</h2>
+    <div class="card" style="margin-bottom: 30px;">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nombre de la Meta</label>
+          <input type="text" class="form-input" id="meta-nombre" placeholder="Ej: Auto Nuevo, Vacaciones...">
         </div>
-        <button class="btn btn-primary" onclick="addGoal()" style="margin-top: 10px;">
-          🎯 Crear Meta
-        </button>
+        <div class="form-group">
+          <label class="form-label">Monto Objetivo (<span class="currency-label">USD</span>)</label>
+          <input type="number" class="form-input" id="meta-objetivo" placeholder="0.00" step="0.01">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monto Actual (<span class="currency-label">USD</span>)</label>
+          <input type="number" class="form-input" id="meta-actual" placeholder="0.00" step="0.01" value="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color</label>
+          <div class="color-picker">
+            <div class="color-option selected" style="background:#00d4ff" data-color="#00d4ff" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#a855f7" data-color="#a855f7" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#00ff88" data-color="#00ff88" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#f59e0b" data-color="#f59e0b" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#ff3366" data-color="#ff3366" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#6366f1" data-color="#6366f1" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#ec4899" data-color="#ec4899" onclick="selectColor(this)"></div>
+            <div class="color-option" style="background:#14b8a6" data-color="#14b8a6" onclick="selectColor(this)"></div>
+          </div>
+          <input type="hidden" id="meta-color" value="#00d4ff">
+        </div>
       </div>
-
-      <h2 class="section-title">Mis Metas de Ahorro</h2>
-      <div id="metas-list-container"></div>
-      <div id="metas-empty" class="empty-state" style="display:none;">
-        <div class="empty-state-icon">🎯</div>
-        <p>No tienes metas de ahorro aún. ¡Crea tu primera meta!</p>
-      </div>
+      <button class="btn btn-primary" onclick="addGoal()" style="margin-top: 10px;">
+        🎯 Crear Meta
+      </button>
     </div>
 
-    <!-- DIVISAS PAGE -->
-    <div id="page-divisas" class="page">
+    <h2 class="section-title">Mis Metas de Ahorro</h2>
+    <div id="metas-list-container"></div>
+    <div id="metas-empty" class="empty-state" style="display:none;">
+      <div class="empty-state-icon">🎯</div>
+      <p>No tienes metas de ahorro aún. ¡Crea tu primera meta!</p>
+    </div>
+</div>
+
+<div id="page-divisas" class="page">
       <h2 class="section-title">💱 Conversor de Divisas</h2>
 
       <div class="card" style="margin-bottom: 30px;">
@@ -929,7 +926,7 @@
       const btn = Array.from(document.querySelectorAll('.nav-tab')).find(b => b.getAttribute('onclick')?.includes(pageId));
       if (btn) btn.classList.add('active');
       if (pageId === 'dashboard') setTimeout(updateDashboard, 100);
-      if (pageId === 'metas') renderMetasPage();
+      
       if (pageId === 'divisas') { renderCurrencyGrid(); renderRatesTable(); }
       if (pageId === 'configuracion') loadConfigData();
     };
