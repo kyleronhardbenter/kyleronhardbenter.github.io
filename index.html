@@ -1,0 +1,2773 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinTech OS - Dashboard Financiero Futurista</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+<base target="_blank">
+<base target="_blank">
+<base target="_blank">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <div class="app" id="app-container" style="display:none;">
+    <header class="header">
+      <div class="logo"><span class="emoji-pulse" style="display:inline-block;">◈</span> FIN<span>TECH</span> OS</div>
+
+      <!-- Desktop nav -->
+      <nav class="nav-tabs desktop-nav" id="main-nav">
+        <button class="nav-tab active" onclick="showPage('dashboard')"><span class="emoji-animated">📊</span> Dashboard</button>
+        <button class="nav-tab" onclick="showPage('registros')"><span class="emoji-animated">📝</span> Registros</button>
+        <button class="nav-tab" onclick="showPage('programables')"><span class="emoji-animated">⏰</span> Programables</button>
+        <button class="nav-tab" onclick="showPage('metas')"><span class="emoji-animated">🎯</span> Metas</button>
+        <button class="nav-tab" onclick="showPage('divisas')"><span class="emoji-animated">💱</span> Divisas</button>
+        <button class="nav-tab" onclick="showPage('configuracion')"><span class="emoji-animated">⚙️</span> Config</button>
+      </nav>
+
+      <!-- User profile with avatar upload -->
+      <div class="user-profile" id="user-profile">
+        <div class="avatar-wrapper" onclick="openAvatarModal()" title="Cambiar foto de perfil">
+          <img class="user-avatar-img" id="user-avatar-img" src="" alt="Avatar" style="display:none;">
+          <div class="user-avatar" id="user-avatar">U</div>
+          <div class="avatar-overlay">📷</div>
+        </div>
+        <div class="user-info">
+          <div class="user-name" id="user-name">Usuario</div>
+          <button class="logout-btn desktop-only" onclick="logout()">🚪 Salir</button>
+        </div>
+      </div>
+
+      <!-- Mobile hamburger menu (a la derecha del perfil) -->
+      <div class="mobile-menu-wrapper">
+        <button class="hamburger-btn" id="hamburger-btn" onclick="toggleMobileMenu()" aria-label="Menú">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <nav class="mobile-nav" id="mobile-nav">
+          <button class="mobile-nav-item active" onclick="showPage('dashboard'); toggleMobileMenu()"><span class="emoji-animated">📊</span> Dashboard</button>
+          <button class="mobile-nav-item" onclick="showPage('registros'); toggleMobileMenu()"><span class="emoji-animated">📝</span> Registros</button>
+          <button class="mobile-nav-item" onclick="showPage('programables'); toggleMobileMenu()"><span class="emoji-animated">⏰</span> Programables</button>
+          <button class="mobile-nav-item" onclick="showPage('metas'); toggleMobileMenu()"><span class="emoji-animated">🎯</span> Metas</button>
+          <button class="mobile-nav-item" onclick="showPage('divisas'); toggleMobileMenu()"><span class="emoji-animated">💱</span> Divisas</button>
+          <button class="mobile-nav-item" onclick="showPage('configuracion'); toggleMobileMenu()"><span class="emoji-animated">⚙️</span> Configuración</button>
+          <div class="mobile-nav-divider"></div>
+          <button class="mobile-nav-item logout" onclick="logout(); toggleMobileMenu()">🚪 Cerrar Sesión</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- DASHBOARD PAGE -->
+    <div id="page-dashboard" class="page active">
+      <div class="stats-grid">
+        <div class="card">
+          <div class="stat-label" data-i18n="month_income">Ingresos del Mes</div>
+          <div class="stat-value income" id="dash-income">$0.00</div>
+          <div class="stat-change" id="dash-income-change">—</div>
+        </div>
+        <div class="card">
+          <div class="stat-label" data-i18n="month_expense">Gastos del Mes</div>
+          <div class="stat-value expense" id="dash-expense">$0.00</div>
+          <div class="stat-change" id="dash-expense-change">—</div>
+        </div>
+        <div class="card">
+          <div class="stat-label" data-i18n="net_balance">Balance Neto</div>
+          <div class="stat-value balance" id="dash-balance">$0.00</div>
+          <div class="stat-change" id="dash-balance-change">—</div>
+        </div>
+        <div class="card">
+          <div class="stat-label" data-i18n="accumulated_savings">Ahorro Acumulado</div>
+          <div class="stat-value savings" id="dash-savings">$0.00</div>
+          <div class="stat-change" id="dash-savings-change">—</div>
+        </div>
+      </div>
+
+      <div class="charts-grid" style="margin-bottom: 24px;">
+        <div class="card">
+          <div class="card-title" data-i18n="monthly_evolution"><span class="emoji-animated">📈</span> Evolución Mensual</div>
+          <div class="chart-container" id="main-chart"></div>
+        </div>
+        <div class="card">
+          <div class="card-title" data-i18n="goal_progress"><span class="emoji-animated">🎯</span> Progreso de Metas</div>
+          <div class="progress-ring" id="savings-ring"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 24px;">
+        <div class="card-title" data-i18n="saving_goals"><span class="emoji-animated">🎯</span> Objetivos de Ahorro</div>
+        <div class="goals-grid" id="goals-container"></div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="card">
+          <div class="card-title" data-i18n="expense_dist"><span class="emoji-animated">📊</span> Distribución de Gastos</div>
+          <div class="chart-container" id="expense-chart"></div>
+        </div>
+        <div class="card">
+          <div class="card-title" data-i18n="income_dist"><span class="emoji-animated">💰</span> Distribución de Ingresos</div>
+          <div class="chart-container" id="income-chart"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REGISTROS PAGE -->
+    <div id="page-registros" class="page">
+      <h2 class="section-title" data-i18n="new_record">Nuevo Registro</h2>
+      <div class="card" style="margin-bottom: 30px;">
+        <div class="toggle-group" style="margin-bottom: 20px;">
+          <button class="toggle-btn active" id="btn-type-income" onclick="setTransactionType('income')">Ingreso</button>
+          <button class="toggle-btn" id="btn-type-expense" onclick="setTransactionType('expense')">Gasto</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Concepto</label>
+            <input type="text" class="form-input" id="reg-concepto" placeholder="Ej: Sueldo, Alquiler...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monto (<span class="currency-label">USD</span>)</label>
+            <input type="number" class="form-input" id="reg-monto" placeholder="0.00" step="0.01">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoría</label>
+            <select class="form-select" id="reg-categoria">
+              <option value="">Seleccionar...</option>
+              <option value="salario">💼 Salario</option>
+              <option value="freelance">💻 Freelance</option>
+              <option value="inversiones">📈 Inversiones</option>
+              <option value="ventas">🛒 Ventas</option>
+              <option value="otros-ing">✨ Otros Ingresos</option>
+              <option value="vivienda">🏠 Vivienda</option>
+              <option value="alimentacion">🍽️ Alimentación</option>
+              <option value="transporte">🚗 Transporte</option>
+              <option value="servicios">⚡ Servicios</option>
+              <option value="entretenimiento">🎮 Entretenimiento</option>
+              <option value="salud">💊 Salud</option>
+              <option value="educacion">📚 Educación</option>
+              <option value="otros-gas">📌 Otros Gastos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha</label>
+            <input type="date" class="form-input" id="reg-fecha">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label">Notas (opcional)</label>
+            <input type="text" class="form-input" id="reg-notas" placeholder="Detalles adicionales...">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addTransaction()" style="margin-top: 10px;">
+          <span class="emoji-animated">➕</span> Agregar Registro
+        </button>
+      </div>
+
+      <h2 class="section-title" data-i18n="record_history">Historial de Registros</h2>
+
+      <!-- Filtros y búsqueda -->
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="filters-grid">
+          <!-- Filtro por tipo -->
+          <div class="filter-group">
+            <label class="form-label">Tipo</label>
+            <div class="toggle-group" style="width:100%;">
+              <button class="toggle-btn active" id="filter-type-all" onclick="setFilterType('all')">Todos</button>
+              <button class="toggle-btn" id="filter-type-income" onclick="setFilterType('income')">Ingresos</button>
+              <button class="toggle-btn" id="filter-type-expense" onclick="setFilterType('expense')">Gastos</button>
+            </div>
+          </div>
+
+          <!-- Filtro por fecha desde -->
+          <div class="filter-group">
+            <label class="form-label">Desde</label>
+            <input type="date" class="form-input" id="filter-date-from" onchange="applyFilters()">
+          </div>
+
+          <!-- Filtro por fecha hasta -->
+          <div class="filter-group">
+            <label class="form-label">Hasta</label>
+            <input type="date" class="form-input" id="filter-date-to" onchange="applyFilters()">
+          </div>
+
+          <!-- Búsqueda por texto -->
+          <div class="filter-group" style="grid-column: 1 / -1;">
+            <label class="form-label">🔍 Buscar</label>
+            <input type="text" class="form-input" id="filter-search" placeholder="Buscar por concepto, categoría..." oninput="applyFilters()">
+          </div>
+        </div>
+
+        <div class="filters-summary">
+          <span id="filter-results-count">Mostrando 0 registros</span>
+          <button class="btn" style="padding:6px 14px;font-size:12px;" onclick="resetFilters()">🔄 Limpiar Filtros</button>
+        </div>
+      </div>
+
+      <!-- Tabla de resultados -->
+      <div class="card">
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Concepto</th>
+                <th>Categoría</th>
+                <th>Tipo</th>
+                <th>Monto</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="transactions-table"></tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="pagination" id="pagination-container" style="display:none;">
+          <button class="pagination-btn" id="pagination-prev" onclick="changePage(-1)">◀ Anterior</button>
+          <div class="pagination-info">
+            <span id="pagination-current">1</span> / <span id="pagination-total">1</span>
+          </div>
+          <button class="pagination-btn" id="pagination-next" onclick="changePage(1)">Siguiente ▶</button>
+        </div>
+
+        <div id="transactions-empty" class="empty-state" style="display:none;">
+          <div class="empty-state-icon"><span class="emoji-animated" style="font-size: 48px;">📭</span></div>
+          <p>No hay registros que coincidan con los filtros.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRAMABLES PAGE -->
+    <div id="page-programables" class="page">
+      <h2 class="section-title" data-i18n="new_scheduled">Nuevo Programable</h2>
+      <div class="card" style="margin-bottom: 30px;">
+        <div class="toggle-group" style="margin-bottom: 20px;">
+          <button class="toggle-btn active" id="btn-prog-income" onclick="setProgrammableType('income')">Ingreso</button>
+          <button class="toggle-btn" id="btn-prog-expense" onclick="setProgrammableType('expense')">Gasto</button>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Concepto</label>
+            <input type="text" class="form-input" id="prog-concepto" placeholder="Ej: Alquiler mensual...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monto (<span class="currency-label">USD</span>)</label>
+            <input type="number" class="form-input" id="prog-monto" placeholder="0.00" step="0.01">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Categoría</label>
+            <select class="form-select" id="prog-categoria">
+              <option value="">Seleccionar...</option>
+              <option value="salario">💼 Salario</option>
+              <option value="freelance">💻 Freelance</option>
+              <option value="inversiones">📈 Inversiones</option>
+              <option value="ventas">🛒 Ventas</option>
+              <option value="otros-ing">✨ Otros Ingresos</option>
+              <option value="vivienda">🏠 Vivienda</option>
+              <option value="alimentacion">🍽️ Alimentación</option>
+              <option value="transporte">🚗 Transporte</option>
+              <option value="servicios">⚡ Servicios</option>
+              <option value="entretenimiento">🎮 Entretenimiento</option>
+              <option value="salud">💊 Salud</option>
+              <option value="educacion">📚 Educación</option>
+              <option value="otros-gas">📌 Otros Gastos</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Frecuencia</label>
+            <select class="form-select" id="prog-frecuencia">
+              <option value="monthly">📅 Mensual</option>
+              <option value="weekly">📆 Semanal</option>
+              <option value="biweekly">🗓️ Quincenal</option>
+              <option value="daily">☀️ Diario</option>
+              <option value="yearly">🎉 Anual</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Día del Mes (1-31)</label>
+            <input type="number" class="form-input" id="prog-dia" min="1" max="31" placeholder="Ej: 1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hora</label>
+            <input type="time" class="form-input" id="prog-hora" value="00:00">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha Inicio</label>
+            <input type="date" class="form-input" id="prog-inicio">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fecha Fin (opcional)</label>
+            <input type="date" class="form-input" id="prog-fin">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addProgrammable()" style="margin-top: 10px;">
+          <span class="emoji-animated">⏰</span> Programar Movimiento
+        </button>
+      </div>
+
+      <h2 class="section-title" data-i18n="scheduled_moves">Movimientos Programados</h2>
+      <div id="programables-container"></div>
+      <div id="programables-empty" class="empty-state" style="display:none;">
+        <div class="empty-state-icon"><span class="emoji-animated" style="font-size: 48px;">⏳</span></div>
+        <p data-i18n="no_scheduled">No hay movimientos programados. ¡Programa tus gastos e ingresos recurrentes!</p>
+      </div>
+    </div>
+
+    <!-- METAS PAGE -->
+    <div id="page-metas" class="page">
+      <h2 class="section-title" data-i18n="new_goal">Nueva Meta de Ahorro</h2>
+      <div class="card" style="margin-bottom: 30px;">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Nombre de la Meta</label>
+            <input type="text" class="form-input" id="meta-nombre" placeholder="Ej: Auto Nuevo, Vacaciones...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monto Objetivo (<span class="currency-label">USD</span>)</label>
+            <input type="number" class="form-input" id="meta-objetivo" placeholder="0.00" step="0.01">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Monto Actual (<span class="currency-label">USD</span>)</label>
+            <input type="number" class="form-input" id="meta-actual" placeholder="0.00" step="0.01" value="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Color</label>
+            <div class="color-picker">
+              <div class="color-option selected" style="background:#00d4ff" data-color="#00d4ff" onclick="selectColor(this)"></div>
+              <div class="color-option" style="background:#a855f7" data-color="#a855f7" onclick="selectColor(this)"></div>
+              <div class="color-option" style="background:#00ff88" data-color="#00ff88" onclick="selectColor(this)"></div>
+              <div class="color-option" style="background:#f59e0b" data-color="#f59e0b" onclick="selectColor(this)"></div>
+              <div class="color-option" style="background:#ff3366" data-color="#ff3366" onclick="selectColor(this)"></div>
+              <div class="color-option" style="background:#6366f1" data-color="#6366f1" onclick="selectColor(this)"></div>
+              <div class="color-option" style="background:#ec4899" data-color="#ec4899" onclick="selectColor(this)"></div>
+              <div class="color-option" style="background:#14b8a6" data-color="#14b8a6" onclick="selectColor(this)"></div>
+            </div>
+            <input type="hidden" id="meta-color" value="#00d4ff">
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="addGoal()" style="margin-top: 10px;">
+          <span class="emoji-animated">🎯</span> Crear Meta
+        </button>
+      </div>
+
+      <h2 class="section-title" data-i18n="my_goals">Mis Metas de Ahorro</h2>
+      <div id="metas-list-container"></div>
+      <div id="metas-empty" class="empty-state" style="display:none;">
+        <div class="empty-state-icon"><span class="emoji-animated" style="font-size: 48px;">🎯</span></div>
+        <p data-i18n="no_goals">No tienes metas de ahorro aún. ¡Crea tu primera meta!</p>
+      </div>
+    </div>
+
+    <!-- DIVISAS PAGE -->
+    <div id="page-divisas" class="page">
+      <h2 class="section-title" data-i18n="currency_converter">💱 Conversor de Divisas</h2>
+
+      <div class="card" style="margin-bottom: 30px;">
+        <div class="card-title">Tu Saldo en Todas las Divisas</div>
+        <p style="color: var(--text-muted); margin-bottom: 20px; font-size: 14px;">
+          Tu saldo total se convierte automáticamente a las principales divisas del mundo usando tasas de cambio en tiempo real.
+        </p>
+        <div class="currency-grid" id="currency-grid"></div>
+        <div style="margin-top: 16px; font-size: 12px; color: var(--text-muted); text-align: center;">
+          💡 Tasas actualizadas: Julio 2026 | Fuente: Federal Reserve & BSP
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🔧 Conversor Manual</div>
+        <div class="form-grid" style="margin-top: 16px;">
+          <div class="form-group">
+            <label class="form-label">Monto</label>
+            <input type="number" class="form-input" id="conv-monto" placeholder="0.00" step="0.01" oninput="convertCurrency()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">De</label>
+            <select class="form-select" id="conv-from" onchange="convertCurrency()">
+              <option value="USD">🇺🇸 USD - Dólar Estadounidense</option>
+              <option value="EUR">🇪🇺 EUR - Euro</option>
+              <option value="GBP">🇬🇧 GBP - Libra Esterlina</option>
+              <option value="JPY">🇯🇵 JPY - Yen Japonés</option>
+              <option value="CNY">🇨🇳 CNY - Yuan Chino</option>
+              <option value="MXN">🇲🇽 MXN - Peso Mexicano</option>
+              <option value="COP">🇨🇴 COP - Peso Colombiano</option>
+              <option value="ARS">🇦🇷 ARS - Peso Argentino</option>
+              <option value="BRL">🇧🇷 BRL - Real Brasileño</option>
+              <option value="PHP">🇵🇭 PHP - Peso Filipino</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">A</label>
+            <select class="form-select" id="conv-to" onchange="convertCurrency()">
+              <option value="USD">🇺🇸 USD - Dólar Estadounidense</option>
+              <option value="EUR" selected>🇪🇺 EUR - Euro</option>
+              <option value="GBP">🇬🇧 GBP - Libra Esterlina</option>
+              <option value="JPY">🇯🇵 JPY - Yen Japonés</option>
+              <option value="CNY">🇨🇳 CNY - Yuan Chino</option>
+              <option value="MXN">🇲🇽 MXN - Peso Mexicano</option>
+              <option value="COP">🇨🇴 COP - Peso Colombiano</option>
+              <option value="ARS">🇦🇷 ARS - Peso Argentino</option>
+              <option value="BRL">🇧🇷 BRL - Real Brasileño</option>
+              <option value="PHP">🇵🇭 PHP - Peso Filipino</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Resultado</label>
+            <div class="form-input" id="conv-result" style="display:flex;align-items:center;font-family:'Orbitron';font-weight:700;color:var(--accent);">
+              $0.00
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-title">📋 Tabla de Tasas de Cambio (Base USD)</div>
+        <div style="overflow-x: auto;">
+          <table class="data-table" id="rates-table">
+            <thead>
+              <tr>
+                <th>Divisa</th>
+                <th>Código</th>
+                <th>Tasa vs USD</th>
+                <th>1 USD =</th>
+                <th>Tendencia</th>
+              </tr>
+            </thead>
+            <tbody id="rates-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIGURACION PAGE -->
+    <div id="page-configuracion" class="page">
+      <h2 class="section-title" data-i18n="settings"><span class="emoji-animated">⚙️</span> Configuración</h2>
+
+      <div class="config-grid">
+        <!-- Perfil Card -->
+        <div class="card config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background: rgba(0, 212, 255, 0.15); color: var(--accent);">👤</div>
+            <div>
+              <div class="config-card-title">Perfil de Usuario</div>
+              <div class="config-card-subtitle">Tus datos personales</div>
+            </div>
+          </div>
+          <div class="config-section">
+            <div class="config-field">
+              <label class="config-label">Nombre</label>
+              <div class="config-value" id="config-name">—</div>
+            </div>
+            <div class="config-field">
+              <label class="config-label">Email</label>
+              <div class="config-value" id="config-email">—</div>
+            </div>
+            <div class="config-field">
+              <label class="config-label">UID</label>
+              <div class="config-value" id="config-uid" style="font-size: 11px; font-family: monospace;">—</div>
+            </div>
+            <div class="config-field">
+              <label class="config-label">Cuenta creada</label>
+              <div class="config-value" id="config-created">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Language Card -->
+        <div class="card config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background: rgba(34, 211, 238, 0.15); color: var(--accent);">🌐</div>
+            <div>
+              <div class="config-card-title" data-i18n="language">Idioma</div>
+              <div class="config-card-subtitle" data-i18n="select_language">Selecciona tu idioma</div>
+            </div>
+          </div>
+          <div class="config-section">
+            <div class="form-group">
+              <label class="form-label" data-i18n="language">Idioma</label>
+              <select class="form-select" id="config-language" onchange="setLanguage(this.value)">
+                <option value="es">🇪🇸 Español</option>
+                <option value="en">🇬🇧 English</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divisa Card -->
+        <div class="card config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background: rgba(168, 85, 247, 0.15); color: #a855f7;">💱</div>
+            <div>
+              <div class="config-card-title">Divisa Principal</div>
+              <div class="config-card-subtitle">Moneda para todos tus registros</div>
+            </div>
+          </div>
+          <div class="config-section">
+            <div class="form-group">
+              <label class="form-label">Selecciona tu divisa</label>
+              <select class="form-select" id="config-currency" onchange="saveCurrencyPreference()">
+                <option value="USD">🇺🇸 USD - Dólar Estadounidense</option>
+                <option value="EUR">🇪🇺 EUR - Euro</option>
+                <option value="GBP">🇬🇧 GBP - Libra Esterlina</option>
+                <option value="JPY">🇯🇵 JPY - Yen Japonés</option>
+                <option value="CNY">🇨🇳 CNY - Yuan Chino</option>
+                <option value="MXN">🇲🇽 MXN - Peso Mexicano</option>
+                <option value="COP">🇨🇴 COP - Peso Colombiano</option>
+                <option value="ARS">🇦🇷 ARS - Peso Argentino</option>
+                <option value="BRL">🇧🇷 BRL - Real Brasileño</option>
+                <option value="PHP">🇵🇭 PHP - Peso Filipino</option>
+              </select>
+            </div>
+            <div style="margin-top: 12px; padding: 12px; background: rgba(0, 212, 255, 0.05); border-radius: 10px; border: 1px solid var(--glass-border);">
+              <div style="font-size: 12px; color: var(--text-muted);">
+                💡 Tu divisa actual: <strong id="current-currency-display" style="color: var(--accent);">USD</strong><br>
+                Todos los montos se mostrarán y registrarán en esta moneda.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seguridad Card -->
+        <div class="card config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background: rgba(0, 255, 136, 0.15); color: var(--positive);">🔐</div>
+            <div>
+              <div class="config-card-title">Seguridad</div>
+              <div class="config-card-subtitle">Cambia tu contraseña</div>
+            </div>
+          </div>
+          <div class="config-section">
+            <div class="form-group">
+              <label class="form-label">Contraseña Actual</label>
+              <input type="password" class="form-input" id="curr-password" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nueva Contraseña</label>
+              <input type="password" class="form-input" id="new-password" placeholder="Mínimo 6 caracteres">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Confirmar Nueva Contraseña</label>
+              <input type="password" class="form-input" id="confirm-password" placeholder="Repite la nueva contraseña">
+            </div>
+            <button class="btn btn-primary" onclick="changePassword()" style="width: 100%; margin-top: 8px;">
+              <span class="emoji-animated">🔒</span> Cambiar Contraseña
+            </button>
+          </div>
+        </div>
+
+        <!-- Danger Zone Card -->
+        <div class="card config-card">
+          <div class="config-card-header">
+            <div class="config-icon" style="background: rgba(255, 51, 102, 0.15); color: var(--negative);">⚠️</div>
+            <div>
+              <div class="config-card-title">Zona de Peligro</div>
+              <div class="config-card-subtitle">Acciones irreversibles</div>
+            </div>
+          </div>
+          <div class="config-section">
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <button class="btn btn-danger" onclick="deleteAllData()" style="width: 100%;">
+                <span class="emoji-animated">🗑️</span> Eliminar Todos los Datos
+              </button>
+              <button class="btn btn-danger" onclick="deleteAccount()" style="width: 100%;">
+                <span class="emoji-animated">🚫</span> Eliminar Cuenta Permanentemente
+              </button>
+            </div>
+            <p style="margin-top: 12px; font-size: 12px; color: var(--text-muted); text-align: center;">
+              Estas acciones no se pueden deshacer. ¡Ten cuidado!
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+
+    
+
+  <!-- LOGIN/REGISTER SCREEN -->
+  <div class="auth-screen" id="auth-screen">
+    <!-- Animated background particles -->
+    <div class="auth-bg-particles">
+      <div class="particle p1"></div>
+      <div class="particle p2"></div>
+      <div class="particle p3"></div>
+      <div class="particle p4"></div>
+      <div class="particle p5"></div>
+    </div>
+    <div class="auth-bg-grid"></div>
+    <div class="auth-bg-glow auth-glow-1"></div>
+    <div class="auth-bg-glow auth-glow-2"></div>
+
+    <div class="auth-wrapper">
+      <!-- Left panel: branding -->
+      <div class="auth-brand-panel">
+        <div class="auth-brand-content">
+          <div class="auth-brand-logo">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="12" width="16" height="24" rx="3" fill="rgba(34,211,238,0.2)" stroke="#22d3ee" stroke-width="1.5"/>
+              <rect x="20" y="8" width="16" height="32" rx="3" fill="rgba(34,211,238,0.15)" stroke="#22d3ee" stroke-width="1.5"/>
+              <rect x="36" y="16" width="8" height="16" rx="2" fill="rgba(34,211,238,0.1)" stroke="#22d3ee" stroke-width="1.5"/>
+              <circle cx="12" cy="24" r="2" fill="#22d3ee"/>
+              <circle cx="28" cy="24" r="2" fill="#22d3ee"/>
+              <circle cx="40" cy="24" r="1.5" fill="#22d3ee"/>
+            </svg>
+          </div>
+          <h1 class="auth-brand-title">FIN<span>TECH</span> OS</h1>
+          <p class="auth-brand-tagline" data-i18n="auth_tagline">Tu dashboard financiero inteligente</p>
+          <div class="auth-brand-features">
+            <div class="auth-feature">
+              <span class="auth-feature-icon">📊</span>
+              <span class="auth-feature-text" data-i18n="auth_feat_dashboard">Análisis en tiempo real</span>
+            </div>
+            <div class="auth-feature">
+              <span class="auth-feature-icon">🎯</span>
+              <span class="auth-feature-text" data-i18n="auth_feat_goals">Metas de ahorro</span>
+            </div>
+            <div class="auth-feature">
+              <span class="auth-feature-icon">💱</span>
+              <span class="auth-feature-text" data-i18n="auth_feat_currencies">Múltiples divisas</span>
+            </div>
+            <div class="auth-feature">
+              <span class="auth-feature-icon">🔐</span>
+              <span class="auth-feature-text" data-i18n="auth_feat_secure">Seguro y privado</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right panel: form -->
+      <div class="auth-form-panel">
+        <div class="auth-form-card">
+          <!-- Language selector -->
+          <div class="auth-lang-bar">
+            <button class="auth-lang-btn" onclick="setLanguage('es')" data-lang="es" title="Español">🇪🇸</button>
+            <button class="auth-lang-btn" onclick="setLanguage('en')" data-lang="en" title="English">🇬🇧</button>
+          </div>
+
+          <div class="auth-form-header">
+            <h2 class="auth-form-title" id="auth-form-title" data-i18n="login">Iniciar Sesión</h2>
+            <p class="auth-form-subtitle" id="auth-form-subtitle" data-i18n="auth_welcome">Bienvenido de vuelta</p>
+          </div>
+
+          <!-- Tabs -->
+          <div class="auth-tabs-modern">
+            <button class="auth-tab-modern active" id="tab-login" onclick="showAuthTab('login')">
+              <span data-i18n="login">Iniciar Sesión</span>
+            </button>
+            <button class="auth-tab-modern" id="tab-register" onclick="showAuthTab('register')">
+              <span data-i18n="register">Crear Cuenta</span>
+            </button>
+            <div class="auth-tab-indicator" id="auth-tab-indicator"></div>
+          </div>
+
+          <!-- Login Form -->
+          <div id="auth-login" class="auth-form-body">
+            <div class="auth-input-group">
+              <label class="auth-input-label" data-i18n-label="email">Email</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">📧</span>
+                <input type="email" class="auth-input" id="login-email" data-i18n-placeholder="placeholder_email" placeholder="tu@email.com" autocomplete="email">
+              </div>
+            </div>
+            <div class="auth-input-group">
+              <label class="auth-input-label" data-i18n-label="password">Contraseña</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">🔒</span>
+                <input type="password" class="auth-input" id="login-password" data-i18n-placeholder="placeholder_password" placeholder="••••••••" autocomplete="current-password">
+              </div>
+            </div>
+            <button class="auth-submit-btn" id="login-btn" onclick="login()">
+              <span class="auth-submit-text" data-i18n="login_btn">🚀 Ingresar</span>
+              <span class="auth-submit-arrow">→</span>
+            </button>
+          </div>
+
+          <!-- Register Form -->
+          <div id="auth-register" class="auth-form-body" style="display:none;">
+            <div class="auth-input-group">
+              <label class="auth-input-label" data-i18n-label="full_name">Nombre Completo</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">👤</span>
+                <input type="text" class="auth-input" id="reg-name" data-i18n-placeholder="placeholder_name" placeholder="Tu nombre" autocomplete="name">
+              </div>
+            </div>
+            <div class="auth-input-group">
+              <label class="auth-input-label" data-i18n-label="email">Email</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">📧</span>
+                <input type="email" class="auth-input" id="reg-email" data-i18n-placeholder="placeholder_email" placeholder="tu@email.com" autocomplete="email">
+              </div>
+            </div>
+            <div class="auth-input-group">
+              <label class="auth-input-label" data-i18n-label="password">Contraseña</label>
+              <div class="auth-input-wrap">
+                <span class="auth-input-icon">🔒</span>
+                <input type="password" class="auth-input" id="reg-password" data-i18n-placeholder="min_password" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+              </div>
+            </div>
+            <button class="auth-submit-btn auth-submit-btn--register" id="reg-btn" onclick="register()">
+              <span class="auth-submit-text" data-i18n="register_btn">✨ Crear Cuenta</span>
+              <span class="auth-submit-arrow">→</span>
+            </button>
+          </div>
+
+          <div class="auth-footer">
+            <p class="auth-footer-text" data-i18n="auth_footer">💡 Tu información está protegida con encriptación de extremo a extremo</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT GOAL MODAL -->
+  <div class="modal-overlay" id="edit-modal" style="display:none;" onclick="closeEditModalOnOverlay(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h3 class="modal-title" data-i18n="edit_goal">✏️ Editar Meta</h3>
+      <input type="hidden" id="edit-meta-id">
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label class="form-label">Nombre</label>
+        <input type="text" class="form-input" id="edit-meta-nombre">
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label class="form-label">Monto Objetivo</label>
+        <input type="number" class="form-input" id="edit-meta-objetivo" step="0.01">
+      </div>
+      <div class="form-group" style="margin-bottom: 12px;">
+        <label class="form-label">Monto Actual</label>
+        <input type="number" class="form-input" id="edit-meta-actual" step="0.01">
+      </div>
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label class="form-label">Color</label>
+        <div class="color-picker" id="edit-color-picker">
+          <div class="color-option" style="background:#00d4ff" data-color="#00d4ff" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#a855f7" data-color="#a855f7" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#00ff88" data-color="#00ff88" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#f59e0b" data-color="#f59e0b" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#ff3366" data-color="#ff3366" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#6366f1" data-color="#6366f1" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#ec4899" data-color="#ec4899" onclick="selectEditColor(this)"></div>
+          <div class="color-option" style="background:#14b8a6" data-color="#14b8a6" onclick="selectEditColor(this)"></div>
+        </div>
+        <input type="hidden" id="edit-meta-color" value="#00d4ff">
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button class="btn btn-primary" style="flex:1;" onclick="saveEditGoal()" data-i18n="save">💾 Guardar</button>
+        <button class="btn" style="background:rgba(100,116,139,0.2);color:var(--text-secondary);flex:1;" onclick="closeEditModal()" data-i18n="cancel">❌ Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- AVATAR UPLOAD MODAL -->
+  <div class="modal-overlay" id="avatar-modal" style="display:none;" onclick="closeAvatarModalOnOverlay(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h3 class="modal-title" data-i18n="avatar_title">📷 Foto de Perfil</h3>
+      <div style="text-align:center; margin-bottom: 20px;">
+        <div id="avatar-preview" style="width:120px;height:120px;border-radius:50%;background:var(--bg-tertiary);border:3px solid var(--border-medium);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;overflow:hidden;">
+          <img id="avatar-preview-img" src="" style="width:100%;height:100%;object-fit:cover;display:none;">
+          <span id="avatar-preview-text" style="font-family:'Orbitron';font-size:40px;font-weight:700;color:var(--accent);">U</span>
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;" data-i18n="max_10mb">Máximo 10 MB • JPG, PNG, WEBP</p>
+        <input type="file" id="avatar-input" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="handleAvatarSelect(event)">
+        <button class="btn btn-primary" onclick="document.getElementById('avatar-input').click()" style="width:100%;margin-bottom:8px;">
+          📁 Seleccionar Foto
+        </button>
+        <p id="avatar-error" style="color:var(--negative);font-size:12px;margin-top:8px;display:none;"></p>
+      </div>
+      <div style="display:flex;gap:12px;">
+        <button class="btn btn-primary" style="flex:1;" onclick="saveAvatar()" id="avatar-save-btn" disabled data-i18n="save_avatar">💾 Guardar</button>
+        <button class="btn" style="background:rgba(100,116,139,0.2);color:var(--text-secondary);flex:1;" onclick="closeAvatarModal()">❌ Cancelar</button>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getDatabase, ref, push, onValue, remove, update, set, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDmOVgHXXhLAp59JFI0UolZTW9pWyYZuoA",
+      authDomain: "finanzas-pagina.firebaseapp.com",
+      databaseURL: "https://finanzas-pagina-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "finanzas-pagina",
+      storageBucket: "finanzas-pagina.firebasestorage.app",
+      messagingSenderId: "138404823610",
+      appId: "1:138404823610:web:e404ba1b91c02c71d56b03"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const auth = getAuth(app);
+
+    // ===== EXCHANGE RATES (Base USD) - July 2026 =====
+    const EXCHANGE_RATES = {
+      USD: { rate: 1.0, symbol: '$', name: 'Dólar Estadounidense', flag: '🇺🇸', decimals: 2 },
+      EUR: { rate: 0.8683, symbol: '€', name: 'Euro', flag: '🇪🇺', decimals: 2 },
+      GBP: { rate: 0.7497, symbol: '£', name: 'Libra Esterlina', flag: '🇬🇧', decimals: 2 },
+      JPY: { rate: 160.77, symbol: '¥', name: 'Yen Japonés', flag: '🇯🇵', decimals: 0 },
+      CNY: { rate: 6.7758, symbol: '¥', name: 'Yuan Chino', flag: '🇨🇳', decimals: 2 },
+      MXN: { rate: 17.3792, symbol: '$', name: 'Peso Mexicano', flag: '🇲🇽', decimals: 2 },
+      COP: { rate: 4085.0, symbol: '$', name: 'Peso Colombiano', flag: '🇨🇴', decimals: 0 },
+      ARS: { rate: 1075.0, symbol: '$', name: 'Peso Argentino', flag: '🇦🇷', decimals: 2 },
+      BRL: { rate: 5.1241, symbol: 'R$', name: 'Real Brasileño', flag: '🇧🇷', decimals: 2 },
+      PHP: { rate: 61.54, symbol: '₱', name: 'Peso Filipino', flag: '🇵🇭', decimals: 2 }
+    };
+
+
+    // ===== INTERNATIONALIZATION (i18n) =====
+    const I18N = {
+"es": {
+    "login": "Iniciar Sesión",
+    "register": "Crear Cuenta",
+    "email": "Email",
+    "password": "Contraseña",
+    "full_name": "Nombre Completo",
+    "login_btn": "🚀 Ingresar",
+    "register_btn": "✨ Crear Cuenta",
+    "placeholder_email": "tu@email.com",
+    "placeholder_password": "••••••••",
+    "placeholder_name": "Tu nombre",
+    "min_password": "Mínimo 6 caracteres",
+    "logout": "🚪 Salir",
+    "dashboard": "<span class='emoji-animated'>📊</span> Dashboard",
+    "records": "<span class='emoji-animated'>📝</span> Registros",
+    "scheduled": "<span class='emoji-animated'>⏰</span> Programables",
+    "goals": "<span class='emoji-animated'>🎯</span> Metas",
+    "currencies": "<span class='emoji-animated'>💱</span> Divisas",
+    "config": "<span class='emoji-animated'>⚙️</span> Config",
+    "config_full": "<span class='emoji-animated'>⚙️</span> Configuración",
+    "logout_menu": "🚪 Cerrar Sesión",
+    "month_income": "Ingresos del Mes",
+    "month_expense": "Gastos del Mes",
+    "net_balance": "Balance Neto",
+    "accumulated_savings": "Ahorro Acumulado",
+    "vs_prev_month_up": "▲ +{pct}% vs mes anterior",
+    "vs_prev_month_down": "▼ {pct}% vs mes anterior",
+    "positive_trend": "▲ Tendencia positiva",
+    "goal_pct": "▲ Meta al {pct}%",
+    "monthly_evolution": "<span class='emoji-animated'>📈</span> Evolución Mensual",
+    "goal_progress": "<span class='emoji-animated'>🎯</span> Progreso de Metas",
+    "saving_goals": "<span class='emoji-animated'>🎯</span> Objetivos de Ahorro",
+    "expense_dist": "<span class='emoji-animated'>📊</span> Distribución de Gastos",
+    "income_dist": "<span class='emoji-animated'>💰</span> Distribución de Ingresos",
+    "global_goal": "Meta Global",
+    "new_record": "Nuevo Registro",
+    "concept": "Concepto",
+    "amount": "Monto",
+    "category": "Categoría",
+    "date": "Fecha",
+    "notes": "Notas (opcional)",
+    "notes_placeholder": "Detalles adicionales...",
+    "add_record": "<span class='emoji-animated'>➕</span> Agregar Registro",
+    "record_history": "Historial de Registros",
+    "income": "Ingreso",
+    "expense": "Gasto",
+    "income_plural": "Ingresos",
+    "expense_plural": "Gastos",
+    "all": "Todos",
+    "from": "De",
+    "to": "Hasta",
+    "search": "🔍 Buscar",
+    "search_placeholder": "Buscar por concepto, categoría...",
+    "clear_filters": "🔄 Limpiar Filtros",
+    "no_records": "No hay registros que coincidan con los filtros.",
+    "start_recording": "No hay registros aún. ¡Empieza a registrar tus movimientos!",
+    "showing_records": "Mostrando {n} registro{s}",
+    "of_records": "{n} de {total} registros",
+    "prev": "◀ Anterior",
+    "next": "Siguiente ▶",
+    "salary": "💼 Salario",
+    "freelance": "💻 Freelance",
+    "investments": "📈 Inversiones",
+    "sales": "🛒 Ventas",
+    "other_income": "✨ Otros Ingresos",
+    "housing": "🏠 Vivienda",
+    "food": "🍽️ Alimentación",
+    "transport": "🚗 Transporte",
+    "services": "⚡ Servicios",
+    "entertainment": "🎮 Entretenimiento",
+    "health": "💊 Salud",
+    "education": "📚 Educación",
+    "other_expense": "📌 Otros Gastos",
+    "select": "Seleccionar...",
+    "new_scheduled": "Nuevo Programable",
+    "frequency": "Frecuencia",
+    "day_of_month": "Día del Mes (1-31)",
+    "time": "Hora",
+    "start_date": "Fecha Inicio",
+    "end_date": "Fecha Fin (opcional)",
+    "schedule_btn": "<span class='emoji-animated'>⏰</span> Programar Movimiento",
+    "scheduled_moves": "Movimientos Programados",
+    "monthly": "📅 Mensual",
+    "weekly": "📆 Semanal",
+    "biweekly": "🗓️ Quincenal",
+    "daily": "☀️ Diario",
+    "yearly": "🎉 Anual",
+    "active": "● Activo",
+    "paused": "○ Pausado",
+    "no_scheduled": "No hay movimientos programados. ¡Programa tus gastos e ingresos recurrentes!",
+    "new_goal": "Nueva Meta de Ahorro",
+    "goal_name": "Nombre de la Meta",
+    "goal_target": "Monto Objetivo",
+    "goal_current": "Monto Actual",
+    "color": "Color",
+    "create_goal": "<span class='emoji-animated'>🎯</span> Crear Meta",
+    "my_goals": "Mis Metas de Ahorro",
+    "remaining": "Faltan:",
+    "completed": "completado",
+    "no_goals": "No tienes metas de ahorro aún. ¡Crea tu primera meta!",
+    "custom": "💰 Custom",
+    "currency_converter": "💱 Conversor de Divisas",
+    "your_balance": "Tu Saldo en Todas las Divisas",
+    "auto_convert": "Tu saldo total se convierte automáticamente a las principales divisas del mundo usando tasas de cambio en tiempo real.",
+    "rates_updated": "💡 Tasas actualizadas: Julio 2026 | Fuente: Federal Reserve & BSP",
+    "manual_converter": "🔧 Conversor Manual",
+    "to_currency": "A",
+    "result": "Resultado",
+    "rates_table": "📋 Tabla de Tasas de Cambio (Base USD)",
+    "currency": "Divisa",
+    "code": "Código",
+    "rate_vs_usd": "Tasa vs USD",
+    "trend": "Tendencia",
+    "settings": "<span class='emoji-animated'>⚙️</span> Configuración",
+    "user_profile": "Perfil de Usuario",
+    "personal_data": "Tus datos personales",
+    "name": "Nombre",
+    "uid": "UID",
+    "account_created": "Cuenta creada",
+    "main_currency": "Divisa Principal",
+    "currency_for_records": "Moneda para todos tus registros",
+    "select_currency": "Selecciona tu divisa",
+    "current_currency": "💡 Tu divisa actual:",
+    "all_amounts_in": "Todos los montos se mostrarán y registrarán en esta moneda.",
+    "security": "Seguridad",
+    "change_password": "Cambia tu contraseña",
+    "current_password": "Contraseña Actual",
+    "new_password": "Nueva Contraseña",
+    "confirm_password": "Confirmar Nueva Contraseña",
+    "min_6_chars": "Mínimo 6 caracteres",
+    "repeat_password": "Repite la nueva contraseña",
+    "change_password_btn": "<span class='emoji-animated'>🔒</span> Cambiar Contraseña",
+    "danger_zone": "Zona de Peligro",
+    "irreversible": "Acciones irreversibles",
+    "delete_all_data": "<span class='emoji-animated'>🗑️</span> Eliminar Todos los Datos",
+    "delete_account": "<span class='emoji-animated'>🚫</span> Eliminar Cuenta Permanentemente",
+    "warning_irreversible": "Estas acciones no se pueden deshacer. ¡Ten cuidado!",
+    "edit_goal": "✏️ Editar Meta",
+    "save": "💾 Guardar",
+    "cancel": "❌ Cancelar",
+    "avatar_title": "📷 Foto de Perfil",
+    "max_10mb": "Máximo 10 MB • JPG, PNG, WEBP",
+    "select_photo": "📁 Seleccionar Foto",
+    "save_avatar": "💾 Guardar",
+    "welcome_back": "✅ Bienvenido de vuelta",
+    "session_closed": "👋 Sesión cerrada",
+    "account_created_ok": "✅ Cuenta creada exitosamente",
+    "language": "Idioma",
+    "select_language": "Selecciona tu idioma",
+    "auto_detect": "🔍 Detectar automáticamente",
+    "auth_tagline": "Tu dashboard financiero inteligente",
+    "auth_welcome": "Bienvenido de vuelta",
+    "auth_join": "Únete a FinTech OS",
+    "auth_footer": "💡 Tu información está protegida con encriptación de extremo a extremo",
+    "auth_feat_dashboard": "Análisis en tiempo real",
+    "auth_feat_goals": "Metas de ahorro",
+    "auth_feat_currencies": "Múltiples divisas",
+    "auth_feat_secure": "Seguro y privado",
+    "new": "Nuevo"
+  },
+"en": {
+    "login": "Sign In",
+    "register": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "full_name": "Full Name",
+    "login_btn": "🚀 Sign In",
+    "register_btn": "✨ Create Account",
+    "placeholder_email": "you@email.com",
+    "placeholder_password": "••••••••",
+    "placeholder_name": "Your name",
+    "min_password": "Minimum 6 characters",
+    "logout": "🚪 Log Out",
+    "dashboard": "<span class='emoji-animated'>📊</span> Dashboard",
+    "records": "📝 Records",
+    "scheduled": "⏰ Scheduled",
+    "goals": "🎯 Goals",
+    "currencies": "💱 Currencies",
+    "config": "⚙️ Settings",
+    "config_full": "⚙️ Settings",
+    "logout_menu": "🚪 Log Out",
+    "month_income": "Monthly Income",
+    "month_expense": "Monthly Expenses",
+    "net_balance": "Net Balance",
+    "accumulated_savings": "Accumulated Savings",
+    "vs_prev_month_up": "▲ +{pct}% vs last month",
+    "vs_prev_month_down": "▼ {pct}% vs last month",
+    "positive_trend": "▲ Positive trend",
+    "goal_pct": "▲ Goal at {pct}%",
+    "monthly_evolution": "📈 Monthly Evolution",
+    "goal_progress": "🎯 Goal Progress",
+    "saving_goals": "🎯 Saving Goals",
+    "expense_dist": "📊 Expense Distribution",
+    "income_dist": "💰 Income Distribution",
+    "global_goal": "Global Goal",
+    "new_record": "New Record",
+    "concept": "Concept",
+    "amount": "Amount",
+    "category": "Category",
+    "date": "Date",
+    "notes": "Notes (optional)",
+    "notes_placeholder": "Additional details...",
+    "add_record": "➕ Add Record",
+    "record_history": "Record History",
+    "income": "Income",
+    "expense": "Expense",
+    "income_plural": "Income",
+    "expense_plural": "Expenses",
+    "all": "All",
+    "from": "From",
+    "to": "To",
+    "search": "🔍 Search",
+    "search_placeholder": "Search by concept, category...",
+    "clear_filters": "🔄 Clear Filters",
+    "no_records": "No records match the filters.",
+    "start_recording": "No records yet. Start tracking your movements!",
+    "showing_records": "Showing {n} record{s}",
+    "of_records": "{n} of {total} records",
+    "prev": "◀ Previous",
+    "next": "Next ▶",
+    "salary": "💼 Salary",
+    "freelance": "💻 Freelance",
+    "investments": "📈 Investments",
+    "sales": "🛒 Sales",
+    "other_income": "✨ Other Income",
+    "housing": "🏠 Housing",
+    "food": "🍽️ Food",
+    "transport": "🚗 Transport",
+    "services": "⚡ Services",
+    "entertainment": "🎮 Entertainment",
+    "health": "💊 Health",
+    "education": "📚 Education",
+    "other_expense": "📌 Other Expenses",
+    "select": "Select...",
+    "new_scheduled": "New Scheduled",
+    "frequency": "Frequency",
+    "day_of_month": "Day of Month (1-31)",
+    "time": "Time",
+    "start_date": "Start Date",
+    "end_date": "End Date (optional)",
+    "schedule_btn": "⏰ Schedule Movement",
+    "scheduled_moves": "Scheduled Movements",
+    "monthly": "📅 Monthly",
+    "weekly": "📆 Weekly",
+    "biweekly": "🗓️ Biweekly",
+    "daily": "☀️ Daily",
+    "yearly": "🎉 Yearly",
+    "active": "● Active",
+    "paused": "○ Paused",
+    "no_scheduled": "No scheduled movements. Schedule your recurring expenses and income!",
+    "new_goal": "New Saving Goal",
+    "goal_name": "Goal Name",
+    "goal_target": "Target Amount",
+    "goal_current": "Current Amount",
+    "color": "Color",
+    "create_goal": "🎯 Create Goal",
+    "my_goals": "My Saving Goals",
+    "remaining": "Remaining:",
+    "completed": "completed",
+    "no_goals": "You have no saving goals yet. Create your first goal!",
+    "custom": "💰 Custom",
+    "currency_converter": "💱 Currency Converter",
+    "your_balance": "Your Balance in All Currencies",
+    "auto_convert": "Your total balance is automatically converted to the world's major currencies using real-time exchange rates.",
+    "rates_updated": "💡 Rates updated: July 2026 | Source: Federal Reserve & BSP",
+    "manual_converter": "🔧 Manual Converter",
+    "to_currency": "To",
+    "result": "Result",
+    "rates_table": "📋 Exchange Rates Table (USD Base)",
+    "currency": "Currency",
+    "code": "Code",
+    "rate_vs_usd": "Rate vs USD",
+    "trend": "Trend",
+    "settings": "⚙️ Settings",
+    "user_profile": "User Profile",
+    "personal_data": "Your personal data",
+    "name": "Name",
+    "uid": "UID",
+    "account_created": "Account created",
+    "main_currency": "Main Currency",
+    "currency_for_records": "Currency for all your records",
+    "select_currency": "Select your currency",
+    "current_currency": "💡 Your current currency:",
+    "all_amounts_in": "All amounts will be displayed and recorded in this currency.",
+    "security": "Security",
+    "change_password": "Change your password",
+    "current_password": "Current Password",
+    "new_password": "New Password",
+    "confirm_password": "Confirm New Password",
+    "min_6_chars": "Minimum 6 characters",
+    "repeat_password": "Repeat the new password",
+    "change_password_btn": "🔒 Change Password",
+    "danger_zone": "Danger Zone",
+    "irreversible": "Irreversible actions",
+    "delete_all_data": "🗑️ Delete All Data",
+    "delete_account": "🚫 Delete Account Permanently",
+    "warning_irreversible": "These actions cannot be undone. Be careful!",
+    "edit_goal": "✏️ Edit Goal",
+    "save": "💾 Save",
+    "cancel": "❌ Cancel",
+    "avatar_title": "📷 Profile Photo",
+    "max_10mb": "Max 10 MB • JPG, PNG, WEBP",
+    "select_photo": "📁 Select Photo",
+    "save_avatar": "💾 Save",
+    "welcome_back": "✅ Welcome back",
+    "session_closed": "👋 Session closed",
+    "account_created_ok": "✅ Account created successfully",
+    "language": "Language",
+    "select_language": "Select your language",
+    "auto_detect": "🔍 Auto-detect",
+    "auth_tagline": "Your smart financial dashboard",
+    "auth_welcome": "Welcome back",
+    "auth_join": "Join FinTech OS",
+    "auth_footer": "💡 Your information is protected with end-to-end encryption",
+    "auth_feat_dashboard": "Real-time analytics",
+    "auth_feat_goals": "Savings goals",
+    "auth_feat_currencies": "Multiple currencies",
+    "auth_feat_secure": "Safe and private"
+  },
+};
+
+    // Language detection mapping
+    const LANG_MAP = {
+      'es': 'es', 'es-ES': 'es', 'es-MX': 'es', 'es-AR': 'es', 'es-CO': 'es', 'es-CL': 'es', 'es-PE': 'es', 'es-VE': 'es',
+      'en': 'en', 'en-US': 'en', 'en-GB': 'en', 'en-CA': 'en', 'en-AU': 'en', 'en-NZ': 'en', 'en-IE': 'en', 'en-ZA': 'en',
+    };
+
+    // Country to language mapping
+    const COUNTRY_LANG = {
+      'ES': 'es', 'MX': 'es', 'AR': 'es', 'CO': 'es', 'PE': 'es', 'CL': 'es', 'VE': 'es', 'UY': 'es', 'PY': 'es', 'BO': 'es', 'EC': 'es', 'CR': 'es', 'PA': 'es', 'GT': 'es', 'HN': 'es', 'SV': 'es', 'NI': 'es', 'DO': 'es', 'PR': 'es', 'CU': 'es',
+      'US': 'en', 'GB': 'en', 'CA': 'en', 'AU': 'en', 'NZ': 'en', 'IE': 'en', 'ZA': 'en', 'IN': 'en',
+    };
+
+    window.currentLang = 'es';
+
+    function detectLanguage() {
+      // 1. Check saved preference
+      const saved = localStorage.getItem('fintech-lang');
+      if (saved && I18N[saved]) return saved;
+
+      // 2. Check browser language
+      const browserLang = navigator.language || navigator.userLanguage;
+      if (LANG_MAP[browserLang]) return LANG_MAP[browserLang];
+
+      // 3. Check country from timezone
+      try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (tz.includes('Europe/Madrid') || tz.includes('Europe/Barcelona')) return 'es';
+        if (tz.includes('America/New_York') || tz.includes('America/Los_Angeles') || tz.includes('Europe/London')) return 'en';
+      } catch(e) {}
+
+      // 4. Default to Spanish
+      return 'es';
+    }
+
+    window.t = (key, params) => {
+      params = params || {};
+      const text = I18N[window.currentLang]?.[key] || I18N['es'][key] || key;
+      return text.replace(/\{(\w+)\}/g, function(match, p) { return params[p] !== undefined ? params[p] : match; });
+    };
+
+    window.setLanguage = async (lang) => {
+      if (!I18N[lang]) return;
+      window.currentLang = lang;
+      localStorage.setItem('fintech-lang', lang);
+      document.documentElement.lang = lang === 'es' ? 'es' : 'en';
+      applyLanguage();
+
+      // Save to Firebase if logged in
+      if (window.currentUser) {
+        try {
+          await update(ref(db, `users/${window.currentUser.uid}/profile`), { language: lang });
+        } catch(e) {}
+      }
+
+      showToast('✅ ' + getLangName(lang), 'success');
+    };
+
+    function getLangName(code) {
+      const names = { es: 'Español', en: 'English' };
+      return names[code] || code;
+    }
+
+    function getLangFlag(code) {
+      const flags = { es: '🇪🇸', en: '🇬🇧' };
+      return flags[code] || '🌐';
+    }
+
+    window.applyLanguage = () => {
+      const lang = window.currentLang;
+      const T = I18N[lang] || I18N['es'];
+
+      // Helper to update text content
+      const updateText = (id, key) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = T[key] || key;
+      };
+
+      // Check if auth screen is visible (user not logged in)
+      const authScreen = document.getElementById('auth-screen');
+      const isAuthVisible = authScreen && authScreen.style.display !== 'none';
+
+      // Only update auth screen elements if auth screen is visible
+      if (isAuthVisible) {
+        // Update auth screen (legacy)
+        updateText('tab-login', 'login');
+        updateText('tab-register', 'register');
+        updateText('login-btn', 'login_btn');
+        updateText('reg-btn', 'register_btn');
+
+        // Update auth screen modern elements
+        const authTitle = document.getElementById('auth-form-title');
+        const authSubtitle = document.getElementById('auth-form-subtitle');
+        if (authTitle && authTitle.dataset.i18n) authTitle.textContent = T[authTitle.dataset.i18n] || authTitle.textContent;
+        if (authSubtitle && authSubtitle.dataset.i18n) authSubtitle.textContent = T[authSubtitle.dataset.i18n] || authSubtitle.textContent;
+
+        // Update auth features
+        document.querySelectorAll('.auth-feature-text').forEach(el => {
+          const key = el.dataset.i18n;
+          if (key && T[key]) el.textContent = T[key];
+        });
+
+        // Update auth brand tagline
+        const brandTagline = document.querySelector('.auth-brand-tagline');
+        if (brandTagline && brandTagline.dataset.i18n && T[brandTagline.dataset.i18n]) {
+          brandTagline.textContent = T[brandTagline.dataset.i18n];
+        }
+
+        // Update auth footer
+        const authFooter = document.querySelector('.auth-footer-text');
+        if (authFooter && authFooter.dataset.i18n && T[authFooter.dataset.i18n]) {
+          authFooter.textContent = T[authFooter.dataset.i18n];
+        }
+
+        // Update active language button
+        document.querySelectorAll('.auth-lang-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.lang === window.currentLang);
+        });
+      }
+
+      // Update labels
+      const labels = document.querySelectorAll('[data-i18n-label]');
+      labels.forEach(el => {
+        const key = el.dataset.i18nLabel;
+        if (T[key]) el.textContent = T[key];
+      });
+
+      // Update placeholders
+      const placeholders = document.querySelectorAll('[data-i18n-placeholder]');
+      placeholders.forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        if (T[key]) el.placeholder = T[key];
+      });
+
+      // Update nav tabs
+      document.querySelectorAll('.nav-tab').forEach((el, i) => {
+        const keys = ['dashboard', 'records', 'scheduled', 'goals', 'currencies', 'config'];
+        if (T[keys[i]]) el.textContent = T[keys[i]];
+      });
+
+      // Update mobile nav items
+      document.querySelectorAll('.mobile-nav-item').forEach((el, i) => {
+        const keys = ['dashboard', 'records', 'scheduled', 'goals', 'currencies', 'config_full', '', 'logout_menu'];
+        if (keys[i] && T[keys[i]] && !el.classList.contains('mobile-nav-divider')) el.textContent = T[keys[i]];
+      });
+
+      // Update logout button
+      const logoutBtn = document.querySelector('.logout-btn.desktop-only');
+      if (logoutBtn) logoutBtn.textContent = '🚪 ' + T['logout'];
+
+      // Update section titles
+      document.querySelectorAll('.section-title').forEach(el => {
+        const key = el.dataset.i18n;
+        if (key && T[key]) el.textContent = T[key];
+      });
+
+      // Update card titles
+      document.querySelectorAll('.card-title').forEach(el => {
+        const key = el.dataset.i18n;
+        if (key && T[key]) el.textContent = T[key];
+      });
+
+      // Update buttons and other elements with data-i18n
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (T[key]) el.textContent = T[key];
+      });
+
+      // Re-render dynamic content
+      renderTransactions();
+      renderProgrammables();
+      renderGoals();
+      renderMetasPage();
+      if (document.getElementById('page-dashboard').classList.contains('active')) updateDashboard();
+      if (document.getElementById('page-divisas').classList.contains('active')) { renderCurrencyGrid(); renderRatesTable(); }
+      if (document.getElementById('page-configuracion').classList.contains('active')) loadConfigData();
+    };
+
+    // Global state
+    window.currentUser = null;
+    window.transactions = [];
+    window.programmables = [];
+    window.savingsGoals = [];
+    window.currentTransType = 'income';
+    window.currentProgType = 'income';
+    window.userCurrency = 'USD';
+    window.userProfile = {};
+
+    // Auth state
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        window.currentUser = user;
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-container').style.display = 'block';
+        document.getElementById('user-name').textContent = user.displayName || user.email.split('@')[0];
+        document.getElementById('user-avatar').textContent = (user.displayName || user.email)[0].toUpperCase();
+
+        const profileSnap = await get(ref(db, `users/${user.uid}/profile`));
+        if (profileSnap.exists()) {
+          window.userProfile = profileSnap.val();
+          if (window.userProfile.currency) {
+            window.userCurrency = window.userProfile.currency;
+          }
+          // Load saved language - ONLY if user hasn't manually set a preference in this session
+          // Priority: localStorage > profile > browser detection
+          const savedLang = localStorage.getItem('fintech-lang');
+          if (savedLang && I18N[savedLang]) {
+            window.currentLang = savedLang;
+          } else if (window.userProfile.language && I18N[window.userProfile.language]) {
+            window.currentLang = window.userProfile.language;
+            localStorage.setItem('fintech-lang', window.currentLang);
+          }
+        }
+
+        // Update language selector in config
+        const langSelect = document.getElementById('config-language');
+        if (langSelect) langSelect.value = window.currentLang;
+
+        // Update auth language buttons (both old and new)
+        document.querySelectorAll('.lang-btn, .auth-lang-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.lang === window.currentLang);
+        });
+
+        updateCurrencyLabels();
+        setupUserData(user.uid);
+        loadAvatar();
+        applyLanguage();
+      } else {
+        window.currentUser = null;
+        // Detect and apply language for auth screen
+        const detectedLang = detectLanguage();
+        window.currentLang = detectedLang;
+        document.querySelectorAll('.lang-btn, .auth-lang-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.lang === detectedLang);
+        });
+        applyLanguage();
+        document.getElementById('auth-screen').style.display = 'flex';
+        document.getElementById('app-container').style.display = 'none';
+      }
+    });
+
+    function setupUserData(uid) {
+      const transRef = ref(db, `users/${uid}/transactions`);
+      const progRef = ref(db, `users/${uid}/programmables`);
+      const goalsRef = ref(db, `users/${uid}/goals`);
+
+      onValue(transRef, (snapshot) => {
+        const data = snapshot.val();
+        window.transactions = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
+        renderTransactions();
+        updateDashboard();
+        renderCurrencyGrid();
+      });
+
+      onValue(progRef, (snapshot) => {
+        const data = snapshot.val();
+        window.programmables = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
+        renderProgrammables();
+      });
+
+      onValue(goalsRef, (snapshot) => {
+        const data = snapshot.val();
+        window.savingsGoals = data ? Object.entries(data).map(([id, val]) => ({ id, ...val })) : [];
+        renderGoals();
+        renderMetasPage();
+        updateDashboard();
+        renderCurrencyGrid();
+      });
+    }
+
+    // ===== CURRENCY FUNCTIONS =====
+    function updateCurrencyLabels() {
+      document.querySelectorAll('.currency-label').forEach(el => {
+        el.textContent = window.userCurrency;
+      });
+      document.getElementById('current-currency-display').textContent = window.userCurrency;
+      if (document.getElementById('config-currency')) {
+        document.getElementById('config-currency').value = window.userCurrency;
+      }
+    }
+
+    window.saveCurrencyPreference = async () => {
+      if (!window.currentUser) return;
+      const currency = document.getElementById('config-currency').value;
+      window.userCurrency = currency;
+      try {
+        await update(ref(db, `users/${window.currentUser.uid}/profile`), { currency });
+        updateCurrencyLabels();
+        updateDashboard();
+        renderCurrencyGrid();
+        showToast(`✅ Divisa cambiada a ${EXCHANGE_RATES[currency].name}`, 'success');
+      } catch (e) {
+        showToast('❌ Error al guardar preferencia', 'error');
+      }
+    };
+
+    function convertAmount(amount, fromCurrency, toCurrency) {
+      if (fromCurrency === toCurrency) return amount;
+      const usdAmount = amount / EXCHANGE_RATES[fromCurrency].rate;
+      return usdAmount * EXCHANGE_RATES[toCurrency].rate;
+    }
+
+    function formatCurrency(amount, currencyCode) {
+      const curr = EXCHANGE_RATES[currencyCode];
+      return curr.symbol + amount.toLocaleString('en-US', { 
+        minimumFractionDigits: curr.decimals, 
+        maximumFractionDigits: curr.decimals 
+      });
+    }
+
+    function getTotalBalance() {
+      const income = window.transactions.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0);
+      const expense = window.transactions.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
+      return income - expense;
+    }
+
+    window.renderCurrencyGrid = () => {
+      const grid = document.getElementById('currency-grid');
+      if (!grid) return;
+
+      const balance = getTotalBalance();
+      const userCurr = EXCHANGE_RATES[window.userCurrency];
+
+      let html = `
+        <div class="currency-card main-currency">
+          <div class="currency-flag">${userCurr.flag}</div>
+          <div class="currency-info">
+            <div class="currency-name">Tu Saldo (${window.userCurrency})</div>
+            <div class="currency-amount" style="color: var(--accent);">${formatCurrency(balance, window.userCurrency)}</div>
+          </div>
+        </div>
+      `;
+
+      Object.entries(EXCHANGE_RATES).forEach(([code, curr]) => {
+        if (code === window.userCurrency) return;
+        const converted = convertAmount(balance, window.userCurrency, code);
+        const trend = Math.random() > 0.5 ? 'up' : 'down';
+        html += `
+          <div class="currency-card">
+            <div class="currency-flag">${curr.flag}</div>
+            <div class="currency-info">
+              <div class="currency-name">${code} - ${curr.name}</div>
+              <div class="currency-amount">${formatCurrency(converted, code)}</div>
+              <div class="currency-rate">1 ${window.userCurrency} = ${(curr.rate / userCurr.rate).toFixed(4)} ${code}</div>
+            </div>
+            <div class="currency-trend ${trend}">${trend === 'up' ? '▲' : '▼'}</div>
+          </div>
+        `;
+      });
+
+      grid.innerHTML = html;
+    };
+
+    window.convertCurrency = () => {
+      const monto = parseFloat(document.getElementById('conv-monto').value) || 0;
+      const from = document.getElementById('conv-from').value;
+      const to = document.getElementById('conv-to').value;
+      const result = convertAmount(monto, from, to);
+      document.getElementById('conv-result').textContent = formatCurrency(result, to);
+    };
+
+    function renderRatesTable() {
+      const tbody = document.getElementById('rates-tbody');
+      if (!tbody) return;
+
+      const trends = {
+        USD: 'stable', EUR: 'up', GBP: 'up', JPY: 'down', CNY: 'up',
+        MXN: 'stable', COP: 'down', ARS: 'down', BRL: 'up', PHP: 'down'
+      };
+
+      tbody.innerHTML = Object.entries(EXCHANGE_RATES).map(([code, curr]) => {
+        const trend = trends[code] || 'stable';
+        const trendColor = trend === 'up' ? 'var(--positive)' : trend === 'down' ? 'var(--negative)' : 'var(--text-muted)';
+        const trendIcon = trend === 'up' ? '▲' : trend === 'down' ? '▼' : '—';
+        return `
+          <tr>
+            <td><span style="font-size: 20px;">${curr.flag}</span> ${curr.name}</td>
+            <td style="font-family: 'Orbitron'; font-weight: 700;">${code}</td>
+            <td style="font-family: 'Orbitron';">${curr.rate.toLocaleString()}</td>
+            <td style="font-family: 'Orbitron'; color: var(--accent);">${curr.symbol}1 = $${(1/curr.rate).toFixed(4)} USD</td>
+            <td style="color: ${trendColor}; font-weight: 700;">${trendIcon}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ===== CONFIGURATION FUNCTIONS =====
+    window.loadConfigData = async () => {
+      if (!window.currentUser) return;
+
+      const user = window.currentUser;
+      document.getElementById('config-name').textContent = user.displayName || '—';
+      document.getElementById('config-email').textContent = user.email || '—';
+      document.getElementById('config-uid').textContent = user.uid;
+
+      const profileSnap = await get(ref(db, `users/${user.uid}/profile`));
+      if (profileSnap.exists()) {
+        const profile = profileSnap.val();
+        document.getElementById('config-created').textContent = profile.createdAt 
+          ? new Date(profile.createdAt).toLocaleDateString('es-ES') 
+          : '—';
+        if (profile.currency) {
+          document.getElementById('config-currency').value = profile.currency;
+        }
+      }
+
+      renderRatesTable();
+    };
+
+    window.changePassword = async () => {
+      const currPass = document.getElementById('curr-password').value;
+      const newPass = document.getElementById('new-password').value;
+      const confirmPass = document.getElementById('confirm-password').value;
+
+      if (!currPass || !newPass || !confirmPass) {
+        showToast('⚠️ Completa todos los campos', 'error');
+        return;
+      }
+      if (newPass.length < 6) {
+        showToast('⚠️ La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+      }
+      if (newPass !== confirmPass) {
+        showToast('⚠️ Las contraseñas no coinciden', 'error');
+        return;
+      }
+
+      try {
+        const credential = EmailAuthProvider.credential(window.currentUser.email, currPass);
+        await reauthenticateWithCredential(window.currentUser, credential);
+        await updatePassword(window.currentUser, newPass);
+        showToast('✅ Contraseña actualizada correctamente', 'success');
+        document.getElementById('curr-password').value = '';
+        document.getElementById('new-password').value = '';
+        document.getElementById('confirm-password').value = '';
+      } catch (e) {
+        showToast('❌ ' + (e.code === 'auth/wrong-password' ? 'Contraseña actual incorrecta' : e.message), 'error');
+      }
+    };
+
+    window.deleteAllData = async () => {
+      if (!confirm('⚠️ ¿ESTÁS SEGURO?\n\nSe eliminarán TODOS tus registros, metas y programables. Esta acción no se puede deshacer.')) return;
+      if (!confirm('¿REALMENTE SEGURO? Última oportunidad para cancelar.')) return;
+
+      try {
+        await remove(ref(db, `users/${window.currentUser.uid}/transactions`));
+        await remove(ref(db, `users/${window.currentUser.uid}/programmables`));
+        await remove(ref(db, `users/${window.currentUser.uid}/goals`));
+        showToast('🗑️ Todos los datos eliminados', 'success');
+      } catch (e) {
+        showToast('❌ Error: ' + e.message, 'error');
+      }
+    };
+
+    window.deleteAccount = async () => {
+      if (!confirm('⚠️ ¿ELIMINAR CUENTA PERMANENTEMENTE?\n\nSe borrará todo: tu perfil, datos financieros, metas y configuración. ¡IRREVERSIBLE!')) return;
+      if (prompt('Escribe "ELIMINAR" para confirmar:') !== 'ELIMINAR') {
+        showToast('❌ Confirmación incorrecta', 'error');
+        return;
+      }
+
+      try {
+        await remove(ref(db, `users/${window.currentUser.uid}`));
+        await deleteUser(window.currentUser);
+        showToast('👋 Cuenta eliminada', 'success');
+      } catch (e) {
+        showToast('❌ ' + e.message, 'error');
+      }
+    };
+
+    // Auth functions
+    window.showAuthTab = (tab) => {
+      const loginTab = document.getElementById('tab-login');
+      const regTab = document.getElementById('tab-register');
+      const indicator = document.getElementById('auth-tab-indicator');
+      const loginForm = document.getElementById('auth-login');
+      const regForm = document.getElementById('auth-register');
+      const title = document.getElementById('auth-form-title');
+      const subtitle = document.getElementById('auth-form-subtitle');
+
+      if (tab === 'login') {
+        loginTab.classList.add('active');
+        regTab.classList.remove('active');
+        indicator.style.transform = 'translateX(0)';
+        loginForm.style.display = 'block';
+        loginForm.style.animation = 'authFormIn 0.3s ease forwards';
+        regForm.style.display = 'none';
+        if (title) { title.textContent = t('login'); title.dataset.i18n = 'login'; }
+        if (subtitle) { subtitle.textContent = t('auth_welcome') || 'Bienvenido de vuelta'; subtitle.dataset.i18n = 'auth_welcome'; }
+      } else {
+        loginTab.classList.remove('active');
+        regTab.classList.add('active');
+        indicator.style.transform = 'translateX(100%)';
+        loginForm.style.display = 'none';
+        regForm.style.display = 'block';
+        regForm.style.animation = 'authFormIn 0.3s ease forwards';
+        if (title) { title.textContent = t('register'); title.dataset.i18n = 'register'; }
+        if (subtitle) { subtitle.textContent = t('auth_join') || 'Únete a FinTech OS'; subtitle.dataset.i18n = 'auth_join'; }
+      }
+    };
+
+    window.register = async () => {
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+
+      if (!name || !email || !password) {
+        showToast('⚠️ Completa todos los campos', 'error');
+        return;
+      }
+      if (password.length < 6) {
+        showToast('⚠️ La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+      }
+
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(cred.user, { displayName: name });
+        await set(ref(db, `users/${cred.user.uid}/profile`), { name, email, currency: 'USD', language: window.currentLang, createdAt: Date.now() });
+        showToast(t('account_created_ok'), 'success');
+      } catch (e) {
+        showToast('❌ ' + e.message, 'error');
+      }
+    };
+
+    window.login = async () => {
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+
+      if (!email || !password) {
+        showToast('⚠️ Ingresa email y contraseña', 'error');
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        showToast(t('welcome_back'), 'success');
+      } catch (e) {
+        showToast('❌ ' + e.message, 'error');
+      }
+    };
+
+    window.logout = async () => {
+      await signOut(auth);
+      window.transactions = [];
+      window.programmables = [];
+      window.savingsGoals = [];
+      window.userCurrency = 'USD';
+      showToast(t('session_closed'), 'success');
+    };
+
+    // Page navigation
+    window.showPage = (pageId) => {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.mobile-nav-item').forEach(t => t.classList.remove('active'));
+      document.getElementById('page-' + pageId).classList.add('active');
+
+      // Desktop nav
+      const desktopBtn = Array.from(document.querySelectorAll('.nav-tab')).find(b => b.getAttribute('onclick')?.includes(pageId));
+      if (desktopBtn) desktopBtn.classList.add('active');
+
+      // Mobile nav
+      const mobileBtn = Array.from(document.querySelectorAll('.mobile-nav-item')).find(b => b.getAttribute('onclick')?.includes(pageId));
+      if (mobileBtn) mobileBtn.classList.add('active');
+
+      if (pageId === 'dashboard') setTimeout(updateDashboard, 100);
+      if (pageId === 'metas') renderMetasPage();
+      if (pageId === 'divisas') { renderCurrencyGrid(); renderRatesTable(); }
+      if (pageId === 'configuracion') loadConfigData();
+    };
+
+    // Transaction type toggle
+    window.setTransactionType = (type) => {
+      window.currentTransType = type;
+      document.getElementById('btn-type-income').classList.toggle('active', type === 'income');
+      document.getElementById('btn-type-expense').classList.toggle('active', type === 'expense');
+    };
+
+    window.setProgrammableType = (type) => {
+      window.currentProgType = type;
+      document.getElementById('btn-prog-income').classList.toggle('active', type === 'income');
+      document.getElementById('btn-prog-expense').classList.toggle('active', type === 'expense');
+    };
+
+    // Add transaction
+    window.addTransaction = async () => {
+      if (!window.currentUser) return;
+      const concepto = document.getElementById('reg-concepto').value.trim();
+      const monto = parseFloat(document.getElementById('reg-monto').value);
+      const categoria = document.getElementById('reg-categoria').value;
+      const fecha = document.getElementById('reg-fecha').value;
+      const notas = document.getElementById('reg-notas').value.trim();
+
+      if (!concepto || !monto || !categoria || !fecha) {
+        showToast('⚠️ Completa todos los campos obligatorios', 'error');
+        return;
+      }
+
+      const data = {
+        concepto, monto, categoria, fecha, notas,
+        tipo: window.currentTransType,
+        currency: window.userCurrency,
+        timestamp: Date.now()
+      };
+
+      try {
+        await push(ref(db, `users/${window.currentUser.uid}/transactions`), data);
+        showToast('✅ Registro agregado correctamente', 'success');
+        document.getElementById('reg-concepto').value = '';
+        document.getElementById('reg-monto').value = '';
+        document.getElementById('reg-categoria').value = '';
+        document.getElementById('reg-notas').value = '';
+      } catch (e) {
+        showToast('❌ Error al guardar: ' + e.message, 'error');
+      }
+    };
+
+    // Add programmable
+    window.addProgrammable = async () => {
+      if (!window.currentUser) return;
+      const concepto = document.getElementById('prog-concepto').value.trim();
+      const monto = parseFloat(document.getElementById('prog-monto').value);
+      const categoria = document.getElementById('prog-categoria').value;
+      const frecuencia = document.getElementById('prog-frecuencia').value;
+      const dia = parseInt(document.getElementById('prog-dia').value) || 1;
+      const hora = document.getElementById('prog-hora').value;
+      const inicio = document.getElementById('prog-inicio').value;
+      const fin = document.getElementById('prog-fin').value;
+
+      if (!concepto || !monto || !categoria || !inicio) {
+        showToast('⚠️ Completa todos los campos obligatorios', 'error');
+        return;
+      }
+
+      const data = {
+        concepto, monto, categoria, frecuencia, dia, hora,
+        inicio, fin: fin || null,
+        tipo: window.currentProgType,
+        currency: window.userCurrency,
+        activo: true,
+        timestamp: Date.now()
+      };
+
+      try {
+        await push(ref(db, `users/${window.currentUser.uid}/programmables`), data);
+        showToast('✅ Movimiento programado correctamente', 'success');
+        document.getElementById('prog-concepto').value = '';
+        document.getElementById('prog-monto').value = '';
+        document.getElementById('prog-categoria').value = '';
+        document.getElementById('prog-dia').value = '';
+        document.getElementById('prog-fin').value = '';
+      } catch (e) {
+        showToast('❌ Error al programar: ' + e.message, 'error');
+      }
+    };
+
+    // GOALS FUNCTIONS
+    window.selectColor = (el) => {
+      document.querySelectorAll('.color-option').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('meta-color').value = el.dataset.color;
+    };
+
+    window.selectEditColor = (el) => {
+      document.querySelectorAll('#edit-color-picker .color-option').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('edit-meta-color').value = el.dataset.color;
+    };
+
+    window.addGoal = async () => {
+      if (!window.currentUser) return;
+      const nombre = document.getElementById('meta-nombre').value.trim();
+      const objetivo = parseFloat(document.getElementById('meta-objetivo').value);
+      const actual = parseFloat(document.getElementById('meta-actual').value) || 0;
+      const color = document.getElementById('meta-color').value;
+
+      if (!nombre || !objetivo) {
+        showToast('⚠️ Ingresa nombre y monto objetivo', 'error');
+        return;
+      }
+
+      try {
+        await push(ref(db, `users/${window.currentUser.uid}/goals`), {
+          name: nombre, target: objetivo, current: actual, color,
+          currency: window.userCurrency,
+          createdAt: Date.now()
+        });
+        showToast('✅ Meta creada exitosamente', 'success');
+        document.getElementById('meta-nombre').value = '';
+        document.getElementById('meta-objetivo').value = '';
+        document.getElementById('meta-actual').value = '0';
+      } catch (e) {
+        showToast('❌ Error: ' + e.message, 'error');
+      }
+    };
+
+    window.openEditGoal = (id) => {
+      const goal = window.savingsGoals.find(g => g.id === id);
+      if (!goal) return;
+      document.getElementById('edit-meta-id').value = id;
+      document.getElementById('edit-meta-nombre').value = goal.name;
+      document.getElementById('edit-meta-objetivo').value = goal.target;
+      document.getElementById('edit-meta-actual').value = goal.current;
+      document.getElementById('edit-meta-color').value = goal.color;
+      document.querySelectorAll('#edit-color-picker .color-option').forEach(c => {
+        c.classList.toggle('selected', c.dataset.color === goal.color);
+      });
+      document.getElementById('edit-modal').style.display = 'flex';
+    };
+
+    window.saveEditGoal = async () => {
+      if (!window.currentUser) return;
+      const id = document.getElementById('edit-meta-id').value;
+      const nombre = document.getElementById('edit-meta-nombre').value.trim();
+      const objetivo = parseFloat(document.getElementById('edit-meta-objetivo').value);
+      const actual = parseFloat(document.getElementById('edit-meta-actual').value);
+      const color = document.getElementById('edit-meta-color').value;
+
+      if (!nombre || !objetivo) {
+        showToast('⚠️ Ingresa nombre y monto objetivo', 'error');
+        return;
+      }
+
+      try {
+        await update(ref(db, `users/${window.currentUser.uid}/goals/${id}`), {
+          name: nombre, target: objetivo, current: actual, color
+        });
+        showToast('✅ Meta actualizada', 'success');
+        closeEditModal();
+      } catch (e) {
+        showToast('❌ Error: ' + e.message, 'error');
+      }
+    };
+
+    window.closeEditModal = () => {
+      document.getElementById('edit-modal').style.display = 'none';
+    };
+
+    window.closeEditModalOnOverlay = (e) => {
+      if (e.target === e.currentTarget) closeEditModal();
+    };
+
+    window.deleteGoal = async (id) => {
+      if (!confirm('¿Eliminar esta meta de ahorro?')) return;
+      try {
+        await remove(ref(db, `users/${window.currentUser.uid}/goals/${id}`));
+        showToast('🗑️ Meta eliminada', 'success');
+      } catch (e) {
+        showToast('❌ Error al eliminar', 'error');
+      }
+    };
+
+    window.contributeGoal = async (id, amount) => {
+      if (!window.currentUser) return;
+      const goal = window.savingsGoals.find(g => g.id === id);
+      if (!goal) return;
+      const newCurrent = goal.current + amount;
+      try {
+        await update(ref(db, `users/${window.currentUser.uid}/goals/${id}`), { current: newCurrent });
+        showToast(`✅ Aportaste ${formatMoney(amount)} a ${goal.name}`, 'success');
+      } catch (e) {
+        showToast('❌ Error: ' + e.message, 'error');
+      }
+    };
+
+    window.customContribute = (id) => {
+      const amount = parseFloat(prompt('¿Cuánto deseas aportar?'));
+      if (amount && amount > 0) contributeGoal(id, amount);
+    };
+
+    // Delete functions
+    window.deleteTransaction = async (id) => {
+      if (!confirm('¿Eliminar este registro?')) return;
+      try {
+        await remove(ref(db, `users/${window.currentUser.uid}/transactions/${id}`));
+        showToast('🗑️ Registro eliminado', 'success');
+      } catch (e) {
+        showToast('❌ Error al eliminar', 'error');
+      }
+    };
+
+    window.deleteProgrammable = async (id) => {
+      if (!confirm('¿Eliminar este programable?')) return;
+      try {
+        await remove(ref(db, `users/${window.currentUser.uid}/programmables/${id}`));
+        showToast('🗑️ Programable eliminado', 'success');
+      } catch (e) {
+        showToast('❌ Error al eliminar', 'error');
+      }
+    };
+
+    window.toggleProgrammable = async (id, activo) => {
+      try {
+        await update(ref(db, `users/${window.currentUser.uid}/programmables/${id}`), { activo: !activo });
+        showToast(activo ? '⏸️ Programable pausado' : '▶️ Programable activado', 'success');
+      } catch (e) {
+        showToast('❌ Error al actualizar', 'error');
+      }
+    };
+
+    // Render functions
+
+    // Patch additional translations
+    I18N.es.last_run = 'Última ejecución';
+    I18N.es.auto_generated = 'Auto-generado';
+    I18N.es.executed = 'Ejecutado';
+    I18N.es.vs_prev_month = 'vs mes anterior';
+    I18N.en.last_run = 'Last run';
+    I18N.en.auto_generated = 'Auto-generated';
+    I18N.en.executed = 'Executed';
+    I18N.en.vs_prev_month = 'vs last month';
+                                                                                
+    // ===== FILTERS & PAGINATION STATE =====
+    window.txFilterType = 'all';
+    window.txFilterDateFrom = '';
+    window.txFilterDateTo = '';
+    window.txFilterSearch = '';
+    window.txCurrentPage = 1;
+    window.txItemsPerPage = 10;
+    window.txFilteredTransactions = [];
+
+    window.setFilterType = (type) => {
+      window.txFilterType = type;
+      document.getElementById('filter-type-all').classList.toggle('active', type === 'all');
+      document.getElementById('filter-type-income').classList.toggle('active', type === 'income');
+      document.getElementById('filter-type-expense').classList.toggle('active', type === 'expense');
+      window.txCurrentPage = 1;
+      applyFilters();
+    };
+
+    window.applyFilters = () => {
+      window.txFilterDateFrom = document.getElementById('filter-date-from').value;
+      window.txFilterDateTo = document.getElementById('filter-date-to').value;
+      window.txFilterSearch = document.getElementById('filter-search').value.toLowerCase().trim();
+      window.txCurrentPage = 1;
+      renderTransactions();
+    };
+
+    window.resetFilters = () => {
+      window.txFilterType = 'all';
+      window.txFilterDateFrom = '';
+      window.txFilterDateTo = '';
+      window.txFilterSearch = '';
+      window.txCurrentPage = 1;
+
+      document.getElementById('filter-type-all').classList.add('active');
+      document.getElementById('filter-type-income').classList.remove('active');
+      document.getElementById('filter-type-expense').classList.remove('active');
+      document.getElementById('filter-date-from').value = '';
+      document.getElementById('filter-date-to').value = '';
+      document.getElementById('filter-search').value = '';
+
+      renderTransactions();
+    };
+
+    window.changePage = (delta) => {
+      const totalPages = Math.ceil(window.txFilteredTransactions.length / window.txItemsPerPage) || 1;
+      const newPage = window.txCurrentPage + delta;
+      if (newPage >= 1 && newPage <= totalPages) {
+        window.txCurrentPage = newPage;
+        renderTransactions();
+      }
+    };
+
+    function getFilteredTransactions() {
+      let filtered = [...window.transactions];
+
+      // Filtrar por tipo
+      if (window.txFilterType !== 'all') {
+        filtered = filtered.filter(t => t.tipo === window.txFilterType);
+      }
+
+      // Filtrar por fecha desde
+      if (window.txFilterDateFrom) {
+        filtered = filtered.filter(t => t.fecha >= window.txFilterDateFrom);
+      }
+
+      // Filtrar por fecha hasta
+      if (window.txFilterDateTo) {
+        filtered = filtered.filter(t => t.fecha <= window.txFilterDateTo);
+      }
+
+      // Filtrar por búsqueda de texto
+      if (window.txFilterSearch) {
+        filtered = filtered.filter(t => {
+          const text = (t.concepto + ' ' + getCategoryName(t.categoria) + ' ' + (t.notas || '')).toLowerCase();
+          return text.includes(window.txFilterSearch);
+        });
+      }
+
+      // Ordenar por fecha descendente
+      filtered.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+      return filtered;
+    }
+
+    function renderTransactions() {
+      const tbody = document.getElementById('transactions-table');
+      const empty = document.getElementById('transactions-empty');
+      const table = tbody.closest('table');
+      const pagination = document.getElementById('pagination-container');
+      const resultsCount = document.getElementById('filter-results-count');
+
+      window.txFilteredTransactions = getFilteredTransactions();
+      const totalItems = window.txFilteredTransactions.length;
+      const totalPages = Math.ceil(totalItems / window.txItemsPerPage) || 1;
+
+      // Ajustar página si está fuera de rango
+      if (window.txCurrentPage > totalPages) window.txCurrentPage = totalPages;
+      if (window.txCurrentPage < 1) window.txCurrentPage = 1;
+
+      const startIdx = (window.txCurrentPage - 1) * window.txItemsPerPage;
+      const endIdx = startIdx + window.txItemsPerPage;
+      const pageItems = window.txFilteredTransactions.slice(startIdx, endIdx);
+
+      // Actualizar contador
+      let showingText;
+      if (totalItems === 0) {
+        showingText = t('no_records');
+      } else if (totalItems === window.transactions.length) {
+        showingText = t('showing_records', { n: totalItems, s: totalItems !== 1 ? 's' : '' });
+      } else {
+        showingText = t('of_records', { n: totalItems, total: window.transactions.length });
+      }
+      resultsCount.textContent = showingText;
+
+      if (totalItems === 0) {
+        table.style.display = 'none';
+        pagination.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      table.style.display = 'table';
+      empty.style.display = 'none';
+      const curr = EXCHANGE_RATES[window.userCurrency];
+
+      tbody.innerHTML = pageItems.map(t => `
+        <tr>
+          <td>${formatDate(t.fecha)}</td>
+          <td><strong>${escapeHtml(t.concepto)}</strong>${t.notas ? `<br><small style="color:var(--text-muted)">${escapeHtml(t.notas)}</small>` : ''}</td>
+          <td>${getCategoryIcon(t.categoria)} ${getCategoryName(t.categoria)}</td>
+          <td><span class="badge badge-${t.tipo}">${t.tipo === 'income' ? 'Ingreso' : 'Gasto'}</span></td>
+          <td style="font-family:'Orbitron';font-weight:700;color:${t.tipo==='income'?'var(--positive)':'var(--negative)'};">${curr.symbol}${t.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+          <td><button class="btn btn-danger" style="padding:6px 14px;font-size:12px;" onclick="deleteTransaction('${t.id}')">🗑️</button></td>
+        </tr>
+      `).join('');
+
+      // Renderizar paginación
+      if (totalPages > 1) {
+        pagination.style.display = 'flex';
+        document.getElementById('pagination-current').textContent = window.txCurrentPage;
+        document.getElementById('pagination-total').textContent = totalPages;
+        document.getElementById('pagination-prev').disabled = window.txCurrentPage === 1;
+        document.getElementById('pagination-next').disabled = window.txCurrentPage === totalPages;
+      } else {
+        pagination.style.display = 'none';
+      }
+    }
+
+    function renderProgrammables() {
+      const container = document.getElementById('programables-container');
+      const empty = document.getElementById('programables-empty');
+      const curr = EXCHANGE_RATES[window.userCurrency];
+
+      if (window.programmables.length === 0) {
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      container.innerHTML = '<div class="scheduled-grid">' + window.programmables.map(p => `
+        <div class="scheduled-card ${p.tipo}">
+          <div class="scheduled-icon ${p.tipo}">${p.tipo === 'income' ? '💰' : '💸'}</div>
+          <div class="scheduled-info">
+            <div class="scheduled-title">${escapeHtml(p.concepto)}</div>
+            <div class="scheduled-meta">
+              <span>${getCategoryIcon(p.categoria)} ${getCategoryName(p.categoria)}</span>
+              <span>📅 ${getFrequencyName(p.frecuencia)}</span>
+              <span>⏰ Día ${p.dia} a las ${p.hora}</span>
+              <span style="color:${p.activo ? 'var(--positive)' : 'var(--text-muted)'}">${p.activo ? '● ' + (t('active') || 'Activo') : '○ ' + (t('paused') || 'Pausado')}</span>
+              ${p.lastExecuted ? `<span style="color:var(--text-muted)">🕐 ${t('last_run') || 'Última'}: ${formatDate(p.lastExecuted)}</span>` : ''}
+            </div>
+          </div>
+          <div class="scheduled-amount ${p.tipo}">${curr.symbol}${p.monto.toLocaleString('en-US', {minimumFractionDigits: 2})}</div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn" style="padding:6px 12px;font-size:12px;background:rgba(34,211,238,0.1);color:var(--accent);" onclick="toggleProgrammable('${p.id}', ${p.activo})">${p.activo ? '⏸️' : '▶️'}</button>
+            <button class="btn btn-danger" style="padding:6px 12px;font-size:12px;" onclick="deleteProgrammable('${p.id}')">🗑️</button>
+          </div>
+        </div>
+      `).join('') + '</div>';
+    }
+
+    // ===== SCHEDULER ENGINE - Auto-execute programmables =====
+    function shouldExecuteToday(prog) {
+      if (!prog.activo) return false;
+
+      const now = new Date();
+      const today = now.toISOString().slice(0, 10);
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const [progHour, progMinute] = (prog.hora || '00:00').split(':').map(Number);
+
+      // Check if already executed today
+      if (prog.lastExecuted === today) return false;
+
+      // Check if start date has passed
+      if (prog.inicio && prog.inicio > today) return false;
+
+      // Check if end date has passed
+      if (prog.fin && prog.fin < today) return false;
+
+      // Check if current time is past the scheduled time
+      if (currentHour < progHour) return false;
+      if (currentHour === progHour && currentMinute < progMinute) return false;
+
+      // Check frequency and day match
+      const currentDay = now.getDate();
+      const currentWeekDay = now.getDay(); // 0=Sun, 1=Mon...
+
+      switch (prog.frecuencia) {
+        case 'daily':
+          return true;
+        case 'weekly':
+          return prog.dia === currentWeekDay || prog.dia === currentDay;
+        case 'biweekly':
+          if (!prog.inicio) return prog.dia === currentDay;
+          const startDate = new Date(prog.inicio);
+          const daysDiff = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+          return daysDiff >= 0 && daysDiff % 14 === 0 && prog.dia === currentDay;
+        case 'monthly':
+          return prog.dia === currentDay || (prog.dia > 28 && currentDay === new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate());
+        case 'yearly':
+          const startMonth = prog.inicio ? new Date(prog.inicio).getMonth() : 0;
+          const startDay = prog.inicio ? new Date(prog.inicio).getDate() : 1;
+          return now.getMonth() === startMonth && currentDay === startDay;
+        default:
+          return prog.dia === currentDay;
+      }
+    }
+
+    async function executeProgrammable(prog) {
+      if (!window.currentUser) return;
+
+      const today = new Date().toISOString().slice(0, 10);
+
+      try {
+        // Create the actual transaction
+        const transactionData = {
+          concepto: prog.concepto,
+          monto: prog.monto,
+          categoria: prog.categoria,
+          fecha: today,
+          notas: '🤖 ' + (t('auto_generated') || 'Auto-generado') + ': ' + getFrequencyName(prog.frecuencia),
+          tipo: prog.tipo,
+          currency: prog.currency || window.userCurrency,
+          timestamp: Date.now(),
+          source: 'programmable',
+          programmableId: prog.id
+        };
+
+        await push(ref(db, `users/${window.currentUser.uid}/transactions`), transactionData);
+
+        // Mark as executed today
+        await update(ref(db, `users/${window.currentUser.uid}/programmables/${prog.id}`), {
+          lastExecuted: today
+        });
+
+        showToast('✅ ' + (t('executed') || 'Ejecutado') + ': ' + prog.concepto + ' ' + curr.symbol + prog.monto, 'success');
+      } catch (e) {
+        console.error('Error executing programmable:', e);
+      }
+    }
+
+    async function checkAndExecuteProgrammables() {
+      if (!window.currentUser || window.programmables.length === 0) return;
+
+      for (const prog of window.programmables) {
+        if (shouldExecuteToday(prog)) {
+          await executeProgrammable(prog);
+        }
+      }
+    }
+
+    // Run scheduler every minute
+    setInterval(checkAndExecuteProgrammables, 60000);
+    // Also run on page load
+    window.addEventListener('load', () => {
+      setTimeout(checkAndExecuteProgrammables, 2000);
+    });
+
+    function renderGoals() {
+      document.getElementById('goals-container').innerHTML = window.savingsGoals.map(g => {
+        const pct = Math.min(100, (g.current / g.target) * 100);
+        return `
+          <div class="goal-item">
+            <div class="goal-header">
+              <span class="goal-name">${escapeHtml(g.name)}</span>
+              <span class="goal-amount">${formatMoney(g.current)} / ${formatMoney(g.target)}</span>
+            </div>
+            <div class="goal-bar-bg">
+              <div class="goal-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${g.color},${g.color}88);"></div>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);text-align:right;">${pct.toFixed(1)}% completado</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderMetasPage() {
+      const container = document.getElementById('metas-list-container');
+      const empty = document.getElementById('metas-empty');
+
+      if (window.savingsGoals.length === 0) {
+        container.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      container.innerHTML = '<div class="goals-grid">' + window.savingsGoals.map(g => {
+        const pct = Math.min(100, (g.current / g.target) * 100);
+        const remaining = g.target - g.current;
+        return `
+          <div class="card goal-card">
+            <div class="goal-card-header">
+              <div class="goal-card-icon" style="background:${g.color}22;color:${g.color};">${getGoalIcon(g.name)}</div>
+              <div class="goal-card-title">${escapeHtml(g.name)}</div>
+              <div class="goal-card-actions">
+                <button class="btn" style="padding:6px 10px;font-size:12px;background:rgba(0,212,255,0.1);color:var(--accent);" onclick="openEditGoal('${g.id}')">✏️</button>
+                <button class="btn btn-danger" style="padding:6px 10px;font-size:12px;" onclick="deleteGoal('${g.id}')">🗑️</button>
+              </div>
+            </div>
+            <div class="goal-card-progress">
+              <div class="goal-card-bar-bg">
+                <div class="goal-card-bar-fill" style="width:${pct}%;background:linear-gradient(90deg,${g.color},${g.color}88);"></div>
+              </div>
+              <div class="goal-card-stats">
+                <span>${formatMoney(g.current)} / ${formatMoney(g.target)}</span>
+                <span style="color:${g.color};font-weight:700;">${pct.toFixed(1)}%</span>
+              </div>
+            </div>
+            <div class="goal-card-remaining">Faltan: <strong>${formatMoney(Math.max(0, remaining))}</strong></div>
+            <div class="goal-card-buttons">
+              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 10)">+$10</button>
+              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 50)">+$50</button>
+              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 100)">+$100</button>
+              <button class="btn btn-goal-btn" onclick="contributeGoal('${g.id}', 500)">+$500</button>
+              <button class="btn btn-goal-btn" style="background:linear-gradient(135deg,var(--accent),#a855f7);color:#fff;" onclick="customContribute('${g.id}')">💰 Custom</button>
+            </div>
+          </div>
+        `;
+      }).join('') + '</div>';
+    }
+
+    function getGoalIcon(name) {
+      if (name.includes('Auto') || name.includes('Coche')) return '🚗';
+      if (name.includes('Vacaciones') || name.includes('Viaje')) return '🏖️';
+      if (name.includes('Casa') || name.includes('Hogar') || name.includes('Emergencia')) return '🏠';
+      if (name.includes('Curso') || name.includes('Estudio') || name.includes('Educación')) return '🎓';
+      if (name.includes('Boda')) return '💍';
+      if (name.includes('Negocio')) return '💼';
+      return '🎯';
+    }
+
+    function updateDashboard() {
+      const now = new Date();
+      const currentMonth = now.toISOString().slice(0, 7);
+      const prevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 7);
+      const curr = EXCHANGE_RATES[window.userCurrency];
+
+      // Current month data
+      const monthTrans = window.transactions.filter(t => t.fecha.startsWith(currentMonth));
+      const income = monthTrans.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0);
+      const expense = monthTrans.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
+      const balance = income - expense;
+      const savings = window.transactions.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0)
+                    - window.transactions.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
+
+      // Previous month data for comparison
+      const prevMonthTrans = window.transactions.filter(t => t.fecha.startsWith(prevMonth));
+      const prevIncome = prevMonthTrans.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0);
+      const prevExpense = prevMonthTrans.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
+      const prevBalance = prevIncome - prevExpense;
+
+      // Update values
+      document.getElementById('dash-income').textContent = curr.symbol + income.toLocaleString('en-US', {minimumFractionDigits: 2});
+      document.getElementById('dash-expense').textContent = curr.symbol + expense.toLocaleString('en-US', {minimumFractionDigits: 2});
+      document.getElementById('dash-balance').textContent = curr.symbol + balance.toLocaleString('en-US', {minimumFractionDigits: 2});
+      document.getElementById('dash-savings').textContent = curr.symbol + Math.max(0, savings).toLocaleString('en-US', {minimumFractionDigits: 2});
+
+      // Calculate and display real percentage changes
+      updateStatChange('dash-income-change', income, prevIncome, 'income');
+      updateStatChange('dash-expense-change', expense, prevExpense, 'expense');
+      updateStatChange('dash-balance-change', balance, prevBalance, 'balance');
+
+      // Savings: show goal progress percentage
+      const totalTarget = window.savingsGoals.reduce((s, g) => s + g.target, 0);
+      const totalCurrent = window.savingsGoals.reduce((s, g) => s + g.current, 0);
+      const savingsPct = totalTarget > 0 ? Math.round((totalCurrent / totalTarget) * 100) : 0;
+      const savingsEl = document.getElementById('dash-savings-change');
+      if (totalTarget > 0) {
+        savingsEl.textContent = t('goal_pct', { pct: savingsPct });
+        savingsEl.className = 'stat-change up';
+      } else {
+        savingsEl.textContent = t('positive_trend');
+        savingsEl.className = 'stat-change up';
+      }
+
+      renderMainChart();
+      renderSavingsRing();
+      renderGoals();
+      renderDistributionCharts();
+    }
+
+    function updateStatChange(elementId, current, previous, type) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+
+      // Si no hay datos del mes anterior
+      if (previous === 0 && current === 0) {
+        el.textContent = '—';
+        el.className = 'stat-change';
+        return;
+      }
+
+      // Si hay datos actuales pero no del mes anterior
+      if (previous === 0) {
+        el.textContent = '▲ ' + (t('new') || 'Nuevo');
+        el.className = 'stat-change up';
+        return;
+      }
+
+      const pct = ((current - previous) / Math.abs(previous)) * 100;
+      const absPct = Math.abs(pct).toFixed(1);
+      const isUp = pct >= 0;
+
+      // Para ingresos: subir es bueno (up)
+      // Para gastos: bajar es bueno (down = up visualmente)
+      // Para balance: subir es bueno (up)
+      let isGood = isUp;
+      if (type === 'expense') isGood = !isUp;
+
+      const arrow = isUp ? '▲' : '▼';
+      const sign = isUp ? '+' : '';
+
+      const vsText = t('vs_prev_month') || 'vs mes anterior';
+      el.textContent = `${arrow} ${sign}${absPct}% ${vsText}`;
+      el.className = isGood ? 'stat-change up' : 'stat-change down';
+    }
+
+    function renderMainChart() {
+      const container = document.getElementById('main-chart');
+      const months = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(); d.setMonth(d.getMonth() - i);
+        months.push(d.toISOString().slice(0, 7));
+      }
+
+      const incomeData = months.map(m => window.transactions.filter(t => t.fecha.startsWith(m) && t.tipo === 'income').reduce((s, t) => s + t.monto, 0));
+      const expenseData = months.map(m => window.transactions.filter(t => t.fecha.startsWith(m) && t.tipo === 'expense').reduce((s, t) => s + t.monto, 0));
+
+      const maxVal = Math.max(...incomeData, ...expenseData, 100);
+      const w = container.clientWidth || 600;
+      const h = 300;
+      const pad = { t: 20, r: 20, b: 40, l: 60 };
+      const cw = w - pad.l - pad.r;
+      const ch = h - pad.t - pad.b;
+
+      const points = (data) => data.map((v, i) => {
+        const x = pad.l + (i / (data.length - 1)) * cw;
+        const y = pad.t + ch - (v / maxVal) * ch;
+        return `${x},${y}`;
+      }).join(' ');
+
+      const area = (data) => {
+        const pts = data.map((v, i) => {
+          const x = pad.l + (i / (data.length - 1)) * cw;
+          const y = pad.t + ch - (v / maxVal) * ch;
+          return `${x},${y}`;
+        }).join(' ');
+        return `${pad.l},${pad.t + ch} ${pts} ${pad.l + cw},${pad.t + ch}`;
+      };
+
+      const monthLabels = months.map(m => {
+        const [y, mo] = m.split('-');
+        return ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'][parseInt(mo)-1];
+      });
+
+      container.innerHTML = `
+        <svg class="chart-svg" viewBox="0 0 ${w} ${h}">
+          <defs>
+            <linearGradient id="gradInc" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00ff88" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#00ff88" stop-opacity="0"/>
+            </linearGradient>
+            <linearGradient id="gradExp" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#ff3366" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#ff3366" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          ${[0, 0.25, 0.5, 0.75, 1].map(p => {
+            const y = pad.t + ch * p;
+            return `<line class="chart-grid-line" x1="${pad.l}" y1="${y}" x2="${w-pad.r}" y2="${y}"/>`;
+          }).join('')}
+          <polygon class="chart-area" points="${area(incomeData)}" fill="url(#gradInc)"/>
+          <polygon class="chart-area" points="${area(expenseData)}" fill="url(#gradExp)"/>
+          <polyline class="chart-line" points="${points(incomeData)}" stroke="#00ff88"/>
+          <polyline class="chart-line" points="${points(expenseData)}" stroke="#ff3366"/>
+          ${incomeData.map((v, i) => {
+            const x = pad.l + (i / (incomeData.length - 1)) * cw;
+            const y = pad.t + ch - (v / maxVal) * ch;
+            return `<circle cx="${x}" cy="${y}" r="4" fill="#00ff88" stroke="#0a0e17" stroke-width="2"/>`;
+          }).join('')}
+          ${expenseData.map((v, i) => {
+            const x = pad.l + (i / (expenseData.length - 1)) * cw;
+            const y = pad.t + ch - (v / maxVal) * ch;
+            return `<circle cx="${x}" cy="${y}" r="4" fill="#ff3366" stroke="#0a0e17" stroke-width="2"/>`;
+          }).join('')}
+          ${monthLabels.map((l, i) => {
+            const x = pad.l + (i / (monthLabels.length - 1)) * cw;
+            return `<text class="chart-axis-text" x="${x}" y="${h-10}" text-anchor="middle">${l}</text>`;
+          }).join('')}
+          ${[0, 0.5, 1].map(p => {
+            const val = Math.round(maxVal * (1 - p));
+            const y = pad.t + ch * p;
+            return `<text class="chart-axis-text" x="${pad.l-10}" y="${y+4}" text-anchor="end">$${val}</text>`;
+          }).join('')}
+        </svg>
+      `;
+    }
+
+    function renderSavingsRing() {
+      const totalTarget = window.savingsGoals.reduce((s, g) => s + g.target, 0);
+      const totalCurrent = window.savingsGoals.reduce((s, g) => s + g.current, 0);
+      const pct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
+      const r = 70;
+      const c = 2 * Math.PI * r;
+      const offset = c - (pct / 100) * c;
+
+      document.getElementById('savings-ring').innerHTML = `
+        <svg width="180" height="180" viewBox="0 0 180 180">
+          <circle class="progress-ring-bg" cx="90" cy="90" r="${r}"/>
+          <circle class="progress-ring-fill" cx="90" cy="90" r="${r}"
+            stroke="url(#ringGrad)" stroke-dasharray="${c}" stroke-dashoffset="${offset}"/>
+          <defs>
+            <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#00d4ff"/>
+              <stop offset="100%" stop-color="#a855f7"/>
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="progress-text">${Math.round(pct)}%</div>
+        <div class="progress-label">Meta Global</div>
+        <div style="font-size:14px;color:var(--text-muted);margin-top:4px;">${formatMoney(totalCurrent)} / ${formatMoney(totalTarget)}</div>
+      `;
+    }
+
+    function renderDistributionCharts() {
+      const catTotals = {};
+      window.transactions.forEach(t => {
+        if (!catTotals[t.categoria]) catTotals[t.categoria] = { income: 0, expense: 0 };
+        catTotals[t.categoria][t.tipo] += t.monto;
+      });
+
+      const renderPie = (containerId, type) => {
+        const container = document.getElementById(containerId);
+        const data = Object.entries(catTotals)
+          .filter(([_, v]) => v[type] > 0)
+          .map(([k, v]) => ({ cat: k, val: v[type] }))
+          .sort((a, b) => b.val - a.val);
+
+        if (data.length === 0) {
+          container.innerHTML = '<div class="empty-state" style="padding:40px;"><div class="empty-state-icon">📊</div><p>Sin datos para mostrar</p></div>';
+          return;
+        }
+
+        const total = data.reduce((s, d) => s + d.val, 0);
+        const w = container.clientWidth || 300;
+        const h = 280;
+        const cx = w / 2;
+        const cy = h / 2 - 10;
+        const r = Math.min(w, h) / 2 - 40;
+        const colors = ['#00d4ff','#a855f7','#00ff88','#f59e0b','#ff3366','#6366f1','#ec4899','#14b8a6'];
+
+        let startAngle = -Math.PI / 2;
+        let paths = '';
+        let legend = '';
+
+        data.forEach((d, i) => {
+          const angle = (d.val / total) * 2 * Math.PI;
+          const endAngle = startAngle + angle;
+          const x1 = cx + r * Math.cos(startAngle);
+          const y1 = cy + r * Math.sin(startAngle);
+          const x2 = cx + r * Math.cos(endAngle);
+          const y2 = cy + r * Math.sin(endAngle);
+          const largeArc = angle > Math.PI ? 1 : 0;
+          const c = colors[i % colors.length];
+
+          paths += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2} Z" fill="${c}" opacity="0.85" class="chart-bar"/>`;
+          legend += `<div style="display:flex;align-items:center;gap:8px;margin:4px 0;font-size:12px;"><span style="width:10px;height:10px;border-radius:2px;background:${c};"></span><span style="color:var(--text-secondary);">${getCategoryName(d.cat)}</span><span style="margin-left:auto;font-family:'Orbitron';font-size:11px;">${((d.val/total)*100).toFixed(0)}%</span></div>`;
+          startAngle = endAngle;
+        });
+
+        container.innerHTML = `
+          <div style="display:flex;align-items:center;gap:20px;height:100%;">
+            <svg width="${w/2}" height="${h}" viewBox="0 0 ${w} ${h}">${paths}</svg>
+            <div style="flex:1;">${legend}</div>
+          </div>
+        `;
+      };
+
+      renderPie('expense-chart', 'expense');
+      renderPie('income-chart', 'income');
+    }
+
+    // Helpers
+    function formatMoney(n) {
+      return '$' + (n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatDate(d) {
+      const [y, m, day] = d.split('-');
+      return `${day}/${m}/${y}`;
+    }
+
+    function escapeHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    function getCategoryName(c) {
+      const names = {
+        salario: 'Salario', freelance: 'Freelance', inversiones: 'Inversiones',
+        ventas: 'Ventas', 'otros-ing': 'Otros Ingresos',
+        vivienda: 'Vivienda', alimentacion: 'Alimentación', transporte: 'Transporte',
+        servicios: 'Servicios', entretenimiento: 'Entretenimiento', salud: 'Salud',
+        educacion: 'Educación', 'otros-gas': 'Otros Gastos'
+      };
+      return names[c] || c;
+    }
+
+    function getCategoryIcon(c) {
+      const icons = {
+        salario: '💼', freelance: '💻', inversiones: '📈', ventas: '🛒', 'otros-ing': '✨',
+        vivienda: '🏠', alimentacion: '🍽️', transporte: '🚗', servicios: '⚡',
+        entretenimiento: '🎮', salud: '💊', educacion: '📚', 'otros-gas': '📌'
+      };
+      return icons[c] || '📋';
+    }
+
+    function getFrequencyName(f) {
+      const names = { monthly: 'Mensual', weekly: 'Semanal', biweekly: 'Quincenal', daily: 'Diario', yearly: 'Anual' };
+      return names[f] || f;
+    }
+
+    function showToast(msg, type) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = 'toast ' + type + ' show';
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Init
+    document.getElementById('reg-fecha').valueAsDate = new Date();
+    document.getElementById('prog-inicio').valueAsDate = new Date();
+    document.querySelector('.color-option').classList.add('selected');
+
+    window.addEventListener('resize', () => {
+      if (document.getElementById('page-dashboard').classList.contains('active')) {
+        updateDashboard();
+      }
+    });
+
+    // ===== MOBILE HAMBURGER MENU =====
+    window.toggleMobileMenu = () => {
+      const btn = document.getElementById('hamburger-btn');
+      const nav = document.getElementById('mobile-nav');
+      btn.classList.toggle('open');
+      nav.classList.toggle('open');
+    };
+
+    window.closeMobileMenu = () => {
+      document.getElementById('hamburger-btn').classList.remove('open');
+      document.getElementById('mobile-nav').classList.remove('open');
+    };
+
+    // Cerrar menú al hacer click fuera
+    document.addEventListener('click', (e) => {
+      const wrapper = document.querySelector('.mobile-menu-wrapper');
+      if (wrapper && !wrapper.contains(e.target)) {
+        closeMobileMenu();
+      }
+    });
+
+    // ===== AVATAR UPLOAD =====
+    let selectedAvatarFile = null;
+    let selectedAvatarDataUrl = null;
+
+    window.openAvatarModal = () => {
+      if (!window.currentUser) return;
+      const user = window.currentUser;
+      const previewImg = document.getElementById('avatar-preview-img');
+      const previewText = document.getElementById('avatar-preview-text');
+      const avatarImg = document.getElementById('user-avatar-img');
+
+      // Mostrar avatar actual si existe
+      if (avatarImg.src && avatarImg.style.display !== 'none') {
+        previewImg.src = avatarImg.src;
+        previewImg.style.display = 'block';
+        previewText.style.display = 'none';
+      } else {
+        previewImg.style.display = 'none';
+        previewText.style.display = 'flex';
+        previewText.textContent = (user.displayName || user.email || 'U')[0].toUpperCase();
+      }
+
+      selectedAvatarFile = null;
+      selectedAvatarDataUrl = null;
+      document.getElementById('avatar-input').value = '';
+      document.getElementById('avatar-save-btn').disabled = true;
+      document.getElementById('avatar-error').style.display = 'none';
+      document.getElementById('avatar-modal').style.display = 'flex';
+    };
+
+    window.closeAvatarModal = () => {
+      document.getElementById('avatar-modal').style.display = 'none';
+      selectedAvatarFile = null;
+      selectedAvatarDataUrl = null;
+    };
+
+    window.closeAvatarModalOnOverlay = (e) => {
+      if (e.target === e.currentTarget) closeAvatarModal();
+    };
+
+    window.handleAvatarSelect = (e) => {
+      const file = e.target.files[0];
+      const errorEl = document.getElementById('avatar-error');
+      const saveBtn = document.getElementById('avatar-save-btn');
+
+      if (!file) return;
+
+      // Validaciones
+      const maxSize = 10 * 1024 * 1024; // 10 MB
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+      if (!allowedTypes.includes(file.type)) {
+        errorEl.textContent = '❌ Formato no válido. Usa JPG, PNG o WEBP.';
+        errorEl.style.display = 'block';
+        saveBtn.disabled = true;
+        return;
+      }
+
+      if (file.size > maxSize) {
+        errorEl.textContent = '❌ El archivo excede 10 MB.';
+        errorEl.style.display = 'block';
+        saveBtn.disabled = true;
+        return;
+      }
+
+      errorEl.style.display = 'none';
+      selectedAvatarFile = file;
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        selectedAvatarDataUrl = ev.target.result;
+        const previewImg = document.getElementById('avatar-preview-img');
+        const previewText = document.getElementById('avatar-preview-text');
+        previewImg.src = selectedAvatarDataUrl;
+        previewImg.style.display = 'block';
+        previewText.style.display = 'none';
+        saveBtn.disabled = false;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.saveAvatar = async () => {
+      if (!selectedAvatarDataUrl || !window.currentUser) return;
+
+      try {
+        // Guardar en Firebase Realtime Database (base64)
+        await update(ref(db, `users/${window.currentUser.uid}/profile`), {
+          avatar: selectedAvatarDataUrl
+        });
+
+        // Actualizar UI
+        const avatarImg = document.getElementById('user-avatar-img');
+        const avatarDiv = document.getElementById('user-avatar');
+        avatarImg.src = selectedAvatarDataUrl;
+        avatarImg.style.display = 'block';
+        avatarDiv.style.display = 'none';
+
+        showToast('✅ Foto de perfil actualizada', 'success');
+        closeAvatarModal();
+      } catch (e) {
+        showToast('❌ Error al guardar: ' + e.message, 'error');
+      }
+    };
+
+    // Cargar avatar al iniciar sesión
+    async function loadAvatar() {
+      if (!window.currentUser) return;
+      try {
+        const snap = await get(ref(db, `users/${window.currentUser.uid}/profile/avatar`));
+        if (snap.exists()) {
+          const avatarImg = document.getElementById('user-avatar-img');
+          const avatarDiv = document.getElementById('user-avatar');
+          avatarImg.src = snap.val();
+          avatarImg.style.display = 'block';
+          avatarDiv.style.display = 'none';
+        }
+      } catch (e) {
+        // Silencioso
+      }
+    }
+
+    
+
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeEditModal();
+    });
+  </script>
+
+  </body>
+</html>
