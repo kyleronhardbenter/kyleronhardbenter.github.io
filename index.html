@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="styles.css">
 <base target="_blank">
 <base target="_blank">
+<base target="_blank">
 </head>
 <body>
   <div class="bg-grid"></div>
@@ -40,12 +41,12 @@
         <div class="card">
           <div class="stat-label">Ingresos del Mes</div>
           <div class="stat-value income" id="dash-income">$0.00</div>
-          <div class="stat-change up">▲ +12.5% vs mes anterior</div>
+          <div class="stat-change" id="dash-income-change">—</div>
         </div>
         <div class="card">
           <div class="stat-label">Gastos del Mes</div>
           <div class="stat-value expense" id="dash-expense">$0.00</div>
-          <div class="stat-change down">▼ -3.2% vs mes anterior</div>
+          <div class="stat-change" id="dash-expense-change">—</div>
         </div>
         <div class="card">
           <div class="stat-label">Balance Neto</div>
@@ -1299,12 +1300,18 @@
     }
 
     function updateDashboard() {
-      const currentMonth = new Date().toISOString().slice(0, 7);
+      const now = new Date();
+      const currentMonth = now.toISOString().slice(0, 7);
+      const prevDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const prevMonth = prevDate.toISOString().slice(0, 7);
       const monthTrans = window.transactions.filter(t => t.fecha.startsWith(currentMonth));
+      const prevMonthTrans = window.transactions.filter(t => t.fecha.startsWith(prevMonth));
       const curr = EXCHANGE_RATES[window.userCurrency];
 
       const income = monthTrans.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0);
       const expense = monthTrans.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
+      const prevIncome = prevMonthTrans.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0);
+      const prevExpense = prevMonthTrans.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
       const balance = income - expense;
       const savings = window.transactions.filter(t => t.tipo === 'income').reduce((s, t) => s + t.monto, 0)
                     - window.transactions.filter(t => t.tipo === 'expense').reduce((s, t) => s + t.monto, 0);
@@ -1313,6 +1320,19 @@
       document.getElementById('dash-expense').textContent = curr.symbol + expense.toLocaleString('en-US', {minimumFractionDigits: 2});
       document.getElementById('dash-balance').textContent = curr.symbol + balance.toLocaleString('en-US', {minimumFractionDigits: 2});
       document.getElementById('dash-savings').textContent = curr.symbol + Math.max(0, savings).toLocaleString('en-US', {minimumFractionDigits: 2});
+
+      // Real month-over-month percentages
+      const incomePct = prevIncome > 0 ? ((income - prevIncome) / prevIncome * 100) : (income > 0 ? 100 : 0);
+      const expensePct = prevExpense > 0 ? ((expense - prevExpense) / prevExpense * 100) : (expense > 0 ? 100 : 0);
+      const balanceTrend = balance >= 0 ? 'up' : 'down';
+      const totalTarget = window.savingsGoals.reduce((s, g) => s + g.target, 0);
+      const totalCurrent = window.savingsGoals.reduce((s, g) => s + g.current, 0);
+      const savingsPct = totalTarget > 0 ? (totalCurrent / totalTarget * 100) : 0;
+
+      document.getElementById('dash-income-change').className = 'stat-change ' + (incomePct >= 0 ? 'up' : 'down');
+      document.getElementById('dash-income-change').textContent = (incomePct >= 0 ? '▲ +' : '▼ ') + Math.abs(incomePct).toFixed(1) + '% vs mes anterior';
+      document.getElementById('dash-expense-change').className = 'stat-change ' + (expensePct >= 0 ? 'up' : 'down');
+      document.getElementById('dash-expense-change').textContent = (expensePct >= 0 ? '▲ +' : '▼ ') + Math.abs(expensePct).toFixed(1) + '% vs mes anterior';
 
       renderMainChart();
       renderSavingsRing();
@@ -1532,6 +1552,96 @@
       toast.className = 'toast ' + type + ' show';
       setTimeout(() => toast.classList.remove('show'), 3000);
     }
+
+    // ===== PROGRAMMABLE SCHEDULER =====
+    // Checks every minute if any active programables should execute
+    async function checkAndExecuteProgrammables() {
+      if (!window.currentUser || window.programmables.length === 0) return;
+
+      const now = new Date();
+      const todayStr = now.toISOString().slice(0, 10); // YYYY-MM-DD
+      const currentHour = now.getHours();
+      const currentMinute = now.getMinutes();
+      const currentDay = now.getDate();
+      const currentWeekDay = now.getDay(); // 0=Sun, 1=Mon...
+
+      for (const prog of window.programmables) {
+        if (!prog.activo) continue;
+
+        // Parse programmable time
+        const [progHour, progMinute] = (prog.hora || '00:00').split(':').map(Number);
+        const progStart = prog.inicio ? new Date(prog.inicio + 'T00:00:00') : null;
+        const progEnd = prog.fin ? new Date(prog.fin + 'T23:59:59') : null;
+
+        // Check if within date range
+        if (progStart && now < progStart) continue;
+        if (progEnd && now > progEnd) continue;
+
+        // Check if already executed today
+        const lastExec = prog.lastExecuted ? prog.lastExecuted.slice(0, 10) : null;
+        if (lastExec === todayStr) continue;
+
+        // Check if time matches (within same minute window)
+        if (currentHour !== progHour || currentMinute !== progMinute) continue;
+
+        // Check frequency/day conditions
+        let shouldExecute = false;
+        switch (prog.frecuencia) {
+          case 'daily':
+            shouldExecute = true;
+            break;
+          case 'weekly':
+            // Execute on the same weekday as start date, or if no specific day logic, just daily at that time
+            // For weekly, we use the "dia" as weekday (1=Mon...7=Sun) or just execute if it's the right time
+            shouldExecute = true; // Will be filtered by lastExecuted (once per day)
+            // Better: check if dia matches weekday
+            const targetWeekDay = (prog.dia || 1) % 7; // 1=Mon->1, 7=Sun->0
+            shouldExecute = (currentWeekDay === targetWeekDay);
+            break;
+          case 'biweekly':
+            // Execute on day 1 and 15 of month, or based on start date biweekly
+            shouldExecute = (currentDay === (prog.dia || 1)) || (currentDay === ((prog.dia || 1) + 14));
+            break;
+          case 'monthly':
+            shouldExecute = (currentDay === (prog.dia || 1));
+            break;
+          case 'yearly':
+            shouldExecute = (currentDay === (prog.dia || 1)) && (now.getMonth() === (progStart ? progStart.getMonth() : 0));
+            break;
+        }
+
+        if (!shouldExecute) continue;
+
+        // Execute: create transaction
+        try {
+          const transData = {
+            concepto: prog.concepto,
+            monto: prog.monto,
+            categoria: prog.categoria,
+            fecha: todayStr,
+            notas: 'Auto-generado por programable: ' + getFrequencyName(prog.frecuencia),
+            tipo: prog.tipo,
+            currency: prog.currency || window.userCurrency,
+            timestamp: Date.now(),
+            programmableId: prog.id
+          };
+
+          await push(ref(db, `users/${window.currentUser.uid}/transactions`), transData);
+          await update(ref(db, `users/${window.currentUser.uid}/programmables/${prog.id}`), {
+            lastExecuted: now.toISOString()
+          });
+
+          showToast(`✅ Programable ejecutado: ${prog.concepto} ${prog.tipo === 'income' ? '💰' : '💸'}`, 'success');
+        } catch (e) {
+          console.error('Error executing programmable:', e);
+        }
+      }
+    }
+
+    // Run scheduler every minute
+    setInterval(checkAndExecuteProgrammables, 60000);
+    // Also run immediately on load
+    setTimeout(checkAndExecuteProgrammables, 3000);
 
     // Init
     document.getElementById('reg-fecha').valueAsDate = new Date();
