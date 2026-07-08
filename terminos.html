@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Términos de Servicio — FinTech OS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #0f1525;
+      --bg-tertiary: #141b2d;
+      --bg-elevated: #1a2340;
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --border-medium: rgba(255, 255, 255, 0.08);
+      --text-primary: #f0f2f7;
+      --text-secondary: #94a3b8;
+      --text-tertiary: #64748b;
+      --text-muted: #475569;
+      --accent: #d4a853;
+      --accent-dim: rgba(212, 168, 83, 0.08);
+      --positive: #34d399;
+      --negative: #f87171;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      font-size: 14px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+    .bg-grid {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      margin-bottom: 32px;
+    }
+    .back-btn:hover {
+      background: var(--bg-elevated);
+      border-color: var(--border-medium);
+      color: var(--text-primary);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .header-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    .header p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .last-updated {
+      display: inline-block;
+      margin-top: 16px;
+      padding: 6px 16px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 28px;
+      margin-bottom: 16px;
+      transition: all 0.2s ease;
+    }
+    .card:hover {
+      border-color: var(--border-medium);
+      background: var(--bg-tertiary);
+    }
+    .card h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card h2 .num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .card p {
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .card ul {
+      margin-left: 20px;
+      margin-bottom: 16px;
+    }
+    .card li {
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .highlight-box {
+      background: rgba(212, 168, 83, 0.05);
+      border: 1px solid var(--accent-dim);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    .highlight-box p {
+      margin-bottom: 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .highlight-box strong {
+      color: var(--accent);
+    }
+    .footer-legal {
+      text-align: center;
+      padding-top: 32px;
+      border-top: 1px solid var(--border-subtle);
+      margin-top: 32px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    @media (max-width: 600px) {
+      .container { padding: 24px 16px; }
+      .card { padding: 20px; }
+      .header h1 { font-size: 22px; }
+    }
+  </style>
+<base target="_blank">
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <div class="container">
+    <a href="index.html" class="back-btn">← Volver a FinTech OS</a>
+
+    <div class="header">
+      <div class="header-icon">📋</div>
+      <h1>Términos de Servicio</h1>
+      <p>FinTech OS — Plataforma Financiera Empresarial</p>
+      <div class="last-updated">📅 Vigentes desde: 9 de julio de 2026</div>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">1</span> Aceptación de los Términos</h2>
+      <p>Al acceder y utilizar <strong>FinTech OS</strong> (en adelante, "la Plataforma"), usted acepta quedar vinculado por estos Términos de Servicio. Si no está de acuerdo con alguna parte de estos términos, no debe utilizar nuestros servicios. Estos términos constituyen un contrato legalmente vinculante entre usted y FinTech OS.</p>
+      <p>Nos reservamos el derecho de modificar estos términos en cualquier momento. Las modificaciones entrarán en vigor inmediatamente después de su publicación. El uso continuado de la Plataforma después de cualquier cambio constituye su aceptación de los nuevos términos.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">2</span> Naturaleza del Servicio y Acceso a Datos</h2>
+      <div class="highlight-box">
+        <p><strong>DECLARACIÓN IMPORTANTE:</strong> FinTech OS opera como una <strong>aplicación de software de gestión financiera personal</strong>. Los datos financieros que usted ingresa en la Plataforma se almacenan exclusivamente en su propia cuenta de Firebase, bajo su control total. <strong>FinTech OS NO tiene acceso, ni ahora ni en ningún momento, a la información financiera de los usuarios ni puede acceder a sus sistemas o bases de datos.</strong></p>
+      </div>
+      <p>La Plataforma funciona como una interfaz de usuario que se conecta a la infraestructura de Firebase configurada por cada usuario individualmente. Nosotros:</p>
+      <ul>
+        <li><strong>No almacenamos</strong> sus datos en nuestros servidores.</li>
+        <li><strong>No tenemos acceso</strong> a sus registros financieros, transacciones, metas de ahorro ni ninguna información personal.</li>
+        <li><strong>No podemos visualizar, modificar, eliminar ni transferir</strong> sus datos bajo ninguna circunstancia.</li>
+        <li><strong>No procesamos pagos</strong> ni transacciones monetarias reales a través de la Plataforma.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">3</span> Cuentas de Usuario y Seguridad</h2>
+      <p>Para utilizar FinTech OS, debe crear una cuenta proporcionando información precisa y completa. Usted es responsable de mantener la confidencialidad de sus credenciales de acceso y de todas las actividades que ocurran bajo su cuenta.</p>
+      <p>La autenticación se realiza a través de Firebase Authentication. FinTech OS no almacena contraseñas ni datos de autenticación en sus sistemas. Usted debe notificarnos inmediatamente de cualquier uso no autorizado de su cuenta.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">4</span> Uso Aceptable y Prohibiciones</h2>
+      <p>Usted se compromete a utilizar la Plataforma únicamente para fines legales y de acuerdo con estos Términos. Queda expresamente prohibido:</p>
+      <ul>
+        <li>Utilizar la Plataforma para actividades fraudulentas, ilícitas o no autorizadas.</li>
+        <li>Intentar acceder, interferir o dañar cualquier parte de la infraestructura técnica.</li>
+        <li>Distribuir malware, virus o cualquier código dañino.</li>
+        <li>Realizar ingeniería inversa, descompilar o desensamblar el software.</li>
+        <li>Utilizar la Plataforma para almacenar o transmitir información de terceros sin consentimiento.</li>
+        <li>Violar cualquier ley aplicable en su jurisdicción.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">5</span> Propiedad Intelectual</h2>
+      <p>Todo el contenido, diseño, código fuente, logotipos, marcas comerciales y demás materiales disponibles en FinTech OS son propiedad exclusiva de FinTech OS o de sus licenciantes, y están protegidos por las leyes de propiedad intelectual aplicables.</p>
+      <p>Se otorga al usuario una licencia limitada, no exclusiva, no transferible y revocable para utilizar la Plataforma de acuerdo con estos Términos. Esta licencia no le confiere ningún derecho de propiedad sobre el software ni su código fuente.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">6</span> Limitación de Responsabilidad</h2>
+      <p>FinTech OS se proporciona "tal cual" y "según disponibilidad". No garantizamos que el servicio sea ininterrumpido, oportuno, seguro o libre de errores.</p>
+      <p><strong>En la máxima medida permitida por la ley aplicable, FinTech OS no será responsable por:</strong></p>
+      <ul>
+        <li>Pérdidas financieras derivadas del uso o la imposibilidad de uso de la Plataforma.</li>
+        <li>Decisiones de inversión, ahorro o gasto basadas en la información presentada en la Plataforma.</li>
+        <li>Pérdida de datos almacenados en la infraestructura de Firebase del usuario.</li>
+        <li>Daños indirectos, incidentales, especiales, consecuentes o punitivos.</li>
+        <li>Accesos no autorizados resultantes de negligencia del usuario en la protección de sus credenciales.</li>
+      </ul>
+      <p>La Plataforma es una herramienta de registro y visualización. <strong>No constituye asesoramiento financiero, contable, fiscal ni legal.</strong> Consulte con profesionales calificados antes de tomar decisiones financieras importantes.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">7</span> Modificaciones y Terminación</h2>
+      <p>Podemos modificar, suspender o discontinuar la Plataforma (o cualquier parte de ella) en cualquier momento, con o sin previo aviso. No seremos responsables ante usted ni ante terceros por cualquier modificación, suspensión o discontinuación.</p>
+      <p>Usted puede cancelar su cuenta en cualquier momento a través de la sección de Configuración. Al cancelar, todos sus datos permanecerán en su infraestructura de Firebase; nosotros no retenemos copias.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">8</span> Ley Aplicable y Jurisdicción</h2>
+      <p>Estos Términos se regirán e interpretarán de acuerdo con las leyes del país donde FinTech OS tenga su sede principal, sin dar efecto a ningún principio de conflictos de leyes.</p>
+      <p>Cualquier disputa derivada de estos Términos será resuelta exclusivamente por los tribunales competentes de dicha jurisdicción. Antes de iniciar cualquier procedimiento legal, ambas partes se comprometen a intentar resolver la disputa de buena fe mediante mediación.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">9</span> Contacto</h2>
+      <p>Para cualquier consulta, reclamación o notificación relacionada con estos Términos de Servicio, puede contactarnos a través de:</p>
+      <ul>
+        <li>📧 Email legal: <strong>legal@fintech-os.com</strong></li>
+        <li>🌐 Sitio web: <strong>www.fintech-os.com</strong></li>
+        <li>📮 Dirección postal: Disponible bajo solicitud formal.</li>
+      </ul>
+    </div>
+
+    <div class="footer-legal">
+      <p>© 2026 FinTech OS. Todos los derechos reservados.</p>
+      <p style="margin-top:8px;">Este documento tiene carácter informativo y no constituye asesoramiento legal. Consulte con un abogado para adaptarlo a su jurisdicción específica.</p>
+    </div>
+  </div>
+</body>
+</html>
