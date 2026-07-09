@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Términos de Servicio — FinTech OS</title>
+  <title>Política de Privacidad — FinTech OS</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -166,6 +166,21 @@
     .highlight-box strong {
       color: var(--accent);
     }
+    .security-box {
+      background: rgba(52, 211, 153, 0.05);
+      border: 1px solid rgba(52, 211, 153, 0.15);
+      border-radius: 10px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+    .security-box p {
+      margin-bottom: 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .security-box strong {
+      color: var(--positive);
+    }
     .footer-legal {
       text-align: center;
       padding-top: 32px;
@@ -188,90 +203,110 @@
     <a href="index.html" class="back-btn">← Volver a FinTech OS</a>
 
     <div class="header">
-      <div class="header-icon">📋</div>
-      <h1>Términos de Servicio</h1>
-      <p>FinTech OS — Plataforma Financiera Empresarial</p>
-      <div class="last-updated">📅 Vigentes desde: 9 de julio de 2026</div>
+      <div class="header-icon">🔒</div>
+      <h1>Política de Privacidad</h1>
+      <p>FinTech OS — Protección de Datos del Usuario</p>
+      <div class="last-updated">📅 Última actualización: 9 de julio de 2026</div>
     </div>
 
     <div class="card">
-      <h2><span class="num">1</span> Aceptación de los Términos</h2>
-      <p>Al acceder y utilizar <strong>FinTech OS</strong> (en adelante, "la Plataforma"), usted acepta quedar vinculado por estos Términos de Servicio. Si no está de acuerdo con alguna parte de estos términos, no debe utilizar nuestros servicios. Estos términos constituyen un contrato legalmente vinculante entre usted y FinTech OS.</p>
-      <p>Nos reservamos el derecho de modificar estos términos en cualquier momento. Las modificaciones entrarán en vigor inmediatamente después de su publicación. El uso continuado de la Plataforma después de cualquier cambio constituye su aceptación de los nuevos términos.</p>
-    </div>
-
-    <div class="card">
-      <h2><span class="num">2</span> Naturaleza del Servicio y Acceso a Datos</h2>
+      <h2><span class="num">1</span> Compromiso con la Privacidad</h2>
+      <p>En <strong>FinTech OS</strong>, la privacidad de nuestros usuarios es fundamental. Esta Política de Privacidad explica cómo manejamos la información en nuestra Plataforma. <strong>Queremos dejar absolutamente claro que FinTech OS no recopila, almacena ni tiene acceso a sus datos financieros personales.</strong></p>
       <div class="highlight-box">
-        <p><strong>DECLARACIÓN IMPORTANTE:</strong> FinTech OS opera como una <strong>aplicación de software de gestión financiera personal</strong>. Los datos financieros que usted ingresa en la Plataforma se almacenan exclusivamente en su propia cuenta de Firebase, bajo su control total. <strong>FinTech OS NO tiene acceso, ni ahora ni en ningún momento, a la información financiera de los usuarios ni puede acceder a sus sistemas o bases de datos.</strong></p>
+        <p><strong>PRINCIPIO FUNDAMENTAL:</strong> Sus datos financieros residen exclusivamente en su propia instancia de Firebase, bajo su control total. FinTech OS actúa únicamente como una interfaz de visualización y no como un custodio de datos.</p>
       </div>
-      <p>La Plataforma funciona como una interfaz de usuario que se conecta a la infraestructura de Firebase configurada por cada usuario individualmente. Nosotros:</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">2</span> Información que NO Recopilamos</h2>
+      <p>Dado el modelo técnico de FinTech OS, <strong>no recopilamos ni tenemos acceso a</strong>:</p>
       <ul>
-        <li><strong>No almacenamos</strong> sus datos en nuestros servidores.</li>
-        <li><strong>No tenemos acceso</strong> a sus registros financieros, transacciones, metas de ahorro ni ninguna información personal.</li>
-        <li><strong>No podemos visualizar, modificar, eliminar ni transferir</strong> sus datos bajo ninguna circunstancia.</li>
-        <li><strong>No procesamos pagos</strong> ni transacciones monetarias reales a través de la Plataforma.</li>
+        <li>Registros de ingresos, gastos, transacciones ni balances financieros.</li>
+        <li>Metas de ahorro, programables ni configuraciones personales de presupuesto.</li>
+        <li>Historial de movimientos ni categorizaciones financieras.</li>
+        <li>Información bancaria, números de cuenta, tarjetas de crédito ni detalles de pago.</li>
+        <li>Datos de ubicación, contactos ni calendario del dispositivo.</li>
+        <li>Información de navegación, hábitos de uso ni comportamiento dentro de la app (sin consentimiento explícito).</li>
       </ul>
     </div>
 
     <div class="card">
-      <h2><span class="num">3</span> Cuentas de Usuario y Seguridad</h2>
-      <p>Para utilizar FinTech OS, debe crear una cuenta proporcionando información precisa y completa. Usted es responsable de mantener la confidencialidad de sus credenciales de acceso y de todas las actividades que ocurran bajo su cuenta.</p>
-      <p>La autenticación se realiza a través de Firebase Authentication. FinTech OS no almacena contraseñas ni datos de autenticación en sus sistemas. Usted debe notificarnos inmediatamente de cualquier uso no autorizado de su cuenta.</p>
+      <h2><span class="num">3</span> Información que Sí Procesamos</h2>
+      <p>La única información que FinTech OS procesa (no almacena) se limita a:</p>
+      <ul>
+        <li><strong>Datos de autenticación:</strong> Firebase Authentication gestiona su inicio de sesión. Nosotros no almacenamos contraseñas.</li>
+        <li><strong>Preferencias de divisa:</strong> La moneda principal seleccionada en Configuración se guarda en su perfil de Firebase.</li>
+        <li><strong>Datos técnicos mínimos:</strong> Información del navegador y sistema operativo necesaria para el funcionamiento técnico de la aplicación (sin identificación personal).</li>
+      </ul>
+      <p>Toda esta información se almacena en <strong>su cuenta de Firebase</strong>, no en nuestros servidores.</p>
     </div>
 
     <div class="card">
-      <h2><span class="num">4</span> Uso Aceptable y Prohibiciones</h2>
-      <p>Usted se compromete a utilizar la Plataforma únicamente para fines legales y de acuerdo con estos Términos. Queda expresamente prohibido:</p>
+      <h2><span class="num">4</span> Arquitectura de Datos y Seguridad</h2>
+      <p>FinTech OS utiliza una arquitectura de <strong>cliente-servidor desacoplada</strong> donde:</p>
       <ul>
-        <li>Utilizar la Plataforma para actividades fraudulentas, ilícitas o no autorizadas.</li>
-        <li>Intentar acceder, interferir o dañar cualquier parte de la infraestructura técnica.</li>
-        <li>Distribuir malware, virus o cualquier código dañino.</li>
-        <li>Realizar ingeniería inversa, descompilar o desensamblar el software.</li>
-        <li>Utilizar la Plataforma para almacenar o transmitir información de terceros sin consentimiento.</li>
-        <li>Violar cualquier ley aplicable en su jurisdicción.</li>
+        <li>La aplicación web se ejecuta en su navegador (lado del cliente).</li>
+        <li>Sus datos se almacenan en <strong>Firebase Realtime Database</strong>, asociados a su cuenta de usuario.</li>
+        <li>FinTech OS no tiene credenciales de administrador ni acceso privilegiado a su base de datos.</li>
+        <li>Las reglas de seguridad de Firebase están configuradas para que solo usted (el usuario autenticado) pueda leer y escribir en su propio nodo de datos.</li>
+      </ul>
+      <div class="security-box">
+        <p><strong>Seguridad técnica:</strong> La comunicación entre su navegador y Firebase está cifrada mediante TLS/SSL. Las contraseñas se hash-ean mediante Firebase Auth. Nosotros no podemos acceder a su base de datos ni a sus credenciales bajo ninguna circunstancia técnica o legal.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">5</span> Cookies y Tecnologías Similares</h2>
+      <p>FinTech OS utiliza cookies y almacenamiento local del navegador únicamente para:</p>
+      <ul>
+        <li>Mantener su sesión de autenticación activa (token de Firebase).</li>
+        <li>Recordar preferencias de interfaz (tema, divisa seleccionada).</li>
+        <li>Facilitar el funcionamiento offline básico de la aplicación.</li>
+      </ul>
+      <p><strong>No utilizamos cookies de terceros</strong> para publicidad, seguimiento ni análisis de comportamiento. No compartimos datos con redes publicitarias ni plataformas de análisis.</p>
+    </div>
+
+    <div class="card">
+      <h2><span class="num">6</span> Compartir Información con Terceros</h2>
+      <p><strong>FinTech OS no vende, alquila, comercializa ni comparte información personal con terceros.</strong></p>
+      <p>Dado que no tenemos acceso a sus datos financieros, es materialmente imposible que compartamos dicha información. Los únicos terceros involucrados en la prestación del servicio son:</p>
+      <ul>
+        <li><strong>Google Firebase:</strong> Proporciona la infraestructura de autenticación y base de datos. Sus términos de privacidad aplican a los datos almacenados en su plataforma.</li>
+        <li><strong>Google Fonts:</strong> Para la carga de tipografías (sin recopilación de datos personales).</li>
       </ul>
     </div>
 
     <div class="card">
-      <h2><span class="num">5</span> Propiedad Intelectual</h2>
-      <p>Todo el contenido, diseño, código fuente, logotipos, marcas comerciales y demás materiales disponibles en FinTech OS son propiedad exclusiva de FinTech OS o de sus licenciantes, y están protegidos por las leyes de propiedad intelectual aplicables.</p>
-      <p>Se otorga al usuario una licencia limitada, no exclusiva, no transferible y revocable para utilizar la Plataforma de acuerdo con estos Términos. Esta licencia no le confiere ningún derecho de propiedad sobre el software ni su código fuente.</p>
-    </div>
-
-    <div class="card">
-      <h2><span class="num">6</span> Limitación de Responsabilidad</h2>
-      <p>FinTech OS se proporciona "tal cual" y "según disponibilidad". No garantizamos que el servicio sea ininterrumpido, oportuno, seguro o libre de errores.</p>
-      <p><strong>En la máxima medida permitida por la ley aplicable, FinTech OS no será responsable por:</strong></p>
+      <h2><span class="num">7</span> Sus Derechos (GDPR / LGPD / CCPA)</h2>
+      <p>Dependiendo de su jurisdicción, usted tiene los siguientes derechos respecto a sus datos personales:</p>
       <ul>
-        <li>Pérdidas financieras derivadas del uso o la imposibilidad de uso de la Plataforma.</li>
-        <li>Decisiones de inversión, ahorro o gasto basadas en la información presentada en la Plataforma.</li>
-        <li>Pérdida de datos almacenados en la infraestructura de Firebase del usuario.</li>
-        <li>Daños indirectos, incidentales, especiales, consecuentes o punitivos.</li>
-        <li>Accesos no autorizados resultantes de negligencia del usuario en la protección de sus credenciales.</li>
+        <li><strong>Derecho de acceso:</strong> Puede acceder a todos sus datos en cualquier momento desde la Plataforma.</li>
+        <li><strong>Derecho de rectificación:</strong> Puede corregir o actualizar su información directamente en la app.</li>
+        <li><strong>Derecho de supresión ("derecho al olvido"):</strong> Puede eliminar todos sus datos desde Configuración → Zona de Peligro, o eliminar su cuenta de Firebase directamente.</li>
+        <li><strong>Derecho de portabilidad:</strong> Puede exportar sus datos (funcionalidad futura).</li>
+        <li><strong>Derecho de oposición:</strong> Puede oponerse al procesamiento de sus datos (aunque dado nuestro modelo, prácticamente no procesamos datos personales).</li>
       </ul>
-      <p>La Plataforma es una herramienta de registro y visualización. <strong>No constituye asesoramiento financiero, contable, fiscal ni legal.</strong> Consulte con profesionales calificados antes de tomar decisiones financieras importantes.</p>
+      <p>Para ejercer cualquiera de estos derechos, contacte a <strong>kyleronhard001@gmail.com</strong>. Responderemos en un plazo máximo de 30 días.</p>
     </div>
 
     <div class="card">
-      <h2><span class="num">7</span> Modificaciones y Terminación</h2>
-      <p>Podemos modificar, suspender o discontinuar la Plataforma (o cualquier parte de ella) en cualquier momento, con o sin previo aviso. No seremos responsables ante usted ni ante terceros por cualquier modificación, suspensión o discontinuación.</p>
-      <p>Usted puede cancelar su cuenta en cualquier momento a través de la sección de Configuración. Al cancelar, todos sus datos permanecerán en su infraestructura de Firebase; nosotros no retenemos copias.</p>
+      <h2><span class="num">8</span> Privacidad de Menores</h2>
+      <p>FinTech OS no está dirigida a personas menores de 18 años. No recopilamos intencionalmente información de menores de edad. Si descubrimos que un menor ha proporcionado información personal, tomaremos medidas para eliminar dicha información y cerrar la cuenta correspondiente.</p>
     </div>
 
     <div class="card">
-      <h2><span class="num">8</span> Ley Aplicable y Jurisdicción</h2>
-      <p>Estos Términos se regirán e interpretarán de acuerdo con las leyes del país donde FinTech OS tenga su sede principal, sin dar efecto a ningún principio de conflictos de leyes.</p>
-      <p>Cualquier disputa derivada de estos Términos será resuelta exclusivamente por los tribunales competentes de dicha jurisdicción. Antes de iniciar cualquier procedimiento legal, ambas partes se comprometen a intentar resolver la disputa de buena fe mediante mediación.</p>
+      <h2><span class="num">9</span> Cambios a esta Política</h2>
+      <p>Podemos actualizar esta Política de Privacidad periódicamente. Los cambios significativos serán notificados mediante un aviso prominente en la Plataforma o por correo electrónico. La fecha de la última actualización se indica al inicio de este documento.</p>
+      <p>Le recomendamos revisar esta política regularmente para mantenerse informado sobre cómo protegemos su información.</p>
     </div>
 
     <div class="card">
-      <h2><span class="num">9</span> Contacto</h2>
-      <p>Para cualquier consulta, reclamación o notificación relacionada con estos Términos de Servicio, puede contactarnos a través de:</p>
+      <h2><span class="num">10</span> Contacto de Privacidad</h2>
+      <p>Si tiene preguntas, inquietudes o solicitudes relacionadas con esta Política de Privacidad o el manejo de sus datos, contacte a nuestro Delegado de Protección de Datos:</p>
       <ul>
-        <li>📧 Email legal: <strong>legal@fintech-os.com</strong></li>
-        <li>🌐 Sitio web: <strong>www.fintech-os.com</strong></li>
-        <li>📮 Dirección postal: Disponible bajo solicitud formal.</li>
+        <li>📧 Email: <strong>kyleronhard001@gmail.com</strong></li>
+        <li>🌐 Web: kyleronhardbenter.github.io</li>
+        <li>📮 Dirección postal: Bajo solicitud formal para asuntos legales.</li>
       </ul>
     </div>
 
