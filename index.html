@@ -889,7 +889,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
     import { getDatabase, ref, push, onValue, remove, update, set, get } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile, updatePassword, reauthenticateWithCredential, EmailAuthProvider, deleteUser, sendEmailVerification, reload } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDmOVgHXXhLAp59JFI0UolZTW9pWyYZuoA",
@@ -1249,6 +1249,12 @@
         showToast('⚠️ Completa todos los campos', 'error');
         return;
       }
+      // Validación de formato de email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        showToast('⚠️ El formato del email no es válido', 'error');
+        return;
+      }
       if (password.length < 6) {
         showToast('⚠️ La contraseña debe tener al menos 6 caracteres', 'error');
         return;
@@ -1261,8 +1267,19 @@
       try {
         const cred = await createUserWithEmailAndPassword(auth, email, password);
         await updateProfile(cred.user, { displayName: name });
-        await set(ref(db, `users/${cred.user.uid}/profile`), { name, email, currency: 'USD', createdAt: Date.now() });
-        showToast('✅ Cuenta creada exitosamente', 'success');
+
+        // Enviar email de verificación
+        await sendEmailVerification(cred.user, {
+          url: 'https://kyleronhardbenter.github.io/',
+          handleCodeInApp: false
+        });
+
+        await set(ref(db, `users/${cred.user.uid}/profile`), { name, email, currency: 'USD', createdAt: Date.now(), emailVerified: false });
+
+        showToast('✅ Cuenta creada. Revisa tu email para verificar tu cuenta.', 'success');
+
+        // Mostrar modal de verificación
+        showVerifyModal(email);
       } catch (e) {
         showToast('❌ ' + e.message, 'error');
       }
@@ -1276,7 +1293,14 @@
       if (!termsAccepted) { showToast('⚠️ Debes aceptar los Términos de Servicio y la Política de Privacidad', 'error'); return; }
       showLoading('Iniciando sesion');
       try {
-        await signInWithEmailAndPassword(auth, email, password);
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        await reload(cred.user);
+        if (!cred.user.emailVerified) {
+          hideLoading();
+          showVerifyModal(email, true);
+          await signOut(auth);
+          return;
+        }
         await delay(1200); hideLoading();
         showToast('✅ Bienvenido de vuelta', 'success');
       } catch (e) { hideLoading(); showToast('❌ ' + e.message, 'error'); }
@@ -1288,6 +1312,60 @@
       window.transactions = []; window.programmables = []; window.savingsGoals = []; window.userCurrency = 'USD';
       hideLoading(); showToast('👋 Sesion cerrada', 'success');
     };
+    // ===== EMAIL VERIFICATION =====
+    window.showVerifyModal = (email, isLogin = false) => {
+      const modal = document.createElement('div');
+      modal.id = 'verify-modal';
+      modal.innerHTML = `
+        <div class="modal-overlay" style="display:flex;z-index:500;" onclick="if(event.target===this)closeVerifyModal()">
+          <div class="modal" style="max-width:420px;text-align:center;" onclick="event.stopPropagation()">
+            <div style="font-size:48px;margin-bottom:16px;">✉️</div>
+            <h3 class="modal-title" style="text-align:center;">Verifica tu Email</h3>
+            <p style="color:var(--text-secondary);font-size:14px;line-height:1.6;margin-bottom:20px;">
+              ${isLogin 
+                ? 'Tu cuenta no ha sido verificada. Debes verificar tu email antes de iniciar sesión.' 
+                : 'Te hemos enviado un enlace de verificación a:'}<br><br>
+              <strong style="color:var(--accent);font-size:16px;">${email}</strong>
+            </p>
+            <p style="color:var(--text-muted);font-size:12px;margin-bottom:24px;">
+              Revisa tu bandeja de entrada (y spam) y haz clic en el enlace para activar tu cuenta.
+            </p>
+            <div style="display:flex;gap:12px;flex-direction:column;">
+              <button class="btn btn-primary" onclick="resendVerification('${email}')" style="width:100%;">
+                🔄 Reenviar Email de Verificación
+              </button>
+              <button class="btn" style="background:var(--bg-tertiary);color:var(--text-secondary);width:100%;" onclick="closeVerifyModal()">
+                ❌ Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    };
+
+    window.closeVerifyModal = () => {
+      const modal = document.getElementById('verify-modal');
+      if (modal) modal.remove();
+    };
+
+    window.resendVerification = async (email) => {
+      try {
+        const user = auth.currentUser;
+        if (user && !user.emailVerified) {
+          await sendEmailVerification(user, {
+            url: 'https://kyleronhardbenter.github.io/',
+            handleCodeInApp: false
+          });
+          showToast('✅ Email de verificación reenviado. Revisa tu bandeja de entrada.', 'success');
+        } else {
+          showToast('⚠️ Inicia sesión primero para reenviar la verificación', 'error');
+        }
+      } catch (e) {
+        showToast('❌ ' + e.message, 'error');
+      }
+    };
+
 
     // Page navigation
     window.showPage = (pageId) => {
