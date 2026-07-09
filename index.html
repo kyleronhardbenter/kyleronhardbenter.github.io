@@ -1276,7 +1276,17 @@
 
         await set(ref(db, `users/${cred.user.uid}/profile`), { name, email, currency: 'USD', createdAt: Date.now(), emailVerified: false });
 
-        showToast('✅ Cuenta creada. Revisa tu email para verificar tu cuenta.', 'success');
+        // CERRAR SESIÓN para que no entre automáticamente
+        await signOut(auth);
+
+        // Limpiar formulario
+        document.getElementById('reg-name').value = '';
+        document.getElementById('reg-email').value = '';
+        document.getElementById('reg-password').value = '';
+        document.getElementById('reg-terms').checked = false;
+
+        // Cambiar a pestaña de login
+        showAuthTab('login');
 
         // Mostrar modal de verificación
         showVerifyModal(email);
