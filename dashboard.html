@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chalito Collblanc - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--primary:#FF6B00;--primary-light:#FFF0E0;--secondary:#1a1a2e;--accent:#00C853;--danger:#FF1744;--warning:#FFB300;--info:#2196F3;--bg:#f8f9fa;--card:#ffffff;--text:#2d3436;--text-light:#636e72;--border:#e9ecef;--shadow:0 4px 20px rgba(0,0,0,0.08);--shadow-lg:0 10px 40px rgba(0,0,0,0.12);--radius:16px;--radius-sm:10px}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .app-container{max-width:1200px;margin:0 auto;padding:20px}
+    .header{background:var(--card);border-radius:var(--radius);padding:24px 32px;margin-bottom:24px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;position:relative;overflow:hidden}
+    .header::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--primary);border-radius:var(--radius) 0 0 var(--radius)}
+    .header-brand{display:flex;align-items:center;gap:16px}
+    .header-icon{width:56px;height:56px;background:var(--primary-light);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px}
+    .header-title{font-size:24px;font-weight:700;color:var(--secondary)}
+    .header-subtitle{font-size:13px;color:var(--text-light);margin-top:2px}
+    .header-user{display:flex;align-items:center;gap:12px;background:var(--bg);padding:8px 16px;border-radius:50px;cursor:pointer;transition:all .2s}
+    .header-user:hover{background:var(--border)}
+    .user-avatar{width:36px;height:36px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px}
+    .role-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase}
+    .role-user{background:#E8F5E9;color:#2E7D32}
+    .conn-status{display:flex;align-items:center;gap:6px;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:500}
+    .conn-online{background:#E8F5E9;color:#2E7D32}
+    .conn-offline{background:#FFEBEE;color:#C62828}
+    .notif-bell{position:relative;cursor:pointer;padding:8px;border-radius:10px;transition:all .2s;font-size:20px}
+    .notif-bell:hover{background:var(--bg)}
+    .notif-count{position:absolute;top:0;right:0;background:var(--danger);color:white;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+    .stat-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);text-align:center;transition:all .3s}
+    .stat-card:hover{transform:translateY(-2px)}
+    .stat-value{font-size:32px;font-weight:700;color:var(--primary);line-height:1}
+    .stat-label{font-size:12px;color:var(--text-light);margin-top:8px;text-transform:uppercase;letter-spacing:.5px}
+    .nav-tabs{display:flex;gap:8px;margin-bottom:24px;background:var(--card);padding:8px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .nav-tab{flex:1;padding:14px 20px;border:none;background:transparent;border-radius:var(--radius-sm);cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;color:var(--text-light);transition:all .3s ease;display:flex;align-items:center;justify-content:center;gap:8px}
+    .nav-tab:hover{background:var(--bg);color:var(--text)}
+    .nav-tab.active{background:var(--primary);color:white;box-shadow:0 4px 12px rgba(255,107,0,0.3)}
+    .nav-tab .badge{background:rgba(255,255,255,0.25);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+    .content-area{display:none;animation:fadeIn .4s ease}
+    .content-area.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px}
+    .card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:all .3s ease;position:relative;overflow:hidden}
+    .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+    .card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+    .card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+    .card-status{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+    .status-pendiente{background:#FFF3E0;color:#E65100}
+    .status-aprobado{background:#E8F5E9;color:#2E7D32}
+    .status-rechazado{background:#FFEBEE;color:#C62828}
+    .status-enviado{background:#E3F2FD;color:#1565C0}
+    .status-entregado{background:#F3E5F5;color:#6A1B9A}
+    .status-revisado{background:#E0F7FA;color:#00838F}
+    .card-title{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--secondary)}
+    .card-desc{font-size:13px;color:var(--text-light);line-height:1.5;margin-bottom:16px}
+    .card-meta{display:flex;gap:16px;font-size:12px;color:var(--text-light);flex-wrap:wrap}
+    .card-meta span{display:flex;align-items:center;gap:4px}
+    .card-actions{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap}
+    .btn{padding:8px 16px;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s ease;display:inline-flex;align-items:center;gap:6px}
+    .btn-primary{background:var(--primary);color:white}
+    .btn-primary:hover{background:#E65C00;transform:scale(1.02)}
+    .btn-secondary{background:var(--bg);color:var(--text)}
+    .btn-secondary:hover{background:var(--border)}
+    .btn-danger{background:#FFEBEE;color:var(--danger)}
+    .btn-danger:hover{background:#FFCDD2}
+    .download-btn{background:linear-gradient(135deg,var(--accent),#00B248);color:white;border:none;text-decoration:none}
+    .download-btn:hover{background:linear-gradient(135deg,#00B248,var(--accent));transform:scale(1.05)}
+    .fab{position:fixed;bottom:32px;right:32px;width:60px;height:60px;background:var(--primary);color:white;border:none;border-radius:50%;font-size:28px;cursor:pointer;box-shadow:0 6px 20px rgba(255,107,0,0.4);transition:all .3s ease;display:flex;align-items:center;justify-content:center;z-index:100}
+    .fab:hover{transform:scale(1.1) rotate(90deg)}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
+    .modal-overlay.active{display:flex;animation:fadeIn .2s ease}
+    .modal{background:var(--card);border-radius:var(--radius);width:100%;max-width:1000px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp .3s ease}
+    @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    .modal-header{padding:24px 28px 0;display:flex;justify-content:space-between;align-items:center}
+    .modal-title{font-size:20px;font-weight:700;color:var(--secondary)}
+    .modal-close{width:36px;height:36px;border:none;background:var(--bg);border-radius:10px;cursor:pointer;font-size:18px;color:var(--text-light);transition:all .2s}
+    .modal-close:hover{background:var(--border);color:var(--text)}
+    .modal-body{padding:20px 28px 28px}
+    .form-group{margin-bottom:18px}
+    .form-label{display:block;font-size:13px;font-weight:600;color:var(--secondary);margin-bottom:6px}
+    .form-input,.form-select,.form-textarea{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:14px;color:var(--text);transition:all .2s;background:var(--bg)}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--primary);background:var(--card)}
+    .form-textarea{min-height:100px;resize:vertical}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .file-upload{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
+    .file-upload:hover{border-color:var(--primary);background:var(--primary-light)}
+    .file-upload-icon{font-size:36px;margin-bottom:8px}
+    .file-upload-text{font-size:13px;color:var(--text-light)}
+    .empty-state{text-align:center;padding:60px 20px;color:var(--text-light);grid-column:1/-1}
+    .empty-state-icon{font-size:64px;margin-bottom:16px;opacity:.5}
+    .empty-state-title{font-size:18px;font-weight:600;color:var(--secondary);margin-bottom:8px}
+    .empty-state-desc{font-size:14px}
+    .toast-container{position:fixed;top:24px;right:24px;z-index:300;display:flex;flex-direction:column;gap:10px}
+    .toast{background:var(--secondary);color:white;padding:14px 20px;border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;font-size:14px;animation:slideInRight .3s ease;max-width:360px}
+    .toast.success{background:var(--accent)}
+    .toast.error{background:var(--danger)}
+    .toast.info{background:var(--info)}
+    @keyframes slideInRight{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}}
+    .loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.9);display:none;align-items:center;justify-content:center;z-index:400;flex-direction:column;gap:16px}
+    .loading-overlay.active{display:flex}
+    .spinner{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .video-preview{width:100%;border-radius:var(--radius-sm);margin-top:12px;max-height:220px}
+    .evidence-shared{border-left:4px solid var(--info)}
+    .evidence-shared .card-icon{background:#E3F2FD!important}
+    /* CALENDAR STYLES */
+    .calendar-container{background:var(--bg);border-radius:var(--radius);padding:20px;margin-bottom:20px}
+    .calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .calendar-year{font-size:20px;font-weight:700;color:var(--secondary)}
+    .calendar-nav-btn{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);padding:8px 16px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;transition:all .2s}
+    .calendar-nav-btn:hover{border-color:var(--primary);color:var(--primary)}
+    .months-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+    .month-card{background:var(--card);border-radius:var(--radius-sm);padding:16px;box-shadow:var(--shadow)}
+    .month-name{font-size:14px;font-weight:700;color:var(--secondary);text-align:center;margin-bottom:12px;text-transform:capitalize}
+    .weeks-grid{display:grid;gap:6px}
+    .week-row{display:grid;grid-template-columns:30px 1fr 1fr 1fr 1fr 1fr 1fr 1fr;gap:4px;align-items:center;font-size:12px}
+    .week-row.header{font-weight:600;color:var(--text-light);font-size:11px;text-align:center;margin-bottom:4px}
+    .week-row.header span:first-child{text-align:left}
+    .week-num{font-weight:600;color:var(--text-light);font-size:11px}
+    .week-day{text-align:center;padding:6px 2px;border-radius:6px;font-size:11px;cursor:default;transition:all .2s;min-height:28px;display:flex;align-items:center;justify-content:center;position:relative}
+    .week-day.available{background:#E8F5E9;color:#2E7D32;cursor:pointer}
+    .week-day.available:hover{background:var(--primary);color:white;transform:scale(1.05)}
+    .week-day.selected{background:var(--primary);color:white;font-weight:600;box-shadow:0 2px 8px rgba(255,107,0,0.3)}
+    .week-day.blocked{background:#FFEBEE;color:#C62828;cursor:not-allowed;position:relative}
+    .week-day.blocked::after{content:'✕';font-size:10px}
+    .week-day.own-week{background:#E3F2FD;color:#1565C0;font-weight:600}
+    .week-day.taken-other{background:#FFF3E0;color:#E65100;font-weight:600}
+    .week-day.past{background:#f0f0f0;color:#bbb;cursor:not-allowed}
+    .week-info{background:var(--primary-light);border-radius:var(--radius-sm);padding:16px;margin-bottom:20px;font-size:13px;color:var(--secondary)}
+    .week-info strong{color:var(--primary)}
+    .week-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:12px}
+    .week-legend-item{display:flex;align-items:center;gap:6px}
+    .legend-dot{width:14px;height:14px;border-radius:4px}
+    .legend-available{background:#E8F5E9;border:1px solid #C8E6C9}
+    .legend-selected{background:var(--primary)}
+    .legend-blocked{background:#FFEBEE;border:1px solid #FFCDD2}
+    .legend-own{background:#E3F2FD;border:1px solid #BBDEFB}
+    .legend-taken-other{background:#FFF3E0;border:1px solid #FFE0B2}
+    .legend-past{background:#f0f0f0;border:1px solid #ddd}
+    .vacation-summary{background:var(--card);border-radius:var(--radius-sm);padding:16px;margin-top:16px;border:2px solid var(--primary)}
+    .vacation-summary-title{font-size:14px;font-weight:700;color:var(--secondary);margin-bottom:8px}
+    .vacation-summary-text{font-size:13px;color:var(--text-light);line-height:1.6}
+    .week-owner-label{position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);font-size:7px;font-weight:700;white-space:nowrap;background:rgba(0,0,0,0.15);color:white;padding:0 3px;border-radius:2px;pointer-events:none}
+    .vacation-section-title{font-size:18px;font-weight:700;color:var(--secondary);margin:24px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--primary-light)}
+    .vacation-mine{background:linear-gradient(135deg,#E3F2FD,#BBDEFB)!important;border-left:4px solid var(--info)!important}
+    .vacation-other{background:var(--card);border-left:4px solid var(--warning)!important}
+    .vacation-other .card-icon{background:#FFF3E0!important}
+    .employee-name-badge{display:inline-block;background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;margin-left:8px}
+
+    @media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr)}.cards-grid{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.header{flex-direction:column;gap:16px;text-align:center}.nav-tab{font-size:12px;padding:10px}.nav-tab span:not(.badge){display:none}.months-grid{grid-template-columns:1fr}.modal{max-width:100%}}
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="header">
+      <div class="header-brand">
+        <div class="header-icon">🏪</div>
+        <div>
+          <div class="header-title">Chalito Collblanc</div>
+          <div class="header-subtitle">Panel de Gestion del Empleado</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="conn-status conn-offline" id="connStatus"><span id="connDot">🔴</span> <span id="connText">Offline</span></div>
+        <div class="notif-bell" id="notifBell" onclick="showNotifications()">🔔<span class="notif-count" id="notifCount" style="display:none;">0</span></div>
+        <div class="header-user" onclick="logout()">
+          <div class="user-avatar" id="userAvatar">E</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--secondary);" id="userName">Empleado</div>
+            <div style="font-size:11px;color:var(--text-light);"><span class="role-badge role-user" id="userRole">Empleado</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-value" id="statVacaciones">0</div><div class="stat-label">Mis Vacaciones</div></div>
+      <div class="stat-card"><div class="stat-value" id="statEvidencias">0</div><div class="stat-label">Mis Evidencias</div></div>
+      <div class="stat-card"><div class="stat-value" id="statMateriales">0</div><div class="stat-label">Materiales</div></div>
+      <div class="stat-card"><div class="stat-value" id="statPendientes">0</div><div class="stat-label">Pendientes</div></div>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-tab="vacaciones" onclick="switchTab('vacaciones')">🏖️ <span>Vacaciones</span> <span class="badge" id="badgeVacaciones">0</span></button>
+      <button class="nav-tab" data-tab="evidencias" onclick="switchTab('evidencias')">📸 <span>Evidencias Glovo</span> <span class="badge" id="badgeEvidencias">0</span></button>
+      <button class="nav-tab" data-tab="materiales" onclick="switchTab('materiales')">📦 <span>Materiales</span> <span class="badge" id="badgeMateriales">0</span></button>
+    </div>
+
+    <div class="content-area active" id="tab-vacaciones">
+      <div id="vacacionesInfo" style="background:var(--primary-light);padding:16px 20px;border-radius:var(--radius-sm);margin-bottom:20px;font-size:13px;color:var(--secondary);">
+        📅 <strong>Calendario compartido:</strong> Todos los empleados ven las semanas reservadas. Las semanas en naranja son de otros companeros. Las azules son las tuyas. Las rojas estan bloqueadas (semana siguiente a una reserva).
+      </div>
+      <div class="cards-grid" id="gridVacaciones"></div>
+    </div>
+
+    <div class="content-area" id="tab-evidencias">
+      <div id="evidenciasInfo" style="background:var(--primary-light);padding:16px 20px;border-radius:var(--radius-sm);margin-bottom:20px;font-size:13px;color:var(--secondary);">📢 <strong>Historial compartido:</strong> Todas las evidencias son visibles para todos los empleados. Cuando el administrador suba un video de respuesta, podras descargarlo.</div>
+      <div class="cards-grid" id="gridEvidencias"></div>
+    </div>
+
+    <div class="content-area" id="tab-materiales"><div class="cards-grid" id="gridMateriales"></div></div>
+
+    <button class="fab" onclick="openModal()">+</button>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header"><div class="modal-title" id="modalTitle">Nueva Solicitud</div><button class="modal-close" onclick="closeModal()">×</button></div>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
+
+  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div style="color:var(--text-light);font-size:14px;">Sincronizando...</div></div>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, query, where, orderBy, onSnapshot, serverTimestamp, Timestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
+
+    const firebaseConfig = { apiKey:"AIzaSyAapba1gadT0M7ZjnEOIcg4Gj2SPE0HoJU", authDomain:"chalito-collblanc.firebaseapp.com", projectId:"chalito-collblanc", storageBucket:"chalito-collblanc.firebasestorage.app", messagingSenderId:"654415271839", appId:"1:654415271839:web:3bbabebca91415e8d00faa" };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    const messaging = getMessaging(app);
+
+    let currentUser = null, userProfile = null, currentTab = 'vacaciones', editingId = null, editingType = null, uploadedFiles = [], unsubscribers = [], fcmToken = null;
+    let calendarYear = 2026;
+    let selectedWeekStart = null;
+    let selectedWeekEnd = null;
+    let allVacations = [];
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = 'index.html'; return; }
+      currentUser = user;
+      const userRef = doc(db, 'usuarios', user.uid);
+      const userSnap = await getDoc(userRef);
+      if (userSnap.exists()) {
+        userProfile = userSnap.data();
+        if (userProfile.rol === 'admin') { window.location.href = 'admin.html'; return; }
+      } else { userProfile = { nombre: user.email.split('@')[0], rol: 'empleado' }; }
+      document.getElementById('userName').textContent = userProfile.nombre || user.email.split('@')[0];
+      document.getElementById('userAvatar').textContent = (userProfile.nombre || user.email)[0].toUpperCase();
+      updateConnectionStatus(true);
+      setupRealtimeListeners();
+      setupPushNotifications();
+      updateNotifCount();
+    });
+
+    async function setupPushNotifications() {
+      if (!('Notification' in window) || !currentUser) return;
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') return;
+        const vapidKey = 'BKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+        const token = await getToken(messaging, { vapidKey });
+        if (token) { fcmToken = token; await updateDoc(doc(db, 'usuarios', currentUser.uid), { fcmToken: token }); }
+        onMessage(messaging, (payload) => { showToast(payload.notification?.body || 'Nueva notificacion', 'info'); updateNotifCount(); });
+      } catch (err) { console.log('Push no disponible:', err); }
+    }
+
+    async function updateNotifCount() {
+      if (!currentUser) return;
+      const q = query(collection(db, 'notificaciones'), where('userId', '==', currentUser.uid), where('leida', '==', false));
+      const snap = await getDocs(q);
+      const count = snap.size;
+      const badge = document.getElementById('notifCount');
+      if (count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
+      else { badge.style.display = 'none'; }
+    }
+
+    window.showNotifications = async function() {
+      const q = query(collection(db, 'notificaciones'), where('userId', '==', currentUser.uid), orderBy('creado', 'desc'));
+      const snap = await getDocs(q);
+      const notifs = []; snap.forEach(d => notifs.push({ id: d.id, ...d.data() }));
+      const unread = notifs.filter(n => !n.leida);
+      for (const n of unread) { await updateDoc(doc(db, 'notificaciones', n.id), { leida: true }); }
+      updateNotifCount();
+      document.getElementById('modalTitle').textContent = '🔔 Notificaciones';
+      document.getElementById('modalBody').innerHTML = notifs.length === 0 ? '<div style="text-align:center;padding:40px;color:var(--text-light);">Sin notificaciones</div>' : notifs.map(n => `<div style="padding:16px;border-bottom:1px solid var(--border);${n.leida ? '' : 'background:#E3F2FD;'}"><div style="font-weight:600;font-size:14px;">${n.title}</div><div style="font-size:13px;color:var(--text-light);margin-top:4px;">${n.body}</div><div style="font-size:11px;color:#999;margin-top:8px;">${formatFirestoreDate(n.creado)}</div></div>`).join('');
+      document.getElementById('modalOverlay').classList.add('active');
+    };
+
+    window.logout = async function() {
+      unsubscribers.forEach(unsub => unsub());
+      unsubscribers = [];
+      await signOut(auth);
+      window.location.href = 'index.html';
+    };
+
+    function setupRealtimeListeners() {
+      if (!currentUser) return;
+      unsubscribers.forEach(unsub => unsub());
+      unsubscribers = [];
+      const uid = currentUser.uid;
+      const vacQuery = query(collection(db, 'vacaciones'), orderBy('creado', 'desc'));
+      unsubscribers.push(onSnapshot(vacQuery, (snapshot) => { 
+        const items = []; snapshot.forEach(d => items.push({ id: d.id, ...d.data() })); 
+        window._vacaciones = items; 
+        allVacations = items;
+        if (currentTab === 'vacaciones') renderVacaciones(); 
+        updateStats(); 
+      }, () => updateConnectionStatus(false)));
+      const matQuery = query(collection(db, 'materiales'), where('uid', '==', uid), orderBy('creado', 'desc'));
+      unsubscribers.push(onSnapshot(matQuery, (snapshot) => { const items = []; snapshot.forEach(d => items.push({ id: d.id, ...d.data() })); window._materiales = items; if (currentTab === 'materiales') renderMateriales(); updateStats(); }, () => updateConnectionStatus(false)));
+      const evQuery = query(collection(db, 'evidencias'), orderBy('creado', 'desc'));
+      unsubscribers.push(onSnapshot(evQuery, (snapshot) => { const items = []; snapshot.forEach(d => items.push({ id: d.id, ...d.data() })); window._evidencias = items; if (currentTab === 'evidencias') renderEvidencias(); updateStats(); }, () => updateConnectionStatus(false)));
+    }
+
+    function updateConnectionStatus(online) {
+      const status = document.getElementById('connStatus');
+      const dot = document.getElementById('connDot');
+      const text = document.getElementById('connText');
+      if (online) { status.className = 'conn-status conn-online'; dot.textContent = '🟢'; text.textContent = 'Online'; }
+      else { status.className = 'conn-status conn-offline'; dot.textContent = '🔴'; text.textContent = 'Offline'; }
+    }
+
+    function updateStats() {
+      const vac = window._vacaciones || [];
+      const ev = window._evidencias || [];
+      const mat = window._materiales || [];
+      document.getElementById('statVacaciones').textContent = vac.filter(v => v.uid === currentUser?.uid).length;
+      document.getElementById('statEvidencias').textContent = ev.filter(e => e.uid === currentUser?.uid).length;
+      document.getElementById('statMateriales').textContent = mat.length;
+      const pendientes = vac.filter(v => v.uid === currentUser?.uid && v.estado === 'pendiente').length + ev.filter(e => e.uid === currentUser?.uid && e.estado === 'pendiente').length + mat.filter(m => m.estado === 'pendiente').length;
+      document.getElementById('statPendientes').textContent = pendientes;
+      document.getElementById('badgeVacaciones').textContent = vac.filter(v => v.uid === currentUser?.uid && v.estado === 'pendiente').length;
+      document.getElementById('badgeEvidencias').textContent = ev.filter(e => e.uid === currentUser?.uid && e.estado === 'pendiente').length;
+      document.getElementById('badgeMateriales').textContent = mat.filter(m => m.estado === 'pendiente').length;
+    }
+
+    window.switchTab = function(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.content-area').forEach(c => c.classList.remove('active'));
+      document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      renderCurrentTab();
+    };
+
+    function renderCurrentTab() {
+      if (currentTab === 'vacaciones') renderVacaciones();
+      else if (currentTab === 'evidencias') renderEvidencias();
+      else if (currentTab === 'materiales') renderMateriales();
+    }
+
+    function getStatusClass(estado) {
+      const map = { pendiente: 'status-pendiente', aprobado: 'status-aprobado', rechazado: 'status-rechazado', enviado: 'status-enviado', entregado: 'status-entregado', revisado: 'status-revisado' };
+      return map[estado] || 'status-pendiente';
+    }
+
+    function formatDate(dateVal) {
+      if (!dateVal) return '-';
+      let date;
+      if (dateVal instanceof Timestamp) date = dateVal.toDate();
+      else if (typeof dateVal === 'string') date = new Date(dateVal + 'T00:00:00');
+      else date = new Date(dateVal);
+      return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+
+    function formatFirestoreDate(dateVal) {
+      if (!dateVal) return '-';
+      if (dateVal instanceof Timestamp) return dateVal.toDate().toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+      return '-';
+    }
+    // ==================== CALENDAR HELPERS ====================
+    function getWeeksOfMonth(year, month) {
+      const weeks = [];
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      let current = new Date(firstDay);
+      while (current.getDay() !== 1) {
+        current.setDate(current.getDate() - 1);
+      }
+      let weekNum = 1;
+      while (current <= lastDay || current.getMonth() === month) {
+        const weekStart = new Date(current);
+        const weekEnd = new Date(current);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        if (weekStart.getMonth() === month || weekEnd.getMonth() === month || (weekStart < firstDay && weekEnd >= firstDay)) {
+          weeks.push({ num: weekNum, start: new Date(weekStart), end: new Date(weekEnd), days: [] });
+          weekNum++;
+        }
+        current.setDate(current.getDate() + 7);
+      }
+      weeks.forEach(w => {
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(w.start);
+          d.setDate(d.getDate() + i);
+          w.days.push({ date: d, dayNum: d.getDate(), inMonth: d.getMonth() === month, isToday: isSameDay(d, new Date()) });
+        }
+      });
+      return weeks;
+    }
+
+    function isSameDay(d1, d2) {
+      return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+    }
+
+    function getBlockedWeeks() {
+      const blocked = [];
+      const vacs = allVacations || [];
+      vacs.forEach(v => {
+        if (v.estado === 'rechazado') return;
+        if (v.semanaBloqueadaInicio && v.semanaBloqueadaFin) {
+          blocked.push({ start: v.semanaBloqueadaInicio, end: v.semanaBloqueadaFin, ownerId: v.uid, ownerName: v.userName || 'Otro empleado' });
+        }
+      });
+      return blocked;
+    }
+
+    function getTakenWeeks() {
+      const taken = [];
+      const vacs = allVacations || [];
+      vacs.forEach(v => {
+        if (v.estado === 'rechazado') return;
+        if (v.inicio && v.fin) {
+          taken.push({ start: v.inicio, end: v.fin, ownerId: v.uid, ownerName: v.userName || 'Otro empleado' });
+        }
+      });
+      return taken;
+    }
+
+    function isWeekBlocked(weekStart, weekEnd) {
+      const blocked = getBlockedWeeks();
+      for (const b of blocked) {
+        const ws = new Date(weekStart); ws.setHours(0,0,0,0);
+        const we = new Date(weekEnd); we.setHours(23,59,59,999);
+        const bs = new Date(b.start); bs.setHours(0,0,0,0);
+        const be = new Date(b.end); be.setHours(23,59,59,999);
+        if (ws <= be && we >= bs) return b;
+      }
+      return null;
+    }
+
+    function isWeekTaken(weekStart, weekEnd) {
+      const taken = getTakenWeeks();
+      for (const t of taken) {
+        const ws = new Date(weekStart); ws.setHours(0,0,0,0);
+        const we = new Date(weekEnd); we.setHours(23,59,59,999);
+        const ts = new Date(t.start); ts.setHours(0,0,0,0);
+        const te = new Date(t.end); te.setHours(23,59,59,999);
+        if (ws <= te && we >= ts) return t;
+      }
+      return null;
+    }
+
+    function isWeekPast(weekStart) {
+      const today = new Date(); today.setHours(0,0,0,0);
+      const ws = new Date(weekStart); ws.setHours(0,0,0,0);
+      return ws < today;
+    }
+
+    function formatShortDate(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      return d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+    }
+
+    function getNextWeek(startDate) {
+      const nextMonday = new Date(startDate);
+      nextMonday.setDate(nextMonday.getDate() + 7);
+      const nextSunday = new Date(nextMonday);
+      nextSunday.setDate(nextSunday.getDate() + 6);
+      return { start: nextMonday.toISOString().split('T')[0], end: nextSunday.toISOString().split('T')[0] };
+    }
+
+    // ==================== RENDER FUNCTIONS ====================
+    function renderVacaciones() {
+      const grid = document.getElementById('gridVacaciones');
+      const allItems = window._vacaciones || [];
+      const myItems = allItems.filter(v => v.uid === currentUser?.uid);
+      const otherItems = allItems.filter(v => v.uid !== currentUser?.uid && v.estado !== 'rechazado');
+      let html = '';
+      if (myItems.length > 0) {
+        html += `<div class="vacation-section-title">🏖️ Mis Solicitudes (${myItems.length})</div>`;
+        html += myItems.map(v => {
+          const bloqueoText = v.semanaBloqueadaInicio ? `<br><span style="color:#C62828;font-size:11px;">🚫 Bloquea: ${formatShortDate(v.semanaBloqueadaInicio)} - ${formatShortDate(v.semanaBloqueadaFin)}</span>` : '';
+          return `<div class="card vacation-mine"><div class="card-header"><div class="card-icon" style="background:#E3F2FD;">🏖️</div><span class="card-status ${getStatusClass(v.estado)}">${v.estado}</span></div><div class="card-title">${v.tipo}</div><div class="card-desc">${v.notas || 'Sin notas adicionales'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>📆 7 dias (1 semana)</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(v.creado)}${bloqueoText}</span></div><div class="card-actions"><button class="btn btn-secondary" onclick="editItem('vacaciones','${v.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="deleteItem('vacaciones','${v.id}')">🗑️ Eliminar</button></div></div>`;
+        }).join('');
+      }
+      if (otherItems.length > 0) {
+        html += `<div class="vacation-section-title">👥 Vacaciones de Companeros (${otherItems.length})</div>`;
+        html += otherItems.map(v => {
+          const bloqueoText = v.semanaBloqueadaInicio ? `<br><span style="color:#C62828;font-size:11px;">🚫 Bloquea: ${formatShortDate(v.semanaBloqueadaInicio)} - ${formatShortDate(v.semanaBloqueadaFin)}</span>` : '';
+          return `<div class="card vacation-other"><div class="card-header"><div class="card-icon" style="background:#FFF3E0;">👤</div><span class="card-status ${getStatusClass(v.estado)}">${v.estado}</span></div><div class="card-title">${v.tipo}<span class="employee-name-badge">${v.userName || 'Empleado'}</span></div><div class="card-desc">${v.notas || 'Sin notas adicionales'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>📆 7 dias</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(v.creado)}${bloqueoText}</span></div></div>`;
+        }).join('');
+      }
+      if (myItems.length === 0 && otherItems.length === 0) {
+        html = emptyState('🏖️', 'Sin solicitudes de vacaciones', 'Crea tu primera solicitud de vacaciones seleccionando una semana en el calendario');
+      }
+      grid.innerHTML = html;
+    }
+
+    function renderEvidencias() {
+      const grid = document.getElementById('gridEvidencias');
+      const items = window._evidencias || [];
+      if (items.length === 0) { grid.innerHTML = emptyState('📸', 'Sin evidencias registradas', 'Se el primero en subir una evidencia de incidencia Glovo'); return; }
+      grid.innerHTML = items.map(e => {
+        const isOwner = e.uid === currentUser?.uid;
+        const hasVideo = !!e.videoUrl;
+        return `<div class="card ${!isOwner ? 'evidence-shared' : ''}"><div class="card-header"><div class="card-icon" style="background:${isOwner ? '#FFF3E0' : '#E3F2FD'};">📸</div><span class="card-status ${getStatusClass(e.estado)}">${e.estado}</span></div><div class="card-title">${e.tipo}</div><div class="card-desc">${e.descripcion}</div><div class="card-meta"><span>📅 ${formatDate(e.fecha)} ${e.hora || ''}</span><span>👤 ${e.userName || 'Empleado'}</span></div>${e.imagenes && Array.isArray(e.imagenes) && e.imagenes.length > 0 ? `<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">${e.imagenes.map(img => `<img src="${img}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${img}')">`).join('')}</div>` : ''}${hasVideo ? `<div style="margin-top:16px;padding:12px;background:#E8F5E9;border-radius:var(--radius-sm);"><div style="font-size:13px;font-weight:600;color:#2E7D32;margin-bottom:8px;">🎥 Video de respuesta disponible</div><video class="video-preview" controls><source src="${e.videoUrl}" type="video/mp4"></video><a href="${e.videoUrl}" download class="btn download-btn" style="width:100%;margin-top:10px;justify-content:center;">⬇️ Descargar video</a></div>` : isOwner ? `<div style="margin-top:12px;padding:10px;background:#FFF3E0;border-radius:var(--radius-sm);font-size:12px;color:#E65100;">⏳ Esperando video de respuesta del administrador...</div>` : ''}<div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Enviado: ${formatFirestoreDate(e.creado)}</span></div>${isOwner ? `<div class="card-actions"><button class="btn btn-secondary" onclick="editItem('evidencias','${e.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="deleteItem('evidencias','${e.id}')">🗑️ Eliminar</button></div>` : ''}</div>`;
+      }).join('');
+    }
+
+    function renderMateriales() {
+      const grid = document.getElementById('gridMateriales');
+      const items = window._materiales || [];
+      if (items.length === 0) { grid.innerHTML = emptyState('📦', 'Sin solicitudes de materiales', 'Solicita el material que necesites para tus repartos'); return; }
+      const urgenciaEmoji = { alta: '🔴', media: '🟡', baja: '🟢' };
+      grid.innerHTML = items.map(m => `<div class="card"><div class="card-header"><div class="card-icon" style="background:#F3E5F5;">📦</div><span class="card-status ${getStatusClass(m.estado)}">${m.estado}</span></div><div class="card-title">${m.item}</div><div class="card-desc">Cantidad solicitada: <strong>${m.cantidad}</strong> unidad${m.cantidad > 1 ? 'es' : ''}</div><div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(m.creado)}</span></div><div class="card-actions"><button class="btn btn-secondary" onclick="editItem('materiales','${m.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div></div>`).join('');
+    }
+
+    function emptyState(icon, title, desc) {
+      return `<div class="empty-state"><div class="empty-state-icon">${icon}</div><div class="empty-state-title">${title}</div><div class="empty-state-desc">${desc}</div></div>`;
+    }
+    // ==================== CALENDAR RENDER ====================
+    function renderCalendar() {
+      const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+      const dayNames = ['L','M','X','J','V','S','D'];
+      let html = '';
+      html += `<div class="week-legend">
+        <div class="week-legend-item"><div class="legend-dot legend-available"></div> Disponible</div>
+        <div class="week-legend-item"><div class="legend-dot legend-selected"></div> Tu seleccion</div>
+        <div class="week-legend-item"><div class="legend-dot legend-own"></div> Tu semana reservada</div>
+        <div class="week-legend-item"><div class="legend-dot legend-taken-other"></div> Semana de companero</div>
+        <div class="week-legend-item"><div class="legend-dot legend-blocked"></div> Bloqueada (siguiente)</div>
+        <div class="week-legend-item"><div class="legend-dot legend-past"></div> Pasada</div>
+      </div>`;
+      html += `<div class="calendar-container">
+        <div class="calendar-header">
+          <button class="calendar-nav-btn" onclick="changeYear(-1)">◀ ${calendarYear - 1}</button>
+          <div class="calendar-year">📅 ${calendarYear}</div>
+          <button class="calendar-nav-btn" onclick="changeYear(1)">${calendarYear + 1} ▶</button>
+        </div>
+        <div class="months-grid">`;
+      for (let m = 0; m < 12; m++) {
+        const weeks = getWeeksOfMonth(calendarYear, m);
+        html += `<div class="month-card">
+          <div class="month-name">${months[m]}</div>
+          <div class="weeks-grid">
+            <div class="week-row header"><span></span>${dayNames.map(d => `<span>${d}</span>`).join('')}</div>`;
+        weeks.forEach(w => {
+          const weekStartStr = w.start.toISOString().split('T')[0];
+          const weekEndStr = w.end.toISOString().split('T')[0];
+          const blockedInfo = isWeekBlocked(weekStartStr, weekEndStr);
+          const takenInfo = isWeekTaken(weekStartStr, weekEndStr);
+          const isPast = isWeekPast(w.start);
+          const isSelected = selectedWeekStart && isSameDay(new Date(selectedWeekStart), w.start);
+          const isOwnWeek = takenInfo && takenInfo.ownerId === currentUser?.uid;
+          const isOtherWeek = takenInfo && takenInfo.ownerId !== currentUser?.uid;
+          let rowClass = '';
+          let clickable = false;
+          let ownerLabel = '';
+          if (isSelected) { rowClass = 'selected'; }
+          else if (isOwnWeek) { rowClass = 'own-week'; ownerLabel = '<span class="week-owner-label">YO</span>'; }
+          else if (isOtherWeek) { rowClass = 'taken-other'; const shortName = (takenInfo.ownerName || 'Otro').split(' ')[0]; ownerLabel = `<span class="week-owner-label">${shortName.substring(0,6)}</span>`; }
+          else if (blockedInfo) { rowClass = 'blocked'; const shortName = (blockedInfo.ownerName || 'Otro').split(' ')[0]; ownerLabel = `<span class="week-owner-label">${shortName.substring(0,6)}</span>`; }
+          else if (isPast) { rowClass = 'past'; }
+          else { rowClass = 'available'; clickable = true; }
+          const onclickAttr = clickable ? `onclick="selectWeek('${weekStartStr}','${weekEndStr}')"` : '';
+          const titleAttr = blockedInfo ? `title="Bloqueada por ${blockedInfo.ownerName}"` : takenInfo ? `title="Reservada por ${takenInfo.ownerName}"` : '';
+          html += `<div class="week-row" ${onclickAttr} ${titleAttr}>
+            <span class="week-num">S${w.num}</span>
+            ${w.days.map(d => {
+              let dayClass = `week-day ${rowClass}`;
+              if (!d.inMonth) dayClass += ' past';
+              const label = d.inMonth ? ownerLabel : '';
+              return `<div class="${dayClass}">${d.inMonth ? d.dayNum + label : ''}</div>`;
+            }).join('')}
+          </div>`;
+        });
+        html += `</div></div>`;
+      }
+      html += `</div></div>`;
+      if (selectedWeekStart) {
+        const nextWeek = getNextWeek(selectedWeekStart);
+        html += `<div class="vacation-summary">
+          <div class="vacation-summary-title">📋 Resumen de tu seleccion</div>
+          <div class="vacation-summary-text">
+            <strong>Semana seleccionada:</strong> ${formatShortDate(selectedWeekStart)} - ${formatShortDate(selectedWeekEnd)}<br>
+            <strong>Semana bloqueada automaticamente:</strong> ${formatShortDate(nextWeek.start)} - ${formatShortDate(nextWeek.end)}<br>
+            <span style="color:var(--danger);">⚠️ Esta semana bloqueada quedara no disponible para todos los empleados.</span>
+          </div>
+        </div>`;
+      }
+      return html;
+    }
+
+    window.changeYear = function(delta) {
+      calendarYear += delta;
+      selectedWeekStart = null;
+      selectedWeekEnd = null;
+      refreshVacationModal();
+    };
+
+    window.selectWeek = function(start, end) {
+      const blockedInfo = isWeekBlocked(start, end);
+      const takenInfo = isWeekTaken(start, end);
+      if (blockedInfo) { showToast(`Semana bloqueada por ${blockedInfo.ownerName}`, 'error'); return; }
+      if (takenInfo) { showToast(`Semana reservada por ${takenInfo.ownerName}`, 'error'); return; }
+      selectedWeekStart = start;
+      selectedWeekEnd = end;
+      refreshVacationModal();
+    };
+
+    function refreshVacationModal() {
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
+      title.textContent = editingId ? 'Editar Vacaciones' : 'Nueva Solicitud de Vacaciones';
+      let item = null;
+      if (editingId) {
+        const arr = window._vacaciones || [];
+        item = arr.find(x => x.id === editingId);
+        if (item && !selectedWeekStart) { selectedWeekStart = item.inicio; selectedWeekEnd = item.fin; }
+      }
+      body.innerHTML = `
+        <div class="form-group">
+          <label class="form-label">Tipo de ausencia</label>
+          <select class="form-select" id="vTipo">
+            <option ${item?.tipo === 'Vacaciones anuales' ? 'selected' : ''}>Vacaciones anuales</option>
+            <option ${item?.tipo === 'Dia personal' ? 'selected' : ''}>Dia personal</option>
+            <option ${item?.tipo === 'Baja medica' ? 'selected' : ''}>Baja medica</option>
+            <option ${item?.tipo === 'Permiso especial' ? 'selected' : ''}>Permiso especial</option>
+          </select>
+        </div>
+        ${renderCalendar()}
+        <div class="form-group">
+          <label class="form-label">Notas / Motivo</label>
+          <textarea class="form-textarea" id="vNotas" placeholder="Describe el motivo de tu ausencia...">${item?.notas || ''}</textarea>
+        </div>
+        <button class="btn btn-primary" style="width:100%;padding:14px;justify-content:center;" onclick="saveVacaciones()">${editingId ? '💾 Guardar cambios' : '✅ Crear solicitud'}</button>
+      `;
+    }
+
+    // ==================== MODAL ====================
+    window.openModal = function(type = currentTab, id = null) {
+      editingId = id; editingType = type; uploadedFiles = [];
+      selectedWeekStart = null; selectedWeekEnd = null;
+      const title = document.getElementById('modalTitle');
+      const body = document.getElementById('modalBody');
+      let item = null;
+      if (id) { const arr = type === 'vacaciones' ? window._vacaciones : type === 'evidencias' ? window._evidencias : window._materiales; item = arr.find(x => x.id === id); }
+      if (type === 'vacaciones') {
+        calendarYear = 2026;
+        if (item) { selectedWeekStart = item.inicio; selectedWeekEnd = item.fin; }
+        refreshVacationModal();
+      } else if (type === 'evidencias') {
+        title.textContent = id ? 'Editar Evidencia' : 'Nueva Evidencia Glovo';
+        body.innerHTML = `<div class="form-group"><label class="form-label">Tipo de incidente</label><select class="form-select" id="eTipo"><option ${item?.tipo === 'Incidente en reparto' ? 'selected' : ''}>Incidente en reparto</option><option ${item?.tipo === 'Dano en producto' ? 'selected' : ''}>Dano en producto</option><option ${item?.tipo === 'Cliente no disponible' ? 'selected' : ''}>Cliente no disponible</option><option ${item?.tipo === 'Retraso en restaurante' ? 'selected' : ''}>Retraso en restaurante</option><option ${item?.tipo === 'Otro' ? 'selected' : ''}>Otro</option></select></div><div class="form-row"><div class="form-group"><label class="form-label">Fecha</label><input type="date" class="form-input" id="eFecha" value="${item?.fecha || new Date().toISOString().split('T')[0]}"></div><div class="form-group"><label class="form-label">Hora</label><input type="time" class="form-input" id="eHora" value="${item?.hora || new Date().toTimeString().slice(0, 5)}"></div></div><div class="form-group"><label class="form-label">Descripcion detallada</label><textarea class="form-textarea" id="eDesc" placeholder="Describe lo ocurrido con el maximo detalle posible...">${item?.descripcion || ''}</textarea></div><div class="form-group"><label class="form-label">Adjuntar fotos</label><div class="file-upload" onclick="document.getElementById('fileInput').click()"><div class="file-upload-icon">📁</div><div class="file-upload-text">Toca para seleccionar imagenes</div><input type="file" id="fileInput" multiple accept="image/*" style="display:none" onchange="handleFileSelect(this)"></div><div id="fileList" style="margin-top:8px;font-size:12px;color:var(--text-light);"></div></div><button class="btn btn-primary" style="width:100%;padding:14px;justify-content:center;" onclick="saveEvidencia()">${id ? '💾 Guardar cambios' : '📤 Enviar evidencia'}</button>`;
+      } else if (type === 'materiales') {
+        title.textContent = id ? 'Editar Material' : 'Nueva Solicitud de Material';
+        body.innerHTML = `<div class="form-group"><label class="form-label">Material solicitado</label><input type="text" class="form-input" id="mItem" placeholder="Ej: Mochila termica, cargador..." value="${item?.item || ''}"></div><div class="form-row"><div class="form-group"><label class="form-label">Cantidad</label><input type="number" class="form-input" id="mCantidad" min="1" value="${item?.cantidad || 1}"></div><div class="form-group"><label class="form-label">Urgencia</label><select class="form-select" id="mUrgencia"><option value="baja" ${item?.urgencia === 'baja' ? 'selected' : ''}>🟢 Baja</option><option value="media" ${item?.urgencia === 'media' ? 'selected' : ''}>🟡 Media</option><option value="alta" ${item?.urgencia === 'alta' ? 'selected' : ''}>🔴 Alta</option></select></div></div><button class="btn btn-primary" style="width:100%;padding:14px;justify-content:center;" onclick="saveMaterial()">${id ? '💾 Guardar cambios' : '📦 Solicitar material'}</button>`;
+      }
+      document.getElementById('modalOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    };
+
+    window.closeModal = function() {
+      document.getElementById('modalOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+      editingId = null; editingType = null; uploadedFiles = [];
+      selectedWeekStart = null; selectedWeekEnd = null;
+    };
+    window.closeModalOnOverlay = function(e) { if (e.target === e.currentTarget) closeModal(); };
+    // ==================== SAVE FUNCTIONS ====================
+    window.saveVacaciones = async function() {
+      if (!currentUser) { showToast('Debes iniciar sesion', 'error'); return; }
+      if (!selectedWeekStart || !selectedWeekEnd) { showToast('Selecciona una semana en el calendario', 'error'); return; }
+      const tipo = document.getElementById('vTipo').value;
+      const notas = document.getElementById('vNotas').value;
+      const inicio = selectedWeekStart;
+      const fin = selectedWeekEnd;
+      const nextWeek = getNextWeek(inicio);
+      const takenCheck = isWeekTaken(inicio, fin);
+      if (takenCheck && (!editingId || takenCheck.ownerId !== currentUser.uid)) {
+        showToast('La semana seleccionada ya esta reservada por ' + takenCheck.ownerName, 'error');
+        return;
+      }
+      const blockedCheck = isWeekBlocked(nextWeek.start, nextWeek.end);
+      if (blockedCheck && (!editingId || blockedCheck.ownerId !== currentUser.uid)) {
+        showToast('La semana siguiente ya esta bloqueada por ' + blockedCheck.ownerName, 'error');
+        return;
+      }
+      showLoading(true);
+      try {
+        if (editingId) {
+          await updateDoc(doc(db, 'vacaciones', editingId), {
+            tipo, inicio, fin, dias: 7, notas,
+            semanaBloqueadaInicio: nextWeek.start,
+            semanaBloqueadaFin: nextWeek.end,
+            actualizado: serverTimestamp()
+          });
+          showToast('Vacaciones actualizadas', 'success');
+        } else {
+          await addDoc(collection(db, 'vacaciones'), {
+            tipo, inicio, fin, dias: 7, notas,
+            estado: 'pendiente',
+            uid: currentUser.uid,
+            userName: userProfile?.nombre || currentUser.email.split('@')[0],
+            semanaBloqueadaInicio: nextWeek.start,
+            semanaBloqueadaFin: nextWeek.end,
+            creado: serverTimestamp()
+          });
+          showToast('Solicitud creada. La siguiente semana ha sido bloqueada para todos.', 'success');
+        }
+        closeModal();
+      } catch (err) { showToast('Error: ' + err.message, 'error'); } finally { showLoading(false); }
+    };
+
+    window.saveEvidencia = async function() {
+      if (!currentUser) { showToast('Debes iniciar sesion', 'error'); return; }
+      const tipo = document.getElementById('eTipo').value;
+      const fecha = document.getElementById('eFecha').value;
+      const hora = document.getElementById('eHora').value;
+      const descripcion = document.getElementById('eDesc').value;
+      if (!descripcion) { showToast('Describe el incidente', 'error'); return; }
+      showLoading(true);
+      try {
+        let imageUrls = [];
+        if (uploadedFiles.length > 0) { for (const file of uploadedFiles) { const storageRef = ref(storage, `evidencias/${currentUser.uid}/${Date.now()}_${file.name}`); await uploadBytes(storageRef, file); const url = await getDownloadURL(storageRef); imageUrls.push(url); } }
+        if (editingId) { const updateData = { tipo, fecha, hora, descripcion, actualizado: serverTimestamp() }; if (imageUrls.length > 0) updateData.imagenes = imageUrls; await updateDoc(doc(db, 'evidencias', editingId), updateData); showToast('Evidencia actualizada', 'success'); }
+        else { await addDoc(collection(db, 'evidencias'), { tipo, fecha, hora, descripcion, estado: 'pendiente', imagenes: imageUrls, uid: currentUser.uid, userName: userProfile?.nombre || currentUser.email.split('@')[0], userEmail: currentUser.email, creado: serverTimestamp() }); showToast('Evidencia enviada correctamente', 'success'); }
+        closeModal();
+      } catch (err) { showToast('Error: ' + err.message, 'error'); } finally { showLoading(false); }
+    };
+
+    window.saveMaterial = async function() {
+      if (!currentUser) { showToast('Debes iniciar sesion', 'error'); return; }
+      const item = document.getElementById('mItem').value.trim();
+      const cantidad = parseInt(document.getElementById('mCantidad').value) || 1;
+      const urgencia = document.getElementById('mUrgencia').value;
+      if (!item) { showToast('Indica el material', 'error'); return; }
+      showLoading(true);
+      try {
+        if (editingId) { await updateDoc(doc(db, 'materiales', editingId), { item, cantidad, urgencia, actualizado: serverTimestamp() }); showToast('Material actualizado', 'success'); }
+        else { await addDoc(collection(db, 'materiales'), { item, cantidad, urgencia, estado: 'pendiente', uid: currentUser.uid, creado: serverTimestamp() }); showToast('Material solicitado', 'success'); }
+        closeModal();
+      } catch (err) { showToast('Error: ' + err.message, 'error'); } finally { showLoading(false); }
+    };
+
+    window.editItem = function(type, id) { openModal(type, id); };
+    window.deleteItem = async function(type, id) {
+      if (!confirm('¿Eliminar este registro permanentemente?')) return;
+      showLoading(true);
+      try { await deleteDoc(doc(db, type, id)); showToast('Eliminado correctamente', 'success'); }
+      catch (err) { showToast('Error al eliminar: ' + err.message, 'error'); } finally { showLoading(false); }
+    };
+    window.handleFileSelect = function(input) { uploadedFiles = Array.from(input.files); const list = document.getElementById('fileList'); if (uploadedFiles.length > 0) { list.innerHTML = uploadedFiles.map(f => `📎 ${f.name} (${(f.size / 1024).toFixed(1)} KB)`).join('<br>'); } };
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+      toast.innerHTML = `${icons[type] || '✅'} ${message}`;
+      container.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100px)'; setTimeout(() => toast.remove(), 300); }, 3000);
+    }
+
+    function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  </script>
+</body>
+</html>
