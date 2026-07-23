@@ -88,15 +88,9 @@ window.showNotifications = async function() {
 
   showLoading(true);
   try {
-    const q = query(collection(db, 'notificaciones'), where('userId', '==', currentUser.uid));
+    const q = query(collection(db, 'notificaciones'), where('userId', '==', currentUser.uid), orderBy('creado', 'desc'));
     const snap = await getDocs(q);
     const notifs = []; snap.forEach(d => notifs.push({ id: d.id, ...d.data() }));
-    // Sort by date descending (client-side to avoid composite index)
-    notifs.sort((a, b) => {
-      const da = a.creado instanceof Timestamp ? a.creado.toDate().getTime() : 0;
-      const db = b.creado instanceof Timestamp ? b.creado.toDate().getTime() : 0;
-      return db - da;
-    });
 
     // Mark all as read
     const unread = notifs.filter(n => !n.leida);
@@ -579,6 +573,9 @@ function renderEvidencias() {
   grid.innerHTML = html;
 }
 
+// Expose to window for inline onclick handlers
+window.renderEvidencias = renderEvidencias;
+
 window.toggleEvidenceDetail = function(id) {
   const items = window._evidencias || [];
   const e = items.find(item => item.id === id);
@@ -598,6 +595,10 @@ function renderMateriales() {
   const urgenciaEmoji = { alta: '🔴', media: '🟡', baja: '🟢' };
   grid.innerHTML = items.map(m => `<div class="card"><div class="card-header"><div class="card-icon" style="background:#F3E5F5;">📦</div><span class="card-status ${getStatusClass(m.estado)}">${m.estado}</span></div><div class="card-title">${m.item}</div><div class="card-desc">Cantidad solicitada: <strong>${m.cantidad}</strong> unidad${m.cantidad > 1 ? 'es' : ''}</div><div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(m.creado)}</span></div><div class="card-actions"><button class="btn btn-secondary" onclick="editItem('materiales','${m.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div></div>`).join('');
 }
+
+// Expose render functions to window for inline handlers
+window.renderVacaciones = renderVacaciones;
+window.renderMateriales = renderMateriales;
 
 function emptyState(icon, title, desc) {
   return `<div class="empty-state"><div class="empty-state-icon">${icon}</div><div class="empty-state-title">${title}</div><div class="empty-state-desc">${desc}</div></div>`;
