@@ -403,6 +403,73 @@ function renderEvidencias() {
     const statusDot = isCerrado ? '🔒' : (e.estado === 'revisado' ? '👁️' : '⏳');
     const statusColor = isCerrado ? '#546E7A' : (e.estado === 'revisado' ? '#00838F' : '#E65100');
 
+    // Build detail HTML inline (avoid function call in template literal)
+    let detailHtml = '';
+    if (isExpanded) {
+      let detailsHtml = '';
+      if (e.numeroPedido || e.numeroRecogida) {
+        detailsHtml += `<div class="evidence-detail-box"><div class="evidence-detail-row">`;
+        if (e.numeroPedido) detailsHtml += `<span>🛒 Pedido: <strong>#${e.numeroPedido}</strong></span>`;
+        if (e.numeroRecogida) detailsHtml += `<span>📋 Recogida: <strong>#${e.numeroRecogida}</strong></span>`;
+        detailsHtml += `</div></div>`;
+      }
+
+      let commentHtml = '';
+      if (e.comentario) {
+        commentHtml = `<div class="comment-box">
+          <div class="comment-box-title">💬 Comentario</div>
+          <div class="comment-box-text">${e.comentario}</div>
+        </div>`;
+      }
+
+      let videoHtml = '';
+      if (hasLink) {
+        const videoUrl = e.videoUrl || e.videoLink;
+        videoHtml = `<div style="margin-top:16px;padding:12px;background:#E8F5E9;border-radius:var(--radius-sm);">
+          <div style="font-size:13px;font-weight:600;color:#2E7D32;margin-bottom:8px;">🎥 Video de respuesta disponible</div>
+          <a href="${videoUrl}" target="_blank" class="btn download-btn" style="width:100%;justify-content:center;">🔗 Ver video de respuesta</a>
+        </div>`;
+      } else if (isOwner && !isCerrado) {
+        videoHtml = `<div style="margin-top:12px;padding:10px;background:#FFF3E0;border-radius:var(--radius-sm);font-size:12px;color:#E65100;">⏳ Esperando video de respuesta del administrador...</div>`;
+      }
+
+      let actionsHtml = '';
+      if (isOwner) {
+        actionsHtml = `<div class="card-actions">`;
+        if (!isCerrado) {
+          actionsHtml += `<button class="btn btn-secondary" onclick="event.stopPropagation(); editItem('evidencias','${e.id}')">✏️ Editar</button>`;
+        }
+        if (e.estado === 'revisado') {
+          actionsHtml += `<button class="btn btn-secondary" onclick="event.stopPropagation(); toggleIncidenteCerrado('${e.id}', true)">🔒 Cerrar</button>`;
+        } else if (isCerrado) {
+          actionsHtml += `<button class="btn btn-info" onclick="event.stopPropagation(); toggleIncidenteCerrado('${e.id}', false)">🔓 Reabrir</button>`;
+        }
+        actionsHtml += `<button class="btn btn-danger" onclick="event.stopPropagation(); deleteItem('evidencias','${e.id}')">🗑️ Eliminar</button></div>`;
+      }
+
+      const imagenesHtml = e.imagenes && Array.isArray(e.imagenes) && e.imagenes.length > 0
+        ? `<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">${e.imagenes.map(img => `<img src="${img}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="event.stopPropagation(); window.open('${img}')">`).join('')}</div>`
+        : '';
+
+      detailHtml = `
+        <div class="evidence-detail" onclick="event.stopPropagation()">
+          <div class="card-desc" style="margin-top:12px;">${e.descripcion}</div>
+          ${detailsHtml}
+          ${commentHtml}
+          <div class="card-meta" style="margin-top:12px;">
+            <span>📅 ${formatDate(e.fecha)} ${e.hora || ''}</span>
+            <span>👤 ${e.userName || 'Empleado'}</span>
+          </div>
+          ${imagenesHtml}
+          ${videoHtml}
+          <div class="card-meta" style="margin-top:8px;">
+            <span style="font-size:11px;color:#999;">Registrado: ${formatFirestoreDate(e.creado)}</span>
+          </div>
+          ${actionsHtml}
+        </div>
+      `;
+    }
+
     html += `
       <div class="evidence-list-item ${isExpanded ? 'expanded' : ''} ${isCerrado ? 'closed' : ''}" onclick="toggleEvidenceDetail('${e.id}')">
         <div class="evidence-list-row">
@@ -416,8 +483,7 @@ function renderEvidencias() {
             <span class="evidence-list-arrow">${isExpanded ? '▲' : '▼'}</span>
           </div>
         </div>
-
-        ${isExpanded ? renderEvidenceDetail(e, isOwner, hasVideo) : ''}
+        ${detailHtml}
       </div>
     `;
   });
@@ -426,70 +492,11 @@ function renderEvidencias() {
   grid.innerHTML = html;
 }
 
-function renderEvidenceDetail(e, isOwner, hasVideo) {
-  const isCerrado = e.estado === 'cerrado';
-
-  let detailsHtml = '';
-  if (e.numeroPedido || e.numeroRecogida) {
-    detailsHtml += `<div class="evidence-detail-box"><div class="evidence-detail-row">`;
-    if (e.numeroPedido) detailsHtml += `<span>🛒 Pedido: <strong>#${e.numeroPedido}</strong></span>`;
-    if (e.numeroRecogida) detailsHtml += `<span>📋 Recogida: <strong>#${e.numeroRecogida}</strong></span>`;
-    detailsHtml += `</div></div>`;
-  }
-
-  let commentHtml = '';
-  if (e.comentario) {
-    commentHtml = `<div class="comment-box">
-      <div class="comment-box-title">💬 Comentario</div>
-      <div class="comment-box-text">${e.comentario}</div>
-    </div>`;
-  }
-
-  let videoHtml = '';
-  if (hasVideo) {
-    videoHtml = `<div style="margin-top:16px;padding:12px;background:#E8F5E9;border-radius:var(--radius-sm);">
-      <div style="font-size:13px;font-weight:600;color:#2E7D32;margin-bottom:8px;">🎥 Video de respuesta disponible</div>
-      <video class="video-preview" controls><source src="${e.videoUrl}" type="video/mp4"></video>
-      <a href="${e.videoUrl}" download class="btn download-btn" style="width:100%;margin-top:10px;justify-content:center;">⬇️ Descargar video</a>
-    </div>`;
-  } else if (isOwner && !isCerrado) {
-    videoHtml = `<div style="margin-top:12px;padding:10px;background:#FFF3E0;border-radius:var(--radius-sm);font-size:12px;color:#E65100;">⏳ Esperando video de respuesta del administrador...</div>`;
-  }
-
-  let actionsHtml = '';
-  if (isOwner) {
-    actionsHtml = `<div class="card-actions">`;
-    if (!isCerrado) {
-      actionsHtml += `<button class="btn btn-secondary" onclick="event.stopPropagation(); editItem('evidencias','${e.id}')">✏️ Editar</button>`;
-    }
-    if (e.estado === 'revisado') {
-      actionsHtml += `<button class="btn btn-secondary" onclick="event.stopPropagation(); toggleIncidenteCerrado('${e.id}', true)">🔒 Cerrar</button>`;
-    } else if (isCerrado) {
-      actionsHtml += `<button class="btn btn-info" onclick="event.stopPropagation(); toggleIncidenteCerrado('${e.id}', false)">🔓 Reabrir</button>`;
-    }
-    actionsHtml += `<button class="btn btn-danger" onclick="event.stopPropagation(); deleteItem('evidencias','${e.id}')">🗑️ Eliminar</button></div>`;
-  }
-
-  return `
-    <div class="evidence-detail" onclick="event.stopPropagation()">
-      <div class="card-desc" style="margin-top:12px;">${e.descripcion}</div>
-      ${detailsHtml}
-      ${commentHtml}
-      <div class="card-meta" style="margin-top:12px;">
-        <span>📅 ${formatDate(e.fecha)} ${e.hora || ''}</span>
-        <span>👤 ${e.userName || 'Empleado'}</span>
-      </div>
-      ${e.imagenes && Array.isArray(e.imagenes) && e.imagenes.length > 0 ? `<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">${e.imagenes.map(img => `<img src="${img}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="event.stopPropagation(); window.open('${img}')">`).join('')}</div>` : ''}
-      ${videoHtml}
-      <div class="card-meta" style="margin-top:8px;">
-        <span style="font-size:11px;color:#999;">Registrado: ${formatFirestoreDate(e.creado)}</span>
-      </div>
-      ${actionsHtml}
-    </div>
-  `;
-}
-
 window.toggleEvidenceDetail = function(id) {
+  const items = window._evidencias || [];
+  const e = items.find(item => item.id === id);
+  if (!e) return;
+
   if (expandedEvidenceId === id) {
     expandedEvidenceId = null;
   } else {
