@@ -66,24 +66,86 @@ async function setupPushNotifications() {
 
 async function updateNotifCount() {
   if (!currentUser) return;
-  const q = query(collection(db, 'notificaciones'), where('userId', '==', currentUser.uid), where('leida', '==', false));
-  const snap = await getDocs(q);
-  const count = snap.size;
-  const badge = document.getElementById('notifCount');
-  if (count > 0) { badge.textContent = count; badge.style.display = 'flex'; }
-  else { badge.style.display = 'none'; }
+  try {
+    const q = query(collection(db, 'notificaciones'), where('userId', '==', currentUser.uid), where('leida', '==', false));
+    const snap = await getDocs(q);
+    const count = snap.size;
+    const badge = document.getElementById('notifCount');
+    if (!badge) return;
+    if (count > 0) { badge.textContent = count > 99 ? '99+' : count; badge.style.display = 'flex'; }
+    else { badge.style.display = 'none'; }
+  } catch (err) {
+    console.warn('Error actualizando contador de notificaciones:', err);
+  }
 }
 
 window.showNotifications = async function() {
-  const q = query(collection(db, 'notificaciones'), where('userId', '==', currentUser.uid), orderBy('creado', 'desc'));
-  const snap = await getDocs(q);
-  const notifs = []; snap.forEach(d => notifs.push({ id: d.id, ...d.data() }));
-  const unread = notifs.filter(n => !n.leida);
-  for (const n of unread) { await updateDoc(doc(db, 'notificaciones', n.id), { leida: true }); }
-  updateNotifCount();
-  document.getElementById('modalTitle').textContent = '🔔 Notificaciones';
-  document.getElementById('modalBody').innerHTML = notifs.length === 0 ? '<div style="text-align:center;padding:40px;color:var(--text-light);">Sin notificaciones</div>' : notifs.map(n => `<div style="padding:16px;border-bottom:1px solid var(--border);${n.leida ? '' : 'background:#E3F2FD;'}"><div style="font-weight:600;font-size:14px;">${n.title}</div><div style="font-size:13px;color:var(--text-light);margin-top:4px;">${n.body}</div><div style="font-size:11px;color:#999;margin-top:8px;">${formatFirestoreDate(n.creado)}</div></div>`).join('');
-  document.getElementById('modalOverlay').classList.add('active');
+  if (!currentUser) { showToast('Debes iniciar sesión', 'error'); return; }
+
+  // Reset modal state before showing notifications
+  editingId = null; editingType = null; uploadedFiles = [];
+  selectedStart = null; selectedEnd = null;
+
+  showLoading(true);
+  try {
+    const q = query(collection(db, 'notificaciones'), where('userId', '==', currentUser.uid), orderBy('creado', 'desc'));
+    const snap = await getDocs(q);
+    const notifs = []; snap.forEach(d => notifs.push({ id: d.id, ...d.data() }));
+
+    // Mark all as read
+    const unread = notifs.filter(n => !n.leida);
+    for (const n of unread) { 
+      try { await updateDoc(doc(db, 'notificaciones', n.id), { leida: true }); } 
+      catch (e) { console.warn('Error marcando notificación como leída:', e); }
+    }
+    updateNotifCount();
+
+    // Build modal content
+    document.getElementById('modalTitle').textContent = '🔔 Notificaciones';
+    const modalBody = document.getElementById('modalBody');
+
+    if (notifs.length === 0) {
+      modalBody.innerHTML = `
+        <div style="text-align:center;padding:40px;color:var(--text-light);">
+          <div style="font-size:48px;margin-bottom:12px;">🔔</div>
+          <div style="font-weight:600;font-size:16px;color:var(--secondary);margin-bottom:8px;">Sin notificaciones</div>
+          <div style="font-size:13px;">No tienes notificaciones pendientes</div>
+        </div>`;
+    } else {
+      modalBody.innerHTML = `
+        <div style="max-height:60vh;overflow-y:auto;">
+          ${notifs.map(n => {
+            const evidenceId = n.data?.evidenceId || n.data?.incidenteId;
+            const clickable = evidenceId ? `cursor:pointer;` : '';
+            const onclick = evidenceId ? `onclick="closeModal(); switchTab('evidencias'); expandedEvidenceId='${evidenceId}'; renderEvidencias();"` : '';
+            return `<div ${onclick} style="padding:16px;border-bottom:1px solid var(--border);${n.leida ? '' : 'background:#E3F2FD;'}border-radius:8px;margin-bottom:8px;transition:all .2s;${clickable}" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background='${n.leida ? '' : '#E3F2FD'}'">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="font-weight:600;font-size:14px;color:var(--secondary);">${n.title}</div>
+                  <div style="font-size:13px;color:var(--text-light);margin-top:4px;line-height:1.5;">${n.body}</div>
+                </div>
+                ${!n.leida ? '<span style="width:8px;height:8px;background:var(--info);border-radius:50%;flex-shrink:0;margin-top:6px;"></span>' : ''}
+              </div>
+              <div style="font-size:11px;color:#999;margin-top:8px;display:flex;align-items:center;gap:6px;">
+                <span>🕐 ${formatFirestoreDate(n.creado)}</span>
+                ${evidenceId ? '<span style="color:var(--primary);font-weight:500;">👁️ Ver incidencia</span>' : ''}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+        <div style="text-align:center;padding:12px;border-top:1px solid var(--border);margin-top:8px;">
+          <span style="font-size:12px;color:var(--text-light);">${notifs.length} notificación${notifs.length !== 1 ? 'es' : ''}</span>
+        </div>`;
+    }
+
+    document.getElementById('modalOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+  } catch (err) {
+    console.error('Error cargando notificaciones:', err);
+    showToast('Error cargando notificaciones', 'error');
+  } finally {
+    showLoading(false);
+  }
 };
 
 window.logout = async function() {
@@ -99,6 +161,17 @@ function setupRealtimeListeners() {
   unsubscribers.forEach(unsub => unsub());
   unsubscribers = [];
   const uid = currentUser.uid;
+
+  // Notificaciones en tiempo real
+  const notifQuery = query(collection(db, 'notificaciones'), where('userId', '==', uid), where('leida', '==', false));
+  unsubscribers.push(onSnapshot(notifQuery, (snapshot) => {
+    const count = snapshot.size;
+    const badge = document.getElementById('notifCount');
+    if (!badge) return;
+    if (count > 0) { badge.textContent = count > 99 ? '99+' : count; badge.style.display = 'flex'; }
+    else { badge.style.display = 'none'; }
+  }, (err) => { console.warn('Error notificaciones realtime:', err); }));
+
   const vacQuery = query(collection(db, 'vacaciones'), orderBy('creado', 'desc'));
   unsubscribers.push(onSnapshot(vacQuery, (snapshot) => { 
     const items = []; snapshot.forEach(d => items.push({ id: d.id, ...d.data() })); 
