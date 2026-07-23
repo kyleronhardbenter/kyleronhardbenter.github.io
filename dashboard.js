@@ -469,7 +469,7 @@ function renderEvidencias() {
 
   // Apply date filters
   if (evidenceFilterMonth) {
-    items = items.filter(e => e.fecha && e.fecha.startsWith(evidenceFilterMonth));
+    items = items.filter(e => e.fecha && e.fecha.substring(5, 7) === evidenceFilterMonth);
   }
   if (evidenceFilterStartDate && evidenceFilterEndDate) {
     items = items.filter(e => e.fecha >= evidenceFilterStartDate && e.fecha <= evidenceFilterEndDate);
@@ -482,18 +482,12 @@ function renderEvidencias() {
   // Build filter bar HTML
   const months = [
     { value: '', label: '📅 Todos los meses' },
-    { value: '2026-01', label: 'Enero 2026' }, { value: '2026-02', label: 'Febrero 2026' },
-    { value: '2026-03', label: 'Marzo 2026' }, { value: '2026-04', label: 'Abril 2026' },
-    { value: '2026-05', label: 'Mayo 2026' }, { value: '2026-06', label: 'Junio 2026' },
-    { value: '2026-07', label: 'Julio 2026' }, { value: '2026-08', label: 'Agosto 2026' },
-    { value: '2026-09', label: 'Septiembre 2026' }, { value: '2026-10', label: 'Octubre 2026' },
-    { value: '2026-11', label: 'Noviembre 2026' }, { value: '2026-12', label: 'Diciembre 2026' },
-    { value: '2025-01', label: 'Enero 2025' }, { value: '2025-02', label: 'Febrero 2025' },
-    { value: '2025-03', label: 'Marzo 2025' }, { value: '2025-04', label: 'Abril 2025' },
-    { value: '2025-05', label: 'Mayo 2025' }, { value: '2025-06', label: 'Junio 2025' },
-    { value: '2025-07', label: 'Julio 2025' }, { value: '2025-08', label: 'Agosto 2025' },
-    { value: '2025-09', label: 'Septiembre 2025' }, { value: '2025-10', label: 'Octubre 2025' },
-    { value: '2025-11', label: 'Noviembre 2025' }, { value: '2025-12', label: 'Diciembre 2025' }
+    { value: '01', label: 'Enero' }, { value: '02', label: 'Febrero' },
+    { value: '03', label: 'Marzo' }, { value: '04', label: 'Abril' },
+    { value: '05', label: 'Mayo' }, { value: '06', label: 'Junio' },
+    { value: '07', label: 'Julio' }, { value: '08', label: 'Agosto' },
+    { value: '09', label: 'Septiembre' }, { value: '10', label: 'Octubre' },
+    { value: '11', label: 'Noviembre' }, { value: '12', label: 'Diciembre' }
   ];
 
   const monthOptions = months.map(m => `<option value="${m.value}" ${evidenceFilterMonth === m.value ? 'selected' : ''}>${m.label}</option>`).join('');
