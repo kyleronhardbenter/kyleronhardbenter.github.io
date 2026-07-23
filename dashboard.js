@@ -88,9 +88,15 @@ window.showNotifications = async function() {
 
   showLoading(true);
   try {
-    const q = query(collection(db, 'notificaciones'), where('userId', '==', currentUser.uid), orderBy('creado', 'desc'));
+    const q = query(collection(db, 'notificaciones'), where('userId', '==', currentUser.uid));
     const snap = await getDocs(q);
     const notifs = []; snap.forEach(d => notifs.push({ id: d.id, ...d.data() }));
+    // Sort by date descending (client-side to avoid composite index)
+    notifs.sort((a, b) => {
+      const da = a.creado instanceof Timestamp ? a.creado.toDate().getTime() : 0;
+      const db = b.creado instanceof Timestamp ? b.creado.toDate().getTime() : 0;
+      return db - da;
+    });
 
     // Mark all as read
     const unread = notifs.filter(n => !n.leida);
