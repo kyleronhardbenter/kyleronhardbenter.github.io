@@ -171,21 +171,31 @@ function getDaysOfMonth(year, month) {
   const days = [];
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
-  let current = new Date(firstDay);
-  while (current.getDay() !== 1) {
-    current.setDate(current.getDate() - 1);
+  const totalDays = lastDay.getDate();
+
+  // Empty slots before the 1st day to align to Monday
+  let padBefore = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+  for (let i = 0; i < padBefore; i++) {
+    days.push({ date: null, dayNum: null, inMonth: false, isToday: false });
   }
-  const endCheck = new Date(lastDay);
-  endCheck.setDate(endCheck.getDate() + 7);
-  while (current <= endCheck) {
+
+  // Actual month days
+  for (let d = 1; d <= totalDays; d++) {
+    const date = new Date(year, month, d);
     days.push({
-      date: new Date(current),
-      dayNum: current.getDate(),
-      inMonth: current.getMonth() === month,
-      isToday: isSameDay(current, new Date())
+      date: date,
+      dayNum: d,
+      inMonth: true,
+      isToday: isSameDay(date, new Date())
     });
-    current.setDate(current.getDate() + 1);
   }
+
+  // Empty slots after last day to complete the week grid
+  const remaining = (7 - (days.length % 7)) % 7;
+  for (let i = 0; i < remaining; i++) {
+    days.push({ date: null, dayNum: null, inMonth: false, isToday: false });
+  }
+
   return days;
 }
 
@@ -408,6 +418,12 @@ function renderCalendar() {
         ${dayNames.map(d => `<div class="day-header">${d}</div>`).join('')}`;
 
     days.forEach(d => {
+      // Celda vacía (padding)
+      if (!d.date) {
+        html += `<div class="day-cell" style="visibility:hidden;"></div>`;
+        return;
+      }
+
       const dateStr = d.date.toISOString().split('T')[0];
       const weekStartStr = getWeekStart(d.date);
       const weekEndStr = getWeekEnd(d.date);
@@ -422,10 +438,6 @@ function renderCalendar() {
       const isSelectedEnd = selectedEnd === dateStr;
       const isInSelectedRange = selectedStart && selectedEnd && dateInRange(dateStr, selectedStart, selectedEnd);
       const isSelectedMid = isInSelectedRange && !isSelectedStart && !isSelectedEnd;
-
-      // Verificar si es una semana propia/de otro (para etiquetas)
-      const weekTakenInfo = isWeekTaken(weekStartStr, weekEndStr);
-      const weekBlockedInfo = isWeekBlocked(weekStartStr, weekEndStr);
 
       let dayClass = 'day-cell';
       let clickable = false;
@@ -450,17 +462,15 @@ function renderCalendar() {
         ownerLabel = `<span class="week-owner-label">${shortName.substring(0,6)}</span>`;
       } else if (isPast) {
         dayClass += ' past';
-      } else if (d.inMonth) {
+      } else {
         dayClass += ' available';
         clickable = true;
-      } else {
-        dayClass += ' out-month';
       }
 
       const onclickAttr = clickable ? `onclick="selectDate('${dateStr}')"` : '';
       const titleAttr = blockedInfo ? `title="Bloqueada por ${blockedInfo.ownerName}"` : takenInfo ? `title="Reservada por ${takenInfo.ownerName}"` : '';
 
-      html += `<div class="${dayClass}" ${onclickAttr} ${titleAttr}>${d.inMonth || d.dayNum ? d.dayNum + ownerLabel : ''}</div>`;
+      html += `<div class="${dayClass}" ${onclickAttr} ${titleAttr}>${d.dayNum}${ownerLabel}</div>`;
     });
 
     html += `</div></div>`;
