@@ -13,9 +13,18 @@ const messaging = getMessaging(app);
 
 let currentUser = null, userProfile = null, currentTab = 'vacaciones', editingId = null, editingType = null, uploadedFiles = [], unsubscribers = [], fcmToken = null;
 let calendarYear = 2026;
-let selectedStart = null;   // fecha de inicio seleccionada
-let selectedEnd = null;     // fecha de fin seleccionada
+let selectedStart = null;
+let selectedEnd = null;
 let allVacations = [];
+
+// ==================== FIX: Local date string helper ====================
+function toLocalDateStr(date) {
+  // Returns YYYY-MM-DD in LOCAL timezone, avoiding UTC shift from toISOString()
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
 
 // ==================== AUTH & INIT ====================
 onAuthStateChanged(auth, async (user) => {
@@ -173,13 +182,11 @@ function getDaysOfMonth(year, month) {
   const lastDay = new Date(year, month + 1, 0);
   const totalDays = lastDay.getDate();
 
-  // Empty slots before the 1st day to align to Monday
   let padBefore = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
   for (let i = 0; i < padBefore; i++) {
     days.push({ date: null, dayNum: null, inMonth: false, isToday: false });
   }
 
-  // Actual month days
   for (let d = 1; d <= totalDays; d++) {
     const date = new Date(year, month, d);
     days.push({
@@ -190,7 +197,6 @@ function getDaysOfMonth(year, month) {
     });
   }
 
-  // Empty slots after last day to complete the week grid
   const remaining = (7 - (days.length % 7)) % 7;
   for (let i = 0; i < remaining; i++) {
     days.push({ date: null, dayNum: null, inMonth: false, isToday: false });
@@ -216,7 +222,7 @@ function getWeekStart(date) {
   while (d.getDay() !== 1) {
     d.setDate(d.getDate() - 1);
   }
-  return d.toISOString().split('T')[0];
+  return toLocalDateStr(d);
 }
 
 function getWeekEnd(date) {
@@ -224,7 +230,7 @@ function getWeekEnd(date) {
   while (d.getDay() !== 0) {
     d.setDate(d.getDate() + 1);
   }
-  return d.toISOString().split('T')[0];
+  return toLocalDateStr(d);
 }
 
 function getBlockedWeeks() {
@@ -315,12 +321,11 @@ function formatShortDate(dateStr) {
 }
 
 function getBlockedDays(afterDate) {
-  // Bloquea los 7 días INMEDIATAMENTE después de la fecha de fin
   const start = new Date(afterDate + 'T00:00:00');
-  start.setDate(start.getDate() + 1); // día siguiente al fin
+  start.setDate(start.getDate() + 1);
   const end = new Date(start);
-  end.setDate(end.getDate() + 6); // +6 días = 7 días totales
-  return { start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0] };
+  end.setDate(end.getDate() + 6);
+  return { start: toLocalDateStr(start), end: toLocalDateStr(end) };
 }
 
 // ==================== RENDER FUNCTIONS ====================
@@ -380,7 +385,6 @@ function renderCalendar() {
   const months = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   const dayNames = ['Lun','Mar','Mie','Jue','Vie','Sab','Dom'];
 
-  // Texto guía según el estado de selección
   let guideText = '';
   if (!selectedStart && !selectedEnd) {
     guideText = '👉 <strong>Paso 1:</strong> Selecciona la <strong>fecha de inicio</strong> de tus vacaciones.';
@@ -419,22 +423,20 @@ function renderCalendar() {
         ${dayNames.map(d => `<div class="day-header">${d}</div>`).join('')}`;
 
     days.forEach(d => {
-      // Celda vacía (padding)
       if (!d.date) {
         html += `<div class="day-cell" style="visibility:hidden;"></div>`;
         return;
       }
 
-      const dateStr = d.date.toISOString().split('T')[0];
+      // FIX: Use toLocalDateStr instead of toISOString().split('T')[0]
+      const dateStr = toLocalDateStr(d.date);
       const weekStartStr = getWeekStart(d.date);
       const weekEndStr = getWeekEnd(d.date);
 
-      // Verificar estado del día
       const takenInfo = isDateInTakenRange(dateStr);
       const blockedInfo = isDateInBlockedRange(dateStr);
       const isPast = isDatePast(dateStr);
 
-      // Verificar selección
       const isSelectedStart = selectedStart === dateStr;
       const isSelectedEnd = selectedEnd === dateStr;
       const isInSelectedRange = selectedStart && selectedEnd && dateInRange(dateStr, selectedStart, selectedEnd);
@@ -479,7 +481,6 @@ function renderCalendar() {
 
   html += `</div></div>`;
 
-  // Resumen
   if (selectedStart && selectedEnd) {
     const dias = calcularDias(selectedStart, selectedEnd);
     const nextWeek = getBlockedDays(selectedEnd);
@@ -514,7 +515,6 @@ window.changeYear = function(delta) {
 };
 
 window.selectDate = function(dateStr) {
-  // Si no hay inicio, este es el inicio
   if (!selectedStart) {
     const blockedInfo = isDateInBlockedRange(dateStr);
     const takenInfo = isDateInTakenRange(dateStr);
@@ -526,19 +526,16 @@ window.selectDate = function(dateStr) {
     return;
   }
 
-  // Si hay inicio pero no fin, este es el fin
   if (selectedStart && !selectedEnd) {
-    // Validar que fin >= inicio
     if (compareDates(dateStr, selectedStart) < 0) {
       showToast('La fecha de fin debe ser igual o posterior a la de inicio', 'error');
       return;
     }
 
-    // Validar que el rango no incluya fechas bloqueadas o tomadas por otros
     let current = new Date(selectedStart);
     const end = new Date(dateStr);
     while (current <= end) {
-      const checkStr = current.toISOString().split('T')[0];
+      const checkStr = toLocalDateStr(current);
       const blockedInfo = isDateInBlockedRange(checkStr);
       const takenInfo = isDateInTakenRange(checkStr);
       if (blockedInfo && blockedInfo.ownerId !== currentUser?.uid) {
@@ -557,7 +554,6 @@ window.selectDate = function(dateStr) {
     return;
   }
 
-  // Si ya hay inicio y fin, reiniciar con nuevo inicio
   selectedStart = dateStr;
   selectedEnd = null;
   refreshVacationModal();
@@ -634,11 +630,10 @@ window.saveVacaciones = async function() {
   const dias = calcularDias(inicio, fin);
   const nextWeek = getBlockedDays(fin);
 
-  // Validar que el rango no esté tomado
   let current = new Date(inicio);
   const end = new Date(fin);
   while (current <= end) {
-    const checkStr = current.toISOString().split('T')[0];
+    const checkStr = toLocalDateStr(current);
     const takenInfo = isDateInTakenRange(checkStr);
     if (takenInfo && (!editingId || takenInfo.ownerId !== currentUser.uid)) {
       showToast('El rango incluye fecha reservada por ' + takenInfo.ownerName, 'error');
@@ -647,7 +642,6 @@ window.saveVacaciones = async function() {
     current.setDate(current.getDate() + 1);
   }
 
-  // Validar semana siguiente bloqueada
   const blockedCheck = isWeekBlocked(nextWeek.start, nextWeek.end);
   if (blockedCheck && (!editingId || blockedCheck.ownerId !== currentUser.uid)) {
     showToast('La semana siguiente ya esta bloqueada por ' + blockedCheck.ownerName, 'error');
