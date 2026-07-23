@@ -490,11 +490,6 @@ function renderEvidenceDetail(e, isOwner, hasVideo) {
 }
 
 window.toggleEvidenceDetail = function(id) {
-  const grid = document.getElementById('gridEvidencias');
-  const items = window._evidencias || [];
-  const e = items.find(item => item.id === id);
-  if (!e) return;
-
   if (expandedEvidenceId === id) {
     expandedEvidenceId = null;
   } else {
