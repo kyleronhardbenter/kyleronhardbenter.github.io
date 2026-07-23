@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chalito Collblanc - Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{--primary:#FF6B00;--primary-light:#FFF0E0;--secondary:#1a1a2e;--accent:#00C853;--danger:#FF1744;--warning:#FFB300;--info:#2196F3;--bg:#f8f9fa;--card:#ffffff;--text:#2d3436;--text-light:#636e72;--border:#e9ecef;--shadow:0 4px 20px rgba(0,0,0,0.08);--shadow-lg:0 10px 40px rgba(0,0,0,0.12);--radius:16px;--radius-sm:10px}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .app-container{max-width:1200px;margin:0 auto;padding:20px}
+    .header{background:var(--card);border-radius:var(--radius);padding:24px 32px;margin-bottom:24px;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;position:relative;overflow:hidden}
+    .header::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--primary);border-radius:var(--radius) 0 0 var(--radius)}
+    .header-brand{display:flex;align-items:center;gap:16px}
+    .header-icon{width:56px;height:56px;background:var(--primary-light);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px}
+    .header-title{font-size:24px;font-weight:700;color:var(--secondary)}
+    .header-subtitle{font-size:13px;color:var(--text-light);margin-top:2px}
+    .header-user{display:flex;align-items:center;gap:12px;background:var(--bg);padding:8px 16px;border-radius:50px;cursor:pointer;transition:all .2s}
+    .header-user:hover{background:var(--border)}
+    .user-avatar{width:36px;height:36px;background:var(--primary);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px}
+    .role-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase}
+    .role-user{background:#E8F5E9;color:#2E7D32}
+    .conn-status{display:flex;align-items:center;gap:6px;font-size:11px;padding:4px 10px;border-radius:20px;font-weight:500}
+    .conn-online{background:#E8F5E9;color:#2E7D32}
+    .conn-offline{background:#FFEBEE;color:#C62828}
+    .notif-bell{position:relative;cursor:pointer;padding:8px;border-radius:10px;transition:all .2s;font-size:20px}
+    .notif-bell:hover{background:var(--bg)}
+    .notif-count{position:absolute;top:0;right:0;background:var(--danger);color:white;font-size:10px;font-weight:700;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+    .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+    .stat-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);text-align:center;transition:all .3s}
+    .stat-card:hover{transform:translateY(-2px)}
+    .stat-value{font-size:32px;font-weight:700;color:var(--primary);line-height:1}
+    .stat-label{font-size:12px;color:var(--text-light);margin-top:8px;text-transform:uppercase;letter-spacing:.5px}
+    .nav-tabs{display:flex;gap:8px;margin-bottom:24px;background:var(--card);padding:8px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .nav-tab{flex:1;padding:14px 20px;border:none;background:transparent;border-radius:var(--radius-sm);cursor:pointer;font-family:inherit;font-size:14px;font-weight:500;color:var(--text-light);transition:all .3s ease;display:flex;align-items:center;justify-content:center;gap:8px}
+    .nav-tab:hover{background:var(--bg);color:var(--text)}
+    .nav-tab.active{background:var(--primary);color:white;box-shadow:0 4px 12px rgba(255,107,0,0.3)}
+    .nav-tab .badge{background:rgba(255,255,255,0.25);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+    .content-area{display:none;animation:fadeIn .4s ease}
+    .content-area.active{display:block}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:20px}
+    .card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);transition:all .3s ease;position:relative;overflow:hidden}
+    .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+    .card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+    .card-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px}
+    .card-status{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+    .status-pendiente{background:#FFF3E0;color:#E65100}
+    .status-aprobado{background:#E8F5E9;color:#2E7D32}
+    .status-rechazado{background:#FFEBEE;color:#C62828}
+    .status-enviado{background:#E3F2FD;color:#1565C0}
+    .status-entregado{background:#F3E5F5;color:#6A1B9A}
+    .status-revisado{background:#E0F7FA;color:#00838F}
+    .status-cerrado{background:#ECEFF1;color:#546E7A}
+    .card-title{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--secondary)}
+    .card-desc{font-size:13px;color:var(--text-light);line-height:1.5;margin-bottom:16px}
+    .card-meta{display:flex;gap:16px;font-size:12px;color:var(--text-light);flex-wrap:wrap}
+    .card-meta span{display:flex;align-items:center;gap:4px}
+    .card-actions{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);flex-wrap:wrap}
+    .btn{padding:8px 16px;border:none;border-radius:8px;font-family:inherit;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s ease;display:inline-flex;align-items:center;gap:6px}
+    .btn-primary{background:var(--primary);color:white}
+    .btn-primary:hover{background:#E65C00;transform:scale(1.02)}
+    .btn-secondary{background:var(--bg);color:var(--text)}
+    .btn-secondary:hover{background:var(--border)}
+    .btn-danger{background:#FFEBEE;color:var(--danger)}
+    .btn-danger:hover{background:#FFCDD2}
+    .download-btn{background:linear-gradient(135deg,var(--accent),#00B248);color:white;border:none;text-decoration:none}
+    .download-btn:hover{background:linear-gradient(135deg,#00B248,var(--accent));transform:scale(1.05)}
+    .fab{position:fixed;bottom:32px;right:32px;width:60px;height:60px;background:var(--primary);color:white;border:none;border-radius:50%;font-size:28px;cursor:pointer;box-shadow:0 6px 20px rgba(255,107,0,0.4);transition:all .3s ease;display:flex;align-items:center;justify-content:center;z-index:100}
+    .fab:hover{transform:scale(1.1) rotate(90deg)}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:200;padding:20px}
+    .modal-overlay.active{display:flex;animation:fadeIn .2s ease}
+    .modal{background:var(--card);border-radius:var(--radius);width:100%;max-width:1000px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp .3s ease}
+    @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    .modal-header{padding:24px 28px 0;display:flex;justify-content:space-between;align-items:center}
+    .modal-title{font-size:20px;font-weight:700;color:var(--secondary)}
+    .modal-close{width:36px;height:36px;border:none;background:var(--bg);border-radius:10px;cursor:pointer;font-size:18px;color:var(--text-light);transition:all .2s}
+    .modal-close:hover{background:var(--border);color:var(--text)}
+    .modal-body{padding:20px 28px 28px}
+    .form-group{margin-bottom:18px}
+    .form-label{display:block;font-size:13px;font-weight:600;color:var(--secondary);margin-bottom:6px}
+    .form-input,.form-select,.form-textarea{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:14px;color:var(--text);transition:all .2s;background:var(--bg)}
+    .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--primary);background:var(--card)}
+    .form-textarea{min-height:100px;resize:vertical}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .file-upload{border:2px dashed var(--border);border-radius:var(--radius-sm);padding:32px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg)}
+    .file-upload:hover{border-color:var(--primary);background:var(--primary-light)}
+    .file-upload-icon{font-size:36px;margin-bottom:8px}
+    .file-upload-text{font-size:13px;color:var(--text-light)}
+    .empty-state{text-align:center;padding:60px 20px;color:var(--text-light);grid-column:1/-1}
+    .empty-state-icon{font-size:64px;margin-bottom:16px;opacity:.5}
+    .empty-state-title{font-size:18px;font-weight:600;color:var(--secondary);margin-bottom:8px}
+    .empty-state-desc{font-size:14px}
+    .toast-container{position:fixed;top:24px;right:24px;z-index:300;display:flex;flex-direction:column;gap:10px}
+    .toast{background:var(--secondary);color:white;padding:14px 20px;border-radius:var(--radius-sm);box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:10px;font-size:14px;animation:slideInRight .3s ease;max-width:360px}
+    .toast.success{background:var(--accent)}
+    .toast.error{background:var(--danger)}
+    .toast.info{background:var(--info)}
+    @keyframes slideInRight{from{opacity:0;transform:translateX(100px)}to{opacity:1;transform:translateX(0)}}
+    .loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.9);display:none;align-items:center;justify-content:center;z-index:400;flex-direction:column;gap:16px}
+    .loading-overlay.active{display:flex}
+    .spinner{width:48px;height:48px;border:4px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .video-preview{width:100%;border-radius:var(--radius-sm);margin-top:12px;max-height:220px}
+    .evidence-shared{border-left:4px solid var(--info)}
+    .evidence-shared .card-icon{background:#E3F2FD!important}
+    /* CALENDAR STYLES */
+    .calendar-container{background:var(--bg);border-radius:var(--radius);padding:20px;margin-bottom:20px}
+    .calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .calendar-year{font-size:20px;font-weight:700;color:var(--secondary)}
+    .calendar-nav-btn{background:var(--card);border:2px solid var(--border);border-radius:var(--radius-sm);padding:8px 16px;cursor:pointer;font-family:inherit;font-size:14px;font-weight:600;transition:all .2s}
+    .calendar-nav-btn:hover{border-color:var(--primary);color:var(--primary)}
+    .months-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+    .month-card{background:var(--card);border-radius:var(--radius-sm);padding:16px;box-shadow:var(--shadow)}
+    .month-name{font-size:14px;font-weight:700;color:var(--secondary);text-align:center;margin-bottom:12px;text-transform:capitalize}
+    .days-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+    .day-header{text-align:center;font-size:11px;font-weight:600;color:var(--text-light);padding:6px 2px;text-transform:uppercase}
+    .day-cell{text-align:center;padding:8px 2px;border-radius:6px;font-size:12px;cursor:default;transition:all .2s;min-height:32px;display:flex;align-items:center;justify-content:center;position:relative}
+    .day-cell.available{background:#E8F5E9;color:#2E7D32;cursor:pointer}
+    .day-cell.available:hover{background:var(--primary);color:white;transform:scale(1.05)}
+    .day-cell.selected-start,.day-cell.selected-mid,.day-cell.selected-end{background:var(--primary);color:white;font-weight:600;box-shadow:0 2px 8px rgba(255,107,0,0.3)}
+    .day-cell.selected-start{border-radius:6px 0 0 6px}
+    .day-cell.selected-end{border-radius:0 6px 6px 0}
+    .day-cell.blocked{background:#FFEBEE;color:#C62828;cursor:not-allowed}
+    .day-cell.own-week{background:#E3F2FD;color:#1565C0;font-weight:600}
+    .day-cell.taken-other{background:#FFF3E0;color:#E65100;font-weight:600}
+    .day-cell.past{background:#f0f0f0;color:#bbb;cursor:not-allowed}
+    .day-cell.out-month{color:#bbb}
+    .week-legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;font-size:12px}
+    .week-legend-item{display:flex;align-items:center;gap:6px}
+    .legend-dot{width:14px;height:14px;border-radius:4px}
+    .legend-available{background:#E8F5E9;border:1px solid #C8E6C9}
+    .legend-selected{background:var(--primary)}
+    .legend-blocked{background:#FFEBEE;border:1px solid #FFCDD2}
+    .legend-own{background:#E3F2FD;border:1px solid #BBDEFB}
+    .legend-taken-other{background:#FFF3E0;border:1px solid #FFE0B2}
+    .legend-past{background:#f0f0f0;border:1px solid #ddd}
+    .vacation-summary{background:var(--card);border-radius:var(--radius-sm);padding:16px;margin-top:16px;border:2px solid var(--primary)}
+    .vacation-summary-title{font-size:14px;font-weight:700;color:var(--secondary);margin-bottom:8px}
+    .vacation-summary-text{font-size:13px;color:var(--text-light);line-height:1.6}
+    .week-owner-label{position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);font-size:7px;font-weight:700;white-space:nowrap;background:rgba(0,0,0,0.15);color:white;padding:0 3px;border-radius:2px;pointer-events:none}
+    .vacation-section-title{font-size:18px;font-weight:700;color:var(--secondary);margin:24px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--primary-light)}
+    .vacation-mine{background:linear-gradient(135deg,#E3F2FD,#BBDEFB)!important;border-left:4px solid var(--info)!important}
+    .vacation-other{background:var(--card);border-left:4px solid var(--warning)!important}
+    .vacation-other .card-icon{background:#FFF3E0!important}
+    .employee-name-badge{display:inline-block;background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;margin-left:8px}
+
+    /* ==================== EVIDENCE LIST STYLES ==================== */
+    .evidence-list-container{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .evidence-list-item{border-bottom:1px solid var(--border);cursor:pointer;transition:all .2s}
+    .evidence-list-item:last-child{border-bottom:none}
+    .evidence-list-item:hover{background:#fafafa}
+    .evidence-list-item.expanded{background:#fff8f0;border-left:4px solid var(--primary)}
+    .evidence-list-item.closed{opacity:0.7}
+    .evidence-list-row{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;gap:12px}
+    .evidence-list-main{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+    .evidence-list-pedido{font-size:15px;font-weight:700;color:var(--primary);white-space:nowrap}
+    .evidence-list-tipo{font-size:13px;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .evidence-list-meta{display:flex;align-items:center;gap:16px;flex-shrink:0}
+    .evidence-list-status{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+    .evidence-list-date{font-size:12px;color:var(--text-light)}
+    .evidence-list-arrow{font-size:12px;color:var(--text-light);transition:transform .2s}
+    .evidence-list-item.expanded .evidence-list-arrow{transform:rotate(180deg)}
+    .evidence-detail{padding:0 20px 20px;animation:fadeIn .3s ease}
+    .evidence-detail-box{background:#f8f9fa;border-radius:8px;padding:12px;margin-top:10px}
+    .evidence-detail-row{display:flex;gap:16px;flex-wrap:wrap;font-size:12px}
+    .evidence-detail-row span{display:flex;align-items:center;gap:4px;color:var(--text-light)}
+    .evidence-detail-row strong{color:var(--secondary)}
+    .comment-box{background:#FFF8E1;border-radius:8px;padding:12px;margin-top:10px;border-left:3px solid var(--warning)}
+    .comment-box-title{font-size:11px;font-weight:600;color:#E65100;margin-bottom:4px}
+    .comment-box-text{font-size:13px;color:var(--text);line-height:1.5}
+
+    @media(max-width:768px){
+      .stats-row{grid-template-columns:repeat(2,1fr)}
+      .cards-grid{grid-template-columns:1fr}
+      .form-row{grid-template-columns:1fr}
+      .header{flex-direction:column;gap:16px;text-align:center}
+      .nav-tab{font-size:12px;padding:10px}
+      .nav-tab span:not(.badge){display:none}
+      .months-grid{grid-template-columns:1fr}
+      .modal{max-width:100%}
+      .evidence-list-row{padding:12px 16px}
+      .evidence-list-meta{gap:8px}
+      .evidence-list-date{display:none}
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="header">
+      <div class="header-brand">
+        <div class="header-icon">🏪</div>
+        <div>
+          <div class="header-title">Chalito Collblanc</div>
+          <div class="header-subtitle">Panel de Gestion del Empleado</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="conn-status conn-offline" id="connStatus"><span id="connDot">🔴</span> <span id="connText">Offline</span></div>
+        <div class="notif-bell" id="notifBell" onclick="showNotifications()">🔔<span class="notif-count" id="notifCount" style="display:none;">0</span></div>
+        <div class="header-user" onclick="logout()">
+          <div class="user-avatar" id="userAvatar">E</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--secondary);" id="userName">Empleado</div>
+            <div style="font-size:11px;color:var(--text-light);"><span class="role-badge role-user" id="userRole">Empleado</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-value" id="statVacaciones">0</div><div class="stat-label">Mis Vacaciones</div></div>
+      <div class="stat-card"><div class="stat-value" id="statEvidencias">0</div><div class="stat-label">Mis Incidencias</div></div>
+      <div class="stat-card"><div class="stat-value" id="statMateriales">0</div><div class="stat-label">Materiales</div></div>
+      <div class="stat-card"><div class="stat-value" id="statPendientes">0</div><div class="stat-label">Pendientes</div></div>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-tab="vacaciones" onclick="switchTab('vacaciones')">🏖️ <span>Vacaciones</span> <span class="badge" id="badgeVacaciones">0</span></button>
+      <button class="nav-tab" data-tab="evidencias" onclick="switchTab('evidencias')">📸 <span>Incidencias</span> <span class="badge" id="badgeEvidencias">0</span></button>
+      <button class="nav-tab" data-tab="materiales" onclick="switchTab('materiales')">📦 <span>Materiales</span> <span class="badge" id="badgeMateriales">0</span></button>
+    </div>
+
+    <div class="content-area active" id="tab-vacaciones">
+      <div id="vacacionesInfo" style="background:var(--primary-light);padding:16px 20px;border-radius:var(--radius-sm);margin-bottom:20px;font-size:13px;color:var(--secondary);">
+        📅 <strong>Calendario compartido:</strong> Todos los empleados ven las semanas reservadas. Las semanas en naranja son de otros companeros. Las azules son las tuyas. Las rojas estan bloqueadas (semana siguiente a una reserva).
+      </div>
+      <div class="cards-grid" id="gridVacaciones"></div>
+    </div>
+
+    <div class="content-area" id="tab-evidencias">
+      <div id="evidenciasInfo" style="background:var(--primary-light);padding:16px 20px;border-radius:var(--radius-sm);margin-bottom:20px;font-size:13px;color:var(--secondary);">📢 <strong>Historial de incidencias:</strong> Toca un pedido para ver los detalles completos. Las incidencias cerradas aparecen atenuadas.</div>
+      <div id="gridEvidencias"></div>
+    </div>
+
+    <div class="content-area" id="tab-materiales"><div class="cards-grid" id="gridMateriales"></div></div>
+
+    <button class="fab" onclick="openModal()">+</button>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-header"><div class="modal-title" id="modalTitle">Nueva Solicitud</div><button class="modal-close" onclick="closeModal()">×</button></div>
+        <div class="modal-body" id="modalBody"></div>
+      </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
+
+  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div style="color:var(--text-light);font-size:14px;">Sincronizando...</div></div>
+
+  <script type="module" src="dashboard.js?v=2"></script>
+</body>
+</html>
