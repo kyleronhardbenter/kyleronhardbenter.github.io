@@ -423,21 +423,29 @@ function renderVacaciones() {
   const allItems = window._vacaciones || [];
   const myItems = allItems.filter(v => v.uid === currentUser?.uid);
   const otherItems = allItems.filter(v => v.uid !== currentUser?.uid && v.estado !== 'rechazado');
+
+  const estadoVacInfo = {
+    pendiente: { emoji: '⏳', desc: 'Esperando aprobación del administrador' },
+    aprobado:  { emoji: '✅', desc: 'Solicitud aprobada' },
+    rechazado: { emoji: '❌', desc: 'Solicitud rechazada' }
+  };
+
   let html = '';
   if (myItems.length > 0) {
     html += `<div class="vacation-section-title">🏖️ Mis Solicitudes (${myItems.length})</div>`;
-    html += myItems.map(v => {
+    html += myItems.map((v, idx) => {
       const dias = v.dias || calcularDias(v.inicio, v.fin);
+      const info = estadoVacInfo[v.estado] || estadoVacInfo.pendiente;
       const bloqueoText = v.semanaBloqueadaInicio ? `<br><span style="color:#C62828;font-size:11px;">🚫 Bloquea: ${formatShortDate(v.semanaBloqueadaInicio)} - ${formatShortDate(v.semanaBloqueadaFin)}</span>` : '';
-      return `<div class="card vacation-mine"><div class="card-header"><div class="card-icon" style="background:#E3F2FD;">🏖️</div><span class="card-status ${getStatusClass(v.estado)}">${v.estado}</span></div><div class="card-title">${v.tipo}</div><div class="card-desc">${v.notas || 'Sin notas adicionales'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>📆 ${dias} día${dias !== 1 ? 's' : ''}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(v.creado)}${bloqueoText}</span></div><div class="card-actions"><button class="btn btn-secondary" onclick="editItem('vacaciones','${v.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="deleteItem('vacaciones','${v.id}')">🗑️ Eliminar</button></div></div>`;
+      return `<div class="card vacation-mine" style="animation-delay:${idx * 0.08}s;"><div class="card-header"><div class="card-icon" style="background:#E3F2FD;">🏖️</div><span class="card-status ${getStatusClass(v.estado)}"><span class="status-dot ${v.estado}"></span>${v.estado}</span></div><div class="card-title">${v.tipo}</div><div style="background:var(--bg);border-radius:8px;padding:10px 14px;margin:10px 0;display:flex;align-items:center;gap:10px;"><span style="font-size:22px;">${info.emoji}</span><div style="font-size:13px;color:var(--text-light);">${info.desc}</div></div><div class="card-desc">${v.notas || 'Sin notas adicionales'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>📆 ${dias} día${dias !== 1 ? 's' : ''}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(v.creado)}${bloqueoText}</span></div><div class="card-actions"><button class="btn btn-secondary" onclick="editItem('vacaciones','${v.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="deleteItem('vacaciones','${v.id}')">🗑️ Eliminar</button></div></div>`;
     }).join('');
   }
   if (otherItems.length > 0) {
     html += `<div class="vacation-section-title">👥 Vacaciones de Compañeros (${otherItems.length})</div>`;
-    html += otherItems.map(v => {
+    html += otherItems.map((v, idx) => {
       const dias = v.dias || calcularDias(v.inicio, v.fin);
       const bloqueoText = v.semanaBloqueadaInicio ? `<br><span style="color:#C62828;font-size:11px;">🚫 Bloquea: ${formatShortDate(v.semanaBloqueadaInicio)} - ${formatShortDate(v.semanaBloqueadaFin)}</span>` : '';
-      return `<div class="card vacation-other"><div class="card-header"><div class="card-icon" style="background:#FFF3E0;">👤</div><span class="card-status ${getStatusClass(v.estado)}">${v.estado}</span></div><div class="card-title">${v.tipo}<span class="employee-name-badge">${v.userName || 'Empleado'}</span></div><div class="card-desc">${v.notas || 'Sin notas adicionales'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>📆 ${dias} día${dias !== 1 ? 's' : ''}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(v.creado)}${bloqueoText}</span></div></div>`;
+      return `<div class="card vacation-other" style="animation-delay:${idx * 0.08}s;"><div class="card-header"><div class="card-icon" style="background:#FFF3E0;">👤</div><span class="card-status ${getStatusClass(v.estado)}"><span class="status-dot ${v.estado}"></span>${v.estado}</span></div><div class="card-title">${v.tipo}<span class="employee-name-badge">${v.userName || 'Empleado'}</span></div><div class="card-desc">${v.notas || 'Sin notas adicionales'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>📆 ${dias} día${dias !== 1 ? 's' : ''}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(v.creado)}${bloqueoText}</span></div></div>`;
     }).join('');
   }
   if (myItems.length === 0 && otherItems.length === 0) {
@@ -672,9 +680,47 @@ function renderMateriales() {
   const items = window._materiales || [];
   if (items.length === 0) { grid.innerHTML = emptyState('📦', 'Sin solicitudes de materiales', 'Solicita el material que necesites para tus repartos'); return; }
   const urgenciaEmoji = { alta: '🔴', media: '🟡', baja: '🟢' };
-  grid.innerHTML = items.map(m => {
+  const estadoInfo = {
+    pendiente: { emoji: '⏳', texto: 'Pendiente de entrega', color: '#E65100', bg: '#FFF3E0', barClass: 'pendiente', pct: '33%' },
+    entregado: { emoji: '✅', texto: 'Material entregado', color: '#2E7D32', bg: '#E8F5E9', barClass: 'entregado', pct: '66%' },
+    cerrado:   { emoji: '🔒', texto: 'Solicitud finalizada', color: '#546E7A', bg: '#ECEFF1', barClass: 'cerrado', pct: '100%' }
+  };
+
+  grid.innerHTML = items.map((m, idx) => {
     const isCerrado = m.estado === 'cerrado';
-    return `<div class="card ${isCerrado ? 'incident-closed' : ''}"><div class="card-header"><div class="card-icon" style="background:#F3E5F5;">📦</div><span class="card-status ${getStatusClass(m.estado)}">${m.estado}</span></div><div class="card-title">${m.item}${isCerrado ? ' <span style="font-size:11px;color:#999;">(Cerrado)</span>' : ''}</div><div class="card-desc">Cantidad solicitada: <strong>${m.cantidad}</strong> unidad${m.cantidad > 1 ? 'es' : ''}</div><div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(m.creado)}</span></div><div class="card-actions">${isCerrado ? `<button class="btn btn-info" onclick="toggleCerrarMaterial('${m.id}', 0)">🔓 Reabrir</button>` : `<button class="btn btn-secondary" onclick="editItem('materiales','${m.id}')">✏️ Editar</button>`}<button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div></div>`;
+    const isEntregado = m.estado === 'entregado';
+    const info = estadoInfo[m.estado] || estadoInfo.pendiente;
+
+    return `<div class="card ${isCerrado ? 'incident-closed' : ''}" style="${isEntregado ? 'border-left:4px solid var(--accent);' : ''}animation-delay:${idx * 0.08}s;">
+      <div class="card-header">
+        <div class="card-icon" style="background:#F3E5F5;">📦</div>
+        <span class="card-status ${getStatusClass(m.estado)}">
+          <span class="status-dot ${m.estado}"></span>${m.estado}
+        </span>
+      </div>
+      <div class="card-title">${m.item}${isCerrado ? ' <span style="font-size:11px;color:#999;">(Finalizado)</span>' : ''}</div>
+
+      <!-- Barra de progreso animada -->
+      <div class="material-status-bar">
+        <div class="material-status-bar-fill ${info.barClass}"></div>
+      </div>
+
+      <!-- Estado prominente con animación -->
+      <div style="background:${info.bg};border-radius:8px;padding:12px 16px;margin:10px 0;display:flex;align-items:center;gap:12px;border:2px solid ${info.color}20;">
+        <span style="font-size:28px;animation:bounce 1s ease infinite;">${info.emoji}</span>
+        <div style="flex:1;">
+          <div style="font-weight:700;font-size:14px;color:${info.color};">${info.texto}</div>
+          <div style="font-size:12px;color:var(--text-light);margin-top:2px;">
+            ${isCerrado ? 'La solicitud ha sido completada y archivada' : isEntregado ? 'El material ha sido entregado correctamente' : 'Esperando confirmación de entrega por el administrador'}
+          </div>
+        </div>
+      </div>
+
+      <div class="card-desc">Cantidad solicitada: <strong>${m.cantidad}</strong> unidad${m.cantidad > 1 ? 'es' : ''}</div>
+      <div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span></div>
+      <div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(m.creado)}</span></div>
+      <div class="card-actions">${isCerrado ? `<button class="btn btn-info" onclick="toggleCerrarMaterial('${m.id}', 0)">🔓 Reabrir solicitud</button>` : `<button class="btn btn-secondary" onclick="editItem('materiales','${m.id}')">✏️ Editar</button>`}<button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div>
+    </div>`;
   }).join('');
 }
 

@@ -112,7 +112,221 @@
     .video-link-box{background:#E3F2FD;border-radius:8px;padding:12px;margin-top:12px;border-left:3px solid var(--info)}
     .video-link-box-title{font-size:11px;font-weight:600;color:#1565C0;margin-bottom:6px}
     @media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr)}.cards-grid{grid-template-columns:1fr}.header{flex-direction:column;gap:16px;text-align:center}.nav-tab{font-size:12px;padding:10px}.nav-tab span:not(.badge){display:none}}
-  </style>
+  
+    /* ==================== ANIMATED STATUS BADGES ==================== */
+    .card-status {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      animation: statusAppear 0.4s ease-out;
+    }
+    .card-status::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      animation: statusShine 3s ease-in-out infinite;
+    }
+    @keyframes statusAppear {
+      from { opacity: 0; transform: scale(0.8) translateY(-10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes statusShine {
+      0% { left: -100%; }
+      50% { left: 100%; }
+      100% { left: 100%; }
+    }
+
+    /* Status-specific animations */
+    .status-pendiente { animation: pulseOrange 2s ease-in-out infinite; }
+    .status-aprobado { animation: pulseGreen 2s ease-in-out infinite; }
+    .status-rechazado { animation: shakeRed 0.5s ease-in-out; }
+    .status-enviado { animation: slideBlue 2s ease-in-out infinite; }
+    .status-entregado { animation: bouncePurple 2s ease-in-out infinite; }
+    .status-revisado { animation: glowCyan 2s ease-in-out infinite; }
+    .status-cerrado { animation: fadeGray 3s ease-in-out infinite; }
+
+    @keyframes pulseOrange {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(230, 81, 0, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(230, 81, 0, 0); }
+    }
+    @keyframes pulseGreen {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(46, 125, 50, 0); }
+    }
+    @keyframes shakeRed {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      75% { transform: translateX(3px); }
+    }
+    @keyframes slideBlue {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(4px); }
+    }
+    @keyframes bouncePurple {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    @keyframes glowCyan {
+      0%, 100% { box-shadow: 0 0 5px rgba(0, 131, 143, 0.3); }
+      50% { box-shadow: 0 0 15px rgba(0, 131, 143, 0.6); }
+    }
+    @keyframes fadeGray {
+      0%, 100% { opacity: 0.9; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Card entrance animations */
+    .card {
+      animation: cardSlideIn 0.5s ease-out;
+      animation-fill-mode: both;
+    }
+    .card:nth-child(1) { animation-delay: 0.05s; }
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.15s; }
+    .card:nth-child(4) { animation-delay: 0.2s; }
+    .card:nth-child(5) { animation-delay: 0.25s; }
+    .card:nth-child(6) { animation-delay: 0.3s; }
+
+    @keyframes cardSlideIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Hover lift effect */
+    .card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Button animations */
+    .btn {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+    }
+    .btn:active::after {
+      width: 200px; height: 200px;
+    }
+
+    /* Stat card counter animation */
+    .stat-value {
+      animation: countUp 0.6s ease-out;
+    }
+    @keyframes countUp {
+      from { opacity: 0; transform: scale(0.5); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Toast notification */
+    .toast {
+      animation: toastSlideIn 0.3s ease, toastGlow 2s ease-in-out infinite;
+    }
+    @keyframes toastSlideIn {
+      from { opacity: 0; transform: translateX(100px) scale(0.9); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    @keyframes toastGlow {
+      0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+      50% { box-shadow: 0 4px 30px rgba(0,0,0,0.2); }
+    }
+
+    /* Modal animation */
+    .modal {
+      animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes modalPop {
+      from { opacity: 0; transform: translateY(40px) scale(0.9); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Loading spinner */
+    .spinner {
+      animation: spin 1s linear infinite, spinnerPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes spinnerPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Filter bar */
+    .admin-filter-bar {
+      animation: filterBarSlide 0.4s ease-out;
+    }
+    @keyframes filterBarSlide {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Empty state */
+    .empty-state {
+      animation: emptyStateFade 0.5s ease-out;
+    }
+    @keyframes emptyStateFade {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* Connection status pulse */
+    .conn-online {
+      animation: connPulse 2s ease-in-out infinite;
+    }
+    @keyframes connPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(46, 125, 50, 0.3); }
+      50% { box-shadow: 0 0 0 6px rgba(46, 125, 50, 0); }
+    }
+
+    /* Header icon bounce */
+    .header-icon {
+      animation: iconBounce 2s ease-in-out infinite;
+    }
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    /* Progress bar for materials */
+    .material-status-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .material-status-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.8s ease;
+      animation: barFill 1s ease-out;
+    }
+    .material-status-bar-fill.pendiente { width: 33%; background: linear-gradient(90deg, #FFB300, #FF6B00); }
+    .material-status-bar-fill.entregado { width: 66%; background: linear-gradient(90deg, #00C853, #2E7D32); }
+    .material-status-bar-fill.cerrado { width: 100%; background: linear-gradient(90deg, #78909C, #546E7A); }
+
+    @keyframes barFill {
+      from { width: 0; }
+    }
+
+    /* Tab content */
+    .content-area.active {
+      animation: tabFadeIn 0.4s ease;
+    }
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+</style>
 </head>
 <body>
   <div class="app-container">
@@ -329,7 +543,7 @@
         return; 
       }
 
-      grid.innerHTML = items.map(e => {
+      grid.innerHTML = items.map((e, idx) => {
         const hasLink = !!(e.videoUrl || e.videoLink);
         const isCerrado = e.estado === 'cerrado';
         const isRevisado = e.estado === 'revisado';
@@ -376,10 +590,10 @@
         actionsHtml += `<button class="btn btn-warning" onclick="toggleCerrarIncidente('${e.id}', ${isCerrado ? 0 : 1})">${isCerrado ? '🔓 Reabrir' : '🔒 Cerrar'}</button>`;
         actionsHtml += `<button class="btn btn-danger" onclick="deleteItem('evidencias','${e.id}')">🗑️ Eliminar</button>`;
 
-        return `<div class="card ${isCerrado ? 'incident-closed' : ''}">
+        return `<div class="card ${isCerrado ? 'incident-closed' : ''}" style="animation-delay:${idx * 0.06}s;">
           <div class="card-header">
             <div class="card-icon" style="background:#FFF3E0;">📸</div>
-            <span class="card-status ${getStatusClass(e.estado)}">${getStatusIcon(e.estado)} ${e.estado}</span>
+            <span class="card-status ${getStatusClass(e.estado)}"><span class="status-dot ${e.estado}"></span>${getStatusIcon(e.estado)} ${e.estado}</span>
           </div>
           <div class="card-title">${e.tipo}${isCerrado ? ' <span style="font-size:11px;color:#999;">(Cerrado)</span>' : ''}</div>
           <div class="card-desc">${e.descripcion}</div>
@@ -411,9 +625,10 @@
       const grid = document.getElementById('gridVacaciones');
       const items = window._vacaciones || [];
       if (items.length === 0) { grid.innerHTML = emptyState('🏖️', 'Sin solicitudes de vacaciones', 'No hay solicitudes de vacaciones registradas'); return; }
-      grid.innerHTML = items.map(v => {
+      grid.innerHTML = items.map((v, idx) => {
         const dias = v.dias || calcularDias(v.inicio, v.fin);
-        return `<div class="card"><div class="card-header"><div class="card-icon" style="background:#E3F2FD;">🏖️</div><span class="card-status ${getStatusClass(v.estado)}">${v.estado}</span></div><div class="card-title">${v.tipo}</div><div class="card-desc">${v.notas || 'Sin notas'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>⏱️ ${dias} día${dias !== 1 ? 's' : ''}</span><span>👤 ${v.userName || v.uid}</span></div><div class="card-actions"><button class="btn btn-info" onclick="markVacacion('${v.id}','${v.estado === 'aprobado' ? 'pendiente' : 'aprobado'}')">${v.estado === 'aprobado' ? '↩️ Desaprobar' : '✅ Aprobar'}</button><button class="btn btn-danger" onclick="deleteItem('vacaciones','${v.id}')">🗑️ Eliminar</button></div></div>`;
+        const estadoInfo = { pendiente: '⏳ Esperando aprobación', aprobado: '✅ Aprobada', rechazado: '❌ Rechazada' };
+        return `<div class="card" style="animation-delay:${idx * 0.06}s;"><div class="card-header"><div class="card-icon" style="background:#E3F2FD;">🏖️</div><span class="card-status ${getStatusClass(v.estado)}"><span class="status-dot ${v.estado}"></span>${v.estado}</span></div><div class="card-title">${v.tipo}</div><div style="background:var(--bg);border-radius:8px;padding:8px 12px;margin:8px 0;font-size:12px;color:var(--text-light);">${estadoInfo[v.estado] || ''}</div><div class="card-desc">${v.notas || 'Sin notas'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>⏱️ ${dias} día${dias !== 1 ? 's' : ''}</span><span>👤 ${v.userName || v.uid}</span></div><div class="card-actions"><button class="btn btn-info" onclick="markVacacion('${v.id}', ${v.estado === 'aprobado' ? 0 : 1})">${v.estado === 'aprobado' ? '↩️ Desaprobar' : '✅ Aprobar'}</button><button class="btn btn-danger" onclick="deleteItem('vacaciones','${v.id}')">🗑️ Eliminar</button></div></div>`;
       }).join('');
     }
 
@@ -422,9 +637,10 @@
       const items = window._materiales || [];
       if (items.length === 0) { grid.innerHTML = emptyState('📦', 'Sin solicitudes de materiales', 'No hay solicitudes de materiales registradas'); return; }
       const urgenciaEmoji = { alta: '🔴', media: '🟡', baja: '🟢' };
-      grid.innerHTML = items.map(m => {
+      grid.innerHTML = items.map((m, idx) => {
         const isCerrado = m.estado === 'cerrado';
-        return `<div class="card ${isCerrado ? 'incident-closed' : ''}"><div class="card-header"><div class="card-icon" style="background:#F3E5F5;">📦</div><span class="card-status ${getStatusClass(m.estado)}">${m.estado}</span></div><div class="card-title">${m.item}${isCerrado ? ' <span style="font-size:11px;color:#999;">(Cerrado)</span>' : ''}</div><div class="card-desc">Cantidad: <strong>${m.cantidad}</strong></div><div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span><span>👤 ${m.uid}</span></div><div class="card-actions">${!isCerrado ? `<button class="btn btn-info" onclick="markMaterial('${m.id}', '${m.estado === 'entregado' ? 'pendiente' : 'entregado'}')">${m.estado === 'entregado' ? '↩️ Pendiente' : '✅ Entregar'}</button><button class="btn btn-warning" onclick="toggleCerrarMaterial('${m.id}', 1)">🔒 Cerrar solicitud</button>` : `<button class="btn btn-info" onclick="toggleCerrarMaterial('${m.id}', 0)">🔓 Reabrir</button>`}<button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div></div>`;
+        const estadoDesc = { pendiente: '⏳ Esperando entrega', entregado: '✅ Material entregado', cerrado: '🔒 Solicitud finalizada' };
+        return `<div class="card ${isCerrado ? 'incident-closed' : ''}" style="animation-delay:${idx * 0.06}s;"><div class="card-header"><div class="card-icon" style="background:#F3E5F5;">📦</div><span class="card-status ${getStatusClass(m.estado)}"><span class="status-dot ${m.estado}"></span>${m.estado}</span></div><div class="card-title">${m.item}${isCerrado ? ' <span style="font-size:11px;color:#999;">(Cerrado)</span>' : ''}</div><div style="background:var(--bg);border-radius:8px;padding:8px 12px;margin:8px 0;font-size:12px;color:var(--text-light);">${estadoDesc[m.estado] || ''}</div><div class="card-desc">Cantidad: <strong>${m.cantidad}</strong></div><div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span><span>👤 ${m.uid}</span></div><div class="card-actions">${!isCerrado ? `<button class="btn btn-info" onclick="markMaterial('${m.id}', '${m.estado === 'entregado' ? 'pendiente' : 'entregado'}')">${m.estado === 'entregado' ? '↩️ Pendiente' : '✅ Entregar'}</button><button class="btn btn-warning" onclick="toggleCerrarMaterial('${m.id}', 1)">🔒 Cerrar solicitud</button>` : `<button class="btn btn-info" onclick="toggleCerrarMaterial('${m.id}', 0)">🔓 Reabrir</button>`}<button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div></div>`;
       }).join('');
     }
 
@@ -531,9 +747,13 @@
       catch (err) { showToast('Error: ' + err.message, 'error'); } finally { showLoading(false); }
     };
 
-    window.markVacacion = async function(id, estado) {
+    window.markVacacion = async function(id, aprobar) {
       showLoading(true);
-      try { await updateDoc(doc(db, 'vacaciones', id), { estado, actualizado: serverTimestamp() }); showToast('Estado actualizado', 'success'); }
+      const isAprobar = aprobar === 1 || aprobar === true;
+      try { 
+        await updateDoc(doc(db, 'vacaciones', id), { estado: isAprobar ? 'aprobado' : 'pendiente', actualizado: serverTimestamp() }); 
+        showToast(isAprobar ? '✅ Vacación aprobada' : '↩️ Aprobación retirada', 'success'); 
+      }
       catch (err) { showToast('Error: ' + err.message, 'error'); } finally { showLoading(false); }
     };
 
