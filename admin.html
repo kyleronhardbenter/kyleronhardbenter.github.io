@@ -300,18 +300,18 @@
       else if (adminFilter === 'revisado') items = items.filter(e => e.estado === 'revisado');
       else if (adminFilter === 'cerrado') items = items.filter(e => e.estado === 'cerrado');
       else if (adminFilter === 'sin-video') items = items.filter(e => !e.videoUrl);
-
+      
       if (items.length === 0) { 
         grid.innerHTML = emptyState('📸', 'Sin incidencias para revisar', 'Todas las incidencias han sido atendidas'); 
         return; 
       }
-
+      
       grid.innerHTML = items.map(e => {
         const hasVideo = !!e.videoUrl;
         const isCerrado = e.estado === 'cerrado';
         const isRevisado = e.estado === 'revisado';
         const isPendiente = e.estado === 'pendiente';
-
+        
         // Incident details
         let detailsHtml = '';
         if (e.numeroPedido || e.numeroRecogida) {
@@ -320,7 +320,7 @@
           if (e.numeroRecogida) detailsHtml += `<span>📋 Recogida: <strong>#${e.numeroRecogida}</strong></span>`;
           detailsHtml += `</div></div>`;
         }
-
+        
         // Comment
         let commentHtml = '';
         if (e.comentario) {
@@ -329,7 +329,7 @@
             <div class="comment-box-text">${e.comentario}</div>
           </div>`;
         }
-
+        
         // Admin actions
         let actionsHtml = '';
         if (!isCerrado) {
@@ -340,11 +340,11 @@
             actionsHtml += `<button class="btn btn-secondary" onclick="document.getElementById('videoInput_${e.id}').click()">🔄 Cambiar Video</button>
             <input type="file" id="videoInput_${e.id}" accept="video/*" style="display:none" onchange="uploadVideo('${e.id}',this)">`;
           }
-          actionsHtml += `<button class="btn btn-info" onclick="markAsRevisado('${e.id}',${e.estado === 'revisado' ? 'false' : 'true'}')">${e.estado === 'revisado' ? '↩️ Desmarcar' : '✅ Marcar revisado'}</button>`;
+          actionsHtml += `<button class="btn btn-info" onclick="markAsRevisado('${e.id}',${e.estado === 'revisado' ? 'false' : 'true'})">${e.estado === 'revisado' ? '↩️ Desmarcar' : '✅ Marcar revisado'}</button>`;
         }
-        actionsHtml += `<button class="btn btn-warning" onclick="toggleCerrarIncidente('${e.id}',${isCerrado ? 'false' : 'true'}')">${isCerrado ? '🔓 Reabrir' : '🔒 Cerrar'}</button>`;
+        actionsHtml += `<button class="btn btn-warning" onclick="toggleCerrarIncidente('${e.id}',${isCerrado ? 'false' : 'true'})">${isCerrado ? '🔓 Reabrir' : '🔒 Cerrar'}</button>`;
         actionsHtml += `<button class="btn btn-danger" onclick="deleteItem('evidencias','${e.id}')">🗑️ Eliminar</button>`;
-
+        
         return `<div class="card ${isCerrado ? 'incident-closed' : ''}">
           <div class="card-header">
             <div class="card-icon" style="background:#FFF3E0;">📸</div>
@@ -398,22 +398,64 @@
       return `<div class="empty-state"><div class="empty-state-icon">${icon}</div><div class="empty-state-title">${title}</div><div class="empty-state-desc">${desc}</div></div>`;
     }
 
+    // ==================== FIXED: uploadVideo with guaranteed loading stop ====================
     window.uploadVideo = async function(evidenceId, input) {
+      // Always clear the input first so the same file can be selected again
+      if (input) input.value = '';
+      
       if (!input.files || input.files.length === 0) return;
+      
       const file = input.files[0];
-      if (!file.type.startsWith('video/')) { showToast('El archivo debe ser un video', 'error'); return; }
+      if (!file.type.startsWith('video/')) { 
+        showToast('El archivo debe ser un video', 'error'); 
+        return; 
+      }
+      
       showLoading(true);
+      let videoUrl = null;
+      
       try {
+        // Step 1: Upload to Storage
         const videoRef = ref(storage, `videos_respuesta/${evidenceId}/${Date.now()}_${file.name}`);
         await uploadBytes(videoRef, file);
-        const videoUrl = await getDownloadURL(videoRef);
-        await updateDoc(doc(db, 'evidencias', evidenceId), { videoUrl: videoUrl, videoNombre: file.name, estado: 'revisado', videoSubido: serverTimestamp() });
-        const evRef = doc(db, 'evidencias', evidenceId);
-        const evSnap = await getDoc(evRef);
-        const evData = evSnap.data();
-        await addDoc(collection(db, 'notificaciones'), { userId: evData.uid, title: '🎥 Video de respuesta disponible', body: `El administrador ha subido un video de respuesta para tu incidencia: ${evData.tipo}`, data: { evidenceId, tipo: 'video_disponible' }, leida: false, creado: serverTimestamp() });
-        showToast('Video subido y notificación enviada al empleado', 'success');
-      } catch (err) { showToast('Error subiendo video: ' + err.message, 'error'); } finally { showLoading(false); }
+        videoUrl = await getDownloadURL(videoRef);
+        
+        // Step 2: Update Firestore document
+        await updateDoc(doc(db, 'evidencias', evidenceId), { 
+          videoUrl: videoUrl, 
+          videoNombre: file.name, 
+          estado: 'revisado', 
+          videoSubido: serverTimestamp() 
+        });
+        
+        // Step 3: Send notification to employee
+        try {
+          const evRef = doc(db, 'evidencias', evidenceId);
+          const evSnap = await getDoc(evRef);
+          if (evSnap.exists()) {
+            const evData = evSnap.data();
+            await addDoc(collection(db, 'notificaciones'), { 
+              userId: evData.uid, 
+              title: '🎥 Video de respuesta disponible', 
+              body: `El administrador ha subido un video de respuesta para tu incidencia: ${evData.tipo}`, 
+              data: { evidenceId, tipo: 'video_disponible' }, 
+              leida: false, 
+              creado: serverTimestamp() 
+            });
+          }
+        } catch (notifErr) {
+          console.warn('Error enviando notificación:', notifErr);
+          // Don't fail the whole operation if notification fails
+        }
+        
+        showToast('✅ Video subido y notificación enviada al empleado', 'success');
+      } catch (err) { 
+        console.error('Error subiendo video:', err);
+        showToast('❌ Error subiendo video: ' + (err.message || err.code || 'Error desconocido'), 'error'); 
+      } finally { 
+        // GUARANTEED: loading always stops
+        showLoading(false); 
+      }
     };
 
     window.markAsRevisado = async function(id, revisado) {
@@ -471,7 +513,9 @@
       setTimeout(() => { toast.remove(); }, 3000);
     }
 
-    function showLoading(show) { document.getElementById('loadingOverlay').classList.toggle('active', show); }
+    function showLoading(show) { 
+      document.getElementById('loadingOverlay').classList.toggle('active', show); 
+    }
   </script>
 </body>
 </html>
