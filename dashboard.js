@@ -13,6 +13,9 @@ const messaging = getMessaging(app);
 
 let currentUser = null, userProfile = null, currentTab = 'vacaciones', editingId = null, editingType = null, uploadedFiles = [], unsubscribers = [], fcmToken = null;
 let calendarYear = 2026;
+let evidenceFilterMonth = '';
+let evidenceFilterStartDate = '';
+let evidenceFilterEndDate = '';
 let selectedStart = null;
 let selectedEnd = null;
 let allVacations = [];
@@ -462,15 +465,72 @@ const TIPOS_INCIDENTE = [
 
 function renderEvidencias() {
   const grid = document.getElementById('gridEvidencias');
-  const items = window._evidencias || [];
+  let items = window._evidencias || [];
+
+  // Apply date filters
+  if (evidenceFilterMonth) {
+    items = items.filter(e => e.fecha && e.fecha.startsWith(evidenceFilterMonth));
+  }
+  if (evidenceFilterStartDate && evidenceFilterEndDate) {
+    items = items.filter(e => e.fecha >= evidenceFilterStartDate && e.fecha <= evidenceFilterEndDate);
+  } else if (evidenceFilterStartDate) {
+    items = items.filter(e => e.fecha >= evidenceFilterStartDate);
+  } else if (evidenceFilterEndDate) {
+    items = items.filter(e => e.fecha <= evidenceFilterEndDate);
+  }
+
+  // Build filter bar HTML
+  const months = [
+    { value: '', label: '📅 Todos los meses' },
+    { value: '2026-01', label: 'Enero 2026' }, { value: '2026-02', label: 'Febrero 2026' },
+    { value: '2026-03', label: 'Marzo 2026' }, { value: '2026-04', label: 'Abril 2026' },
+    { value: '2026-05', label: 'Mayo 2026' }, { value: '2026-06', label: 'Junio 2026' },
+    { value: '2026-07', label: 'Julio 2026' }, { value: '2026-08', label: 'Agosto 2026' },
+    { value: '2026-09', label: 'Septiembre 2026' }, { value: '2026-10', label: 'Octubre 2026' },
+    { value: '2026-11', label: 'Noviembre 2026' }, { value: '2026-12', label: 'Diciembre 2026' },
+    { value: '2025-01', label: 'Enero 2025' }, { value: '2025-02', label: 'Febrero 2025' },
+    { value: '2025-03', label: 'Marzo 2025' }, { value: '2025-04', label: 'Abril 2025' },
+    { value: '2025-05', label: 'Mayo 2025' }, { value: '2025-06', label: 'Junio 2025' },
+    { value: '2025-07', label: 'Julio 2025' }, { value: '2025-08', label: 'Agosto 2025' },
+    { value: '2025-09', label: 'Septiembre 2025' }, { value: '2025-10', label: 'Octubre 2025' },
+    { value: '2025-11', label: 'Noviembre 2025' }, { value: '2025-12', label: 'Diciembre 2025' }
+  ];
+
+  const monthOptions = months.map(m => `<option value="${m.value}" ${evidenceFilterMonth === m.value ? 'selected' : ''}>${m.label}</option>`).join('');
+  const hasFilters = evidenceFilterMonth || evidenceFilterStartDate || evidenceFilterEndDate;
+  const filterCount = items.length;
+
+  let filterBarHtml = `
+    <div style="background:var(--card);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;box-shadow:var(--shadow);">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px;">
+          <span style="font-size:13px;font-weight:600;color:var(--secondary);white-space:nowrap;">📅 Mes:</span>
+          <select id="evidenceMonthFilter" onchange="filterEvidenceByMonth(this.value)" 
+            style="flex:1;padding:10px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;background:var(--bg);cursor:pointer;min-width:160px;">
+            ${monthOptions}
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:280px;">
+          <span style="font-size:13px;font-weight:600;color:var(--secondary);white-space:nowrap;">📆 Rango:</span>
+          <input type="date" id="evidenceDateStart" value="${evidenceFilterStartDate}" onchange="filterEvidenceByDateRange()"
+            style="flex:1;padding:10px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;background:var(--bg);min-width:120px;">
+          <span style="color:var(--text-light);font-size:13px;">→</span>
+          <input type="date" id="evidenceDateEnd" value="${evidenceFilterEndDate}" onchange="filterEvidenceByDateRange()"
+            style="flex:1;padding:10px 14px;border:2px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:13px;background:var(--bg);min-width:120px;">
+        </div>
+        ${hasFilters ? `<button onclick="resetEvidenceFilters()" class="btn btn-danger" style="font-size:12px;padding:8px 14px;">🗑️ Limpiar filtros</button>` : ''}
+      </div>
+      ${hasFilters ? `<div style="margin-top:10px;font-size:12px;color:var(--primary);font-weight:500;">📊 Mostrando ${filterCount} de ${(window._evidencias || []).length} incidencias</div>` : ''}
+    </div>
+  `;
 
   if (items.length === 0) { 
-    grid.innerHTML = emptyState('📸', 'Sin incidencias registradas', 'Sé el primero en registrar una incidencia'); 
+    grid.innerHTML = filterBarHtml + emptyState('📸', 'Sin incidencias en este período', 'Prueba con otros filtros o fechas'); 
     return; 
   }
 
   // Build compact list
-  let html = '<div class="evidence-list-container">';
+  let html = filterBarHtml + '<div class="evidence-list-container">';
 
   items.forEach(e => {
     const isOwner = e.uid === currentUser?.uid;
@@ -586,6 +646,31 @@ window.toggleEvidenceDetail = function(id) {
   } else {
     expandedEvidenceId = id;
   }
+  renderEvidencias();
+};
+
+// ==================== EVIDENCE FILTERS ====================
+window.filterEvidenceByMonth = function(monthValue) {
+  evidenceFilterMonth = monthValue;
+  evidenceFilterStartDate = '';
+  evidenceFilterEndDate = '';
+  expandedEvidenceId = null;
+  renderEvidencias();
+};
+
+window.filterEvidenceByDateRange = function() {
+  evidenceFilterMonth = '';
+  evidenceFilterStartDate = document.getElementById('evidenceDateStart').value;
+  evidenceFilterEndDate = document.getElementById('evidenceDateEnd').value;
+  expandedEvidenceId = null;
+  renderEvidencias();
+};
+
+window.resetEvidenceFilters = function() {
+  evidenceFilterMonth = '';
+  evidenceFilterStartDate = '';
+  evidenceFilterEndDate = '';
+  expandedEvidenceId = null;
   renderEvidencias();
 };
 function renderMateriales() {
