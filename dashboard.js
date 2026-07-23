@@ -672,7 +672,10 @@ function renderMateriales() {
   const items = window._materiales || [];
   if (items.length === 0) { grid.innerHTML = emptyState('📦', 'Sin solicitudes de materiales', 'Solicita el material que necesites para tus repartos'); return; }
   const urgenciaEmoji = { alta: '🔴', media: '🟡', baja: '🟢' };
-  grid.innerHTML = items.map(m => `<div class="card"><div class="card-header"><div class="card-icon" style="background:#F3E5F5;">📦</div><span class="card-status ${getStatusClass(m.estado)}">${m.estado}</span></div><div class="card-title">${m.item}</div><div class="card-desc">Cantidad solicitada: <strong>${m.cantidad}</strong> unidad${m.cantidad > 1 ? 'es' : ''}</div><div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(m.creado)}</span></div><div class="card-actions"><button class="btn btn-secondary" onclick="editItem('materiales','${m.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div></div>`).join('');
+  grid.innerHTML = items.map(m => {
+    const isCerrado = m.estado === 'cerrado';
+    return `<div class="card ${isCerrado ? 'incident-closed' : ''}"><div class="card-header"><div class="card-icon" style="background:#F3E5F5;">📦</div><span class="card-status ${getStatusClass(m.estado)}">${m.estado}</span></div><div class="card-title">${m.item}${isCerrado ? ' <span style="font-size:11px;color:#999;">(Cerrado)</span>' : ''}</div><div class="card-desc">Cantidad solicitada: <strong>${m.cantidad}</strong> unidad${m.cantidad > 1 ? 'es' : ''}</div><div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(m.creado)}</span></div><div class="card-actions">${isCerrado ? `<button class="btn btn-info" onclick="toggleCerrarMaterial('${m.id}', 0)">🔓 Reabrir</button>` : `<button class="btn btn-secondary" onclick="editItem('materiales','${m.id}')">✏️ Editar</button>`}<button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div></div>`;
+  }).join('');
 }
 
 // Expose render functions to window for inline handlers
@@ -1106,6 +1109,23 @@ window.toggleIncidenteCerrado = async function(id, cerrar) {
     showToast('Error: ' + err.message, 'error'); 
   } finally { 
     showLoading(false); 
+  }
+};
+
+window.toggleCerrarMaterial = async function(id, cerrar) {
+  if (!currentUser) return;
+  showLoading(true);
+  const isCerrar = cerrar === 1 || cerrar === true;
+  try {
+    await updateDoc(doc(db, 'materiales', id), {
+      estado: isCerrar ? 'cerrado' : 'pendiente',
+      actualizado: serverTimestamp()
+    });
+    showToast(isCerrar ? '🔒 Solicitud cerrada' : '🔓 Solicitud reabierta', 'success');
+  } catch (err) {
+    showToast('Error: ' + err.message, 'error');
+  } finally {
+    showLoading(false);
   }
 };
 

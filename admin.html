@@ -371,9 +371,9 @@
           } else {
             actionsHtml += `<button class="btn btn-secondary" onclick="openLinkModal('${e.id}', '${e.videoLink || e.videoUrl}', '${e.videoLinkName || ''}')">🔄 Cambiar Link</button>`;
           }
-          actionsHtml += `<button class="btn btn-info" onclick="markAsRevisado('${e.id}',${e.estado === 'revisado' ? 'false' : 'true'}')">${e.estado === 'revisado' ? '↩️ Desmarcar' : '✅ Marcar revisado'}</button>`;
+          actionsHtml += `<button class="btn btn-info" onclick="markAsRevisado('${e.id}', ${e.estado === 'revisado' ? 0 : 1})">${e.estado === 'revisado' ? '↩️ Desmarcar' : '✅ Marcar revisado'}</button>`;
         }
-        actionsHtml += `<button class="btn btn-warning" onclick="toggleCerrarIncidente('${e.id}',${isCerrado ? 'false' : 'true'}')">${isCerrado ? '🔓 Reabrir' : '🔒 Cerrar'}</button>`;
+        actionsHtml += `<button class="btn btn-warning" onclick="toggleCerrarIncidente('${e.id}', ${isCerrado ? 0 : 1})">${isCerrado ? '🔓 Reabrir' : '🔒 Cerrar'}</button>`;
         actionsHtml += `<button class="btn btn-danger" onclick="deleteItem('evidencias','${e.id}')">🗑️ Eliminar</button>`;
 
         return `<div class="card ${isCerrado ? 'incident-closed' : ''}">
@@ -422,7 +422,10 @@
       const items = window._materiales || [];
       if (items.length === 0) { grid.innerHTML = emptyState('📦', 'Sin solicitudes de materiales', 'No hay solicitudes de materiales registradas'); return; }
       const urgenciaEmoji = { alta: '🔴', media: '🟡', baja: '🟢' };
-      grid.innerHTML = items.map(m => `<div class="card"><div class="card-header"><div class="card-icon" style="background:#F3E5F5;">📦</div><span class="card-status ${getStatusClass(m.estado)}">${m.estado}</span></div><div class="card-title">${m.item}</div><div class="card-desc">Cantidad: <strong>${m.cantidad}</strong></div><div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span><span>👤 ${m.uid}</span></div><div class="card-actions"><button class="btn btn-info" onclick="markMaterial('${m.id}','${m.estado === 'entregado' ? 'pendiente' : 'entregado'}')">${m.estado === 'entregado' ? '↩️ Pendiente' : '✅ Entregar'}</button><button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div></div>`).join('');
+      grid.innerHTML = items.map(m => {
+        const isCerrado = m.estado === 'cerrado';
+        return `<div class="card ${isCerrado ? 'incident-closed' : ''}"><div class="card-header"><div class="card-icon" style="background:#F3E5F5;">📦</div><span class="card-status ${getStatusClass(m.estado)}">${m.estado}</span></div><div class="card-title">${m.item}${isCerrado ? ' <span style="font-size:11px;color:#999;">(Cerrado)</span>' : ''}</div><div class="card-desc">Cantidad: <strong>${m.cantidad}</strong></div><div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span><span>👤 ${m.uid}</span></div><div class="card-actions">${!isCerrado ? `<button class="btn btn-info" onclick="markMaterial('${m.id}', '${m.estado === 'entregado' ? 'pendiente' : 'entregado'}')">${m.estado === 'entregado' ? '↩️ Pendiente' : '✅ Entregar'}</button><button class="btn btn-warning" onclick="toggleCerrarMaterial('${m.id}', 1)">🔒 Cerrar solicitud</button>` : `<button class="btn btn-info" onclick="toggleCerrarMaterial('${m.id}', 0)">🔓 Reabrir</button>`}<button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div></div>`;
+      }).join('');
     }
 
     function emptyState(icon, title, desc) {
@@ -505,23 +508,25 @@
 
     window.markAsRevisado = async function(id, revisado) {
       showLoading(true);
+      const isRevisado = revisado === 1 || revisado === true;
       try { 
-        await updateDoc(doc(db, 'evidencias', id), { estado: revisado ? 'revisado' : 'pendiente', actualizado: serverTimestamp() }); 
-        showToast(revisado ? 'Marcado como revisado' : 'Desmarcado', 'success'); 
+        await updateDoc(doc(db, 'evidencias', id), { estado: isRevisado ? 'revisado' : 'pendiente', actualizado: serverTimestamp() }); 
+        showToast(isRevisado ? 'Marcado como revisado' : 'Desmarcado', 'success'); 
       }
       catch (err) { showToast('Error: ' + err.message, 'error'); } finally { showLoading(false); }
     };
 
     window.toggleCerrarIncidente = async function(id, cerrar) {
       showLoading(true);
+      const isCerrar = cerrar === 1 || cerrar === true;
       try { 
         await updateDoc(doc(db, 'evidencias', id), { 
-          estado: cerrar ? 'cerrado' : 'revisado', 
+          estado: isCerrar ? 'cerrado' : 'revisado', 
           cerradoPor: currentUser.uid,
-          cerradoEn: cerrar ? serverTimestamp() : null,
+          cerradoEn: isCerrar ? serverTimestamp() : null,
           actualizado: serverTimestamp() 
         }); 
-        showToast(cerrar ? '🔒 Incidente cerrado' : '🔓 Incidente reabierto', 'success'); 
+        showToast(isCerrar ? '🔒 Incidente cerrado' : '🔓 Incidente reabierto', 'success'); 
       }
       catch (err) { showToast('Error: ' + err.message, 'error'); } finally { showLoading(false); }
     };
@@ -535,6 +540,19 @@
     window.markMaterial = async function(id, estado) {
       showLoading(true);
       try { await updateDoc(doc(db, 'materiales', id), { estado, actualizado: serverTimestamp() }); showToast('Estado actualizado', 'success'); }
+      catch (err) { showToast('Error: ' + err.message, 'error'); } finally { showLoading(false); }
+    };
+
+    window.toggleCerrarMaterial = async function(id, cerrar) {
+      showLoading(true);
+      const isCerrar = cerrar === 1 || cerrar === true;
+      try {
+        await updateDoc(doc(db, 'materiales', id), {
+          estado: isCerrar ? 'cerrado' : 'pendiente',
+          actualizado: serverTimestamp()
+        });
+        showToast(isCerrar ? '🔒 Solicitud cerrada' : '🔓 Solicitud reabierta', 'success');
+      }
       catch (err) { showToast('Error: ' + err.message, 'error'); } finally { showLoading(false); }
     };
 
