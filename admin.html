@@ -398,27 +398,43 @@
       return `<div class="empty-state"><div class="empty-state-icon">${icon}</div><div class="empty-state-title">${title}</div><div class="empty-state-desc">${desc}</div></div>`;
     }
 
-    // ==================== FIXED: uploadVideo with guaranteed loading stop ====================
+    // ==================== FIXED: uploadVideo - read file BEFORE clearing input ====================
     window.uploadVideo = async function(evidenceId, input) {
-      // Always clear the input first so the same file can be selected again
-      if (input) input.value = '';
-      
-      if (!input.files || input.files.length === 0) return;
+      if (!input || !input.files || input.files.length === 0) {
+        showToast('No se seleccionó ningún archivo', 'error');
+        return;
+      }
       
       const file = input.files[0];
+      
+      // Clear input immediately AFTER reading the file so same file can be selected again
+      input.value = '';
+      
+      // Validate file type
       if (!file.type.startsWith('video/')) { 
-        showToast('El archivo debe ser un video', 'error'); 
+        showToast('El archivo debe ser un video (MP4, MOV, etc.)', 'error'); 
         return; 
       }
       
+      // Validate file size (max 100MB)
+      const maxSize = 100 * 1024 * 1024;
+      if (file.size > maxSize) {
+        showToast('El video es demasiado grande. Máximo 100MB.', 'error');
+        return;
+      }
+      
       showLoading(true);
-      let videoUrl = null;
       
       try {
+        console.log('Subiendo video:', file.name, 'Tamaño:', (file.size / 1024 / 1024).toFixed(2) + 'MB');
+        
         // Step 1: Upload to Storage
         const videoRef = ref(storage, `videos_respuesta/${evidenceId}/${Date.now()}_${file.name}`);
-        await uploadBytes(videoRef, file);
-        videoUrl = await getDownloadURL(videoRef);
+        const uploadResult = await uploadBytes(videoRef, file);
+        console.log('Upload completado:', uploadResult);
+        
+        const videoUrl = await getDownloadURL(videoRef);
+        console.log('URL obtenida:', videoUrl);
         
         // Step 2: Update Firestore document
         await updateDoc(doc(db, 'evidencias', evidenceId), { 
@@ -427,6 +443,7 @@
           estado: 'revisado', 
           videoSubido: serverTimestamp() 
         });
+        console.log('Firestore actualizado');
         
         // Step 3: Send notification to employee
         try {
@@ -442,18 +459,20 @@
               leida: false, 
               creado: serverTimestamp() 
             });
+            console.log('Notificación enviada');
           }
         } catch (notifErr) {
-          console.warn('Error enviando notificación:', notifErr);
-          // Don't fail the whole operation if notification fails
+          console.warn('Error enviando notificación (no crítico):', notifErr);
         }
         
-        showToast('✅ Video subido y notificación enviada al empleado', 'success');
+        showToast('✅ Video subido correctamente', 'success');
       } catch (err) { 
-        console.error('Error subiendo video:', err);
-        showToast('❌ Error subiendo video: ' + (err.message || err.code || 'Error desconocido'), 'error'); 
+        console.error('Error completo subiendo video:', err);
+        let msg = 'Error subiendo video';
+        if (err.code) msg += ` [${err.code}]`;
+        if (err.message) msg += `: ${err.message}`;
+        showToast(msg, 'error'); 
       } finally { 
-        // GUARANTEED: loading always stops
         showLoading(false); 
       }
     };
