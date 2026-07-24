@@ -326,6 +326,34 @@
       from { opacity: 0; transform: translateY(15px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* ==================== EVIDENCE LIST STYLES ==================== */
+    .evidence-list-container{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .evidence-list-item{border-bottom:1px solid var(--border);cursor:pointer;transition:all .2s}
+    .evidence-list-item:last-child{border-bottom:none}
+    .evidence-list-item:hover{background:#fafafa}
+    .evidence-list-item.expanded{background:#fff8f0;border-left:4px solid var(--primary)}
+    .evidence-list-item.closed{opacity:0.7}
+    .evidence-list-row{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;gap:12px}
+    .evidence-list-main{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+    .evidence-list-pedido{font-size:15px;font-weight:700;color:var(--primary);white-space:nowrap}
+    .evidence-list-tipo{font-size:13px;color:var(--text-light);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .evidence-list-meta{display:flex;align-items:center;gap:16px;flex-shrink:0}
+    .evidence-list-status{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+    .evidence-list-date{font-size:12px;color:var(--text-light)}
+    .evidence-list-arrow{font-size:12px;color:var(--text-light);transition:transform .2s}
+    .evidence-list-item.expanded .evidence-list-arrow{transform:rotate(180deg)}
+    .evidence-detail{padding:0 20px 20px;animation:fadeIn .3s ease}
+    .evidence-detail-box{background:#f8f9fa;border-radius:8px;padding:12px;margin-top:10px}
+    .evidence-detail-row{display:flex;gap:16px;flex-wrap:wrap;font-size:12px}
+    .evidence-detail-row span{display:flex;align-items:center;gap:4px;color:var(--text-light)}
+    .evidence-detail-row strong{color:var(--secondary)}
+    .comment-box{background:#FFF8E1;border-radius:8px;padding:12px;margin-top:10px;border-left:3px solid var(--warning)}
+    .comment-box-title{font-size:11px;font-weight:600;color:#E65100;margin-bottom:4px}
+    .comment-box-text{font-size:13px;color:var(--text);line-height:1.5}
+
+    @media(max-width:768px){
+      .stats-row{grid-template-columns:repeat(2,1fr)}
 </style>
 </head>
 <body>
@@ -424,7 +452,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser = null, currentTab = 'evidencias', adminFilter = 'todos', unsubscribers = [];
+    let currentUser = null, currentTab = 'evidencias', adminFilter = 'todos', unsubscribers = [], expandedEvidenceId = null;
     let currentLinkEvidenceId = null;
 
     onAuthStateChanged(auth, async (user) => {
@@ -533,6 +561,8 @@
     function renderEvidencias() {
       const grid = document.getElementById('gridEvidencias');
       let items = window._evidencias || [];
+
+      // Apply admin filters
       if (adminFilter === 'pendiente') items = items.filter(e => e.estado === 'pendiente');
       else if (adminFilter === 'revisado') items = items.filter(e => e.estado === 'revisado');
       else if (adminFilter === 'cerrado') items = items.filter(e => e.estado === 'cerrado');
@@ -543,83 +573,120 @@
         return; 
       }
 
-      grid.innerHTML = items.map((e, idx) => {
+      // Build compact list
+      let html = '<div class="evidence-list-container">';
+
+      items.forEach((e, idx) => {
         const hasLink = !!(e.videoUrl || e.videoLink);
         const isCerrado = e.estado === 'cerrado';
         const isRevisado = e.estado === 'revisado';
+        const isExpanded = expandedEvidenceId === e.id;
 
-        // Incident details
-        let detailsHtml = '';
-        if (e.numeroPedido || e.numeroRecogida) {
-          detailsHtml += `<div class="evidence-detail-box"><div class="evidence-detail-row">`;
-          if (e.numeroPedido) detailsHtml += `<span>🛒 Pedido: <strong>#${e.numeroPedido}</strong></span>`;
-          if (e.numeroRecogida) detailsHtml += `<span>📋 Recogida: <strong>#${e.numeroRecogida}</strong></span>`;
-          detailsHtml += `</div></div>`;
-        }
+        // Compact row (always visible)
+        const pedidoDisplay = e.numeroPedido ? `#${e.numeroPedido}` : (e.numeroRecogida ? `Recogida #${e.numeroRecogida}` : 'Sin número');
+        const linkIndicator = hasLink ? ' 🎥' : '';
+        const statusDot = isCerrado ? '🔒' : (isRevisado ? '👁️' : '⏳');
+        const statusColor = isCerrado ? '#546E7A' : (isRevisado ? '#00838F' : '#E65100');
 
-        // Comment
-        let commentHtml = '';
-        if (e.comentario) {
-          commentHtml = `<div class="comment-box">
-            <div class="comment-box-title">💬 Comentario del empleado</div>
-            <div class="comment-box-text">${e.comentario}</div>
-          </div>`;
-        }
-
-        // Video link section
-        let videoHtml = '';
-        if (hasLink) {
-          const link = e.videoLink || e.videoUrl;
-          const linkName = e.videoLinkName || 'Ver video de respuesta';
-          videoHtml = `<div class="video-link-box">
-            <div class="video-link-box-title">🎥 Video de respuesta disponible</div>
-            <a href="${link}" target="_blank" class="btn btn-link" style="width:100%;justify-content:center;margin-top:8px;">🔗 ${linkName}</a>
-          </div>`;
-        }
-
-        // Admin actions
-        let actionsHtml = '';
-        if (!isCerrado) {
-          if (!hasLink) {
-            actionsHtml += `<button class="btn btn-success" onclick="openLinkModal('${e.id}')">🔗 Añadir Link</button>`;
-          } else {
-            actionsHtml += `<button class="btn btn-secondary" onclick="openLinkModal('${e.id}', '${e.videoLink || e.videoUrl}', '${e.videoLinkName || ''}')">🔄 Cambiar Link</button>`;
+        // Build detail HTML inline
+        let detailHtml = '';
+        if (isExpanded) {
+          let detailsHtml = '';
+          if (e.numeroPedido || e.numeroRecogida) {
+            detailsHtml += `<div class="evidence-detail-box"><div class="evidence-detail-row">`;
+            if (e.numeroPedido) detailsHtml += `<span>🛒 Pedido: <strong>#${e.numeroPedido}</strong></span>`;
+            if (e.numeroRecogida) detailsHtml += `<span>📋 Recogida: <strong>#${e.numeroRecogida}</strong></span>`;
+            detailsHtml += `</div></div>`;
           }
-          actionsHtml += `<button class="btn btn-info" onclick="markAsRevisado('${e.id}', ${e.estado === 'revisado' ? 0 : 1})">${e.estado === 'revisado' ? '↩️ Desmarcar' : '✅ Marcar revisado'}</button>`;
+
+          let commentHtml = '';
+          if (e.comentario) {
+            commentHtml = `<div class="comment-box">
+              <div class="comment-box-title">💬 Comentario del empleado</div>
+              <div class="comment-box-text">${e.comentario}</div>
+            </div>`;
+          }
+
+          let videoHtml = '';
+          if (hasLink) {
+            const link = e.videoLink || e.videoUrl;
+            const linkName = e.videoLinkName || 'Ver video de respuesta';
+            videoHtml = `<div class="video-link-box">
+              <div class="video-link-box-title">🎥 Video de respuesta disponible</div>
+              <a href="${link}" target="_blank" class="btn btn-link" style="width:100%;justify-content:center;margin-top:8px;">🔗 ${linkName}</a>
+            </div>`;
+          }
+
+          // Admin actions
+          let actionsHtml = '';
+          if (!isCerrado) {
+            if (!hasLink) {
+              actionsHtml += `<button class="btn btn-success" onclick="event.stopPropagation(); openLinkModal('${e.id}')">🔗 Añadir Link</button>`;
+            } else {
+              actionsHtml += `<button class="btn btn-secondary" onclick="event.stopPropagation(); openLinkModal('${e.id}', '${e.videoLink || e.videoUrl}', '${e.videoLinkName || ''}')">🔄 Cambiar Link</button>`;
+            }
+            actionsHtml += `<button class="btn btn-info" onclick="event.stopPropagation(); markAsRevisado('${e.id}', ${e.estado === 'revisado' ? 0 : 1})">${e.estado === 'revisado' ? '↩️ Desmarcar' : '✅ Marcar revisado'}</button>`;
+          }
+          actionsHtml += `<button class="btn btn-warning" onclick="event.stopPropagation(); toggleCerrarIncidente('${e.id}', ${isCerrado ? 0 : 1})">${isCerrado ? '🔓 Reabrir' : '🔒 Cerrar'}</button>`;
+          actionsHtml += `<button class="btn btn-danger" onclick="event.stopPropagation(); deleteItem('evidencias','${e.id}')">🗑️ Eliminar</button>`;
+
+          const imagenesHtml = e.imagenes && Array.isArray(e.imagenes) && e.imagenes.length > 0
+            ? `<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">${e.imagenes.map(img => `<img src="${img}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="event.stopPropagation(); window.open('${img}')">`).join('')}</div>`
+            : '';
+
+          detailHtml = `
+            <div class="evidence-detail" onclick="event.stopPropagation()">
+              <div class="card-desc" style="margin-top:12px;">${e.descripcion}</div>
+              ${detailsHtml}
+              ${commentHtml}
+              <div class="card-meta" style="margin-top:12px;">
+                <span>📅 ${formatDate(e.fecha)} ${e.hora || ''}</span>
+                <span>👤 ${e.userName || e.userEmail || 'Empleado'}</span>
+              </div>
+              ${imagenesHtml}
+              ${videoHtml}
+              <div class="card-meta" style="margin-top:8px;">
+                <span style="font-size:11px;color:#999;">Registrado: ${formatFirestoreDate(e.creado)}</span>
+              </div>
+              <div class="card-actions">${actionsHtml}</div>
+            </div>
+          `;
         }
-        actionsHtml += `<button class="btn btn-warning" onclick="toggleCerrarIncidente('${e.id}', ${isCerrado ? 0 : 1})">${isCerrado ? '🔓 Reabrir' : '🔒 Cerrar'}</button>`;
-        actionsHtml += `<button class="btn btn-danger" onclick="deleteItem('evidencias','${e.id}')">🗑️ Eliminar</button>`;
 
-        return `<div class="card ${isCerrado ? 'incident-closed' : ''}" style="animation-delay:${idx * 0.06}s;">
-          <div class="card-header">
-            <div class="card-icon" style="background:#FFF3E0;">📸</div>
-            <span class="card-status ${getStatusClass(e.estado)}"><span class="status-dot ${e.estado}"></span>${getStatusIcon(e.estado)} ${e.estado}</span>
+        html += `
+          <div class="evidence-list-item ${isExpanded ? 'expanded' : ''} ${isCerrado ? 'closed' : ''}" onclick="toggleEvidenceDetail('${e.id}')" style="animation-delay:${idx * 0.03}s;">
+            <div class="evidence-list-row">
+              <div class="evidence-list-main">
+                <span class="evidence-list-pedido">🛒 ${pedidoDisplay}${linkIndicator}</span>
+                <span class="evidence-list-tipo">${e.tipo}</span>
+              </div>
+              <div class="evidence-list-meta">
+                <span class="evidence-list-status" style="color:${statusColor}">${statusDot} ${e.estado}</span>
+                <span class="evidence-list-date">${formatDate(e.fecha)}</span>
+                <span class="evidence-list-arrow">${isExpanded ? '▲' : '▼'}</span>
+              </div>
+            </div>
+            ${detailHtml}
           </div>
-          <div class="card-title">${e.tipo}${isCerrado ? ' <span style="font-size:11px;color:#999;">(Cerrado)</span>' : ''}</div>
-          <div class="card-desc">${e.descripcion}</div>
-          ${detailsHtml}
-          ${commentHtml}
-          <div class="card-meta" style="margin-top:12px;">
-            <span>📅 ${formatDate(e.fecha)} ${e.hora || ''}</span>
-            <span>👤 ${e.userName || e.userEmail || 'Empleado'}</span>
-          </div>
-          ${e.imagenes && Array.isArray(e.imagenes) && e.imagenes.length > 0 ? `<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;">${e.imagenes.map(img => `<img src="${img}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;cursor:pointer;" onclick="window.open('${img}')">`).join('')}</div>` : ''}
-          ${videoHtml}
-          <div class="card-meta" style="margin-top:8px;">
-            <span style="font-size:11px;color:#999;">Registrado: ${formatFirestoreDate(e.creado)}</span>
-          </div>
-          <div class="card-actions">${actionsHtml}</div>
-        </div>`;
-      }).join('');
+        `;
+      });
+
+      html += '</div>';
+      grid.innerHTML = html;
     }
 
-    function calcularDias(inicio, fin) {
-      if (!inicio || !fin) return 1;
-      const d1 = new Date(inicio + 'T00:00:00');
-      const d2 = new Date(fin + 'T00:00:00');
-      const diff = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
-      return diff > 0 ? diff : 1;
-    }
+    window.toggleEvidenceDetail = function(id) {
+      const items = window._evidencias || [];
+      const e = items.find(item => item.id === id);
+      if (!e) return;
+
+      if (expandedEvidenceId === id) {
+        expandedEvidenceId = null;
+      } else {
+        expandedEvidenceId = id;
+      }
+      renderEvidencias();
+    };
 
     function renderVacaciones() {
       const grid = document.getElementById('gridVacaciones');

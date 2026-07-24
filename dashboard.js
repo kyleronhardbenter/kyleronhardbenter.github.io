@@ -424,150 +424,22 @@ function renderVacaciones() {
   const myItems = allItems.filter(v => v.uid === currentUser?.uid);
   const otherItems = allItems.filter(v => v.uid !== currentUser?.uid && v.estado !== 'rechazado');
 
-  const estadoVacInfo = {
-    pendiente: { 
-      emoji: '⏳', 
-      desc: 'Esperando aprobación',
-      color: '#E65100',
-      bg: '#FFF3E0',
-      border: '#FFCC80'
-    },
-    aprobado:  { 
-      emoji: '✅', 
-      desc: 'Aprobada',
-      color: '#2E7D32',
-      bg: '#E8F5E9',
-      border: '#A5D6A7'
-    },
-    rechazado: { 
-      emoji: '❌', 
-      desc: 'Rechazada',
-      color: '#C62828',
-      bg: '#FFEBEE',
-      border: '#EF9A9A'
-    }
-  };
-
-  function buildVacationCard(v, idx, isMine) {
-    const dias = v.dias || calcularDias(v.inicio, v.fin);
-    const info = estadoVacInfo[v.estado] || estadoVacInfo.pendiente;
-    const inicio = new Date(v.inicio + 'T00:00:00');
-    const fin = new Date(v.fin + 'T00:00:00');
-    const hoy = new Date(); hoy.setHours(0,0,0,0);
-
-    // Calculate progress
-    let progressPct = 0;
-    let progressText = '';
-    if (v.estado === 'aprobado') {
-      if (hoy < inicio) {
-        const totalDays = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24)) + 1;
-        const daysUntil = Math.ceil((inicio - hoy) / (1000 * 60 * 60 * 24));
-        progressPct = 0;
-        progressText = `Faltan ${daysUntil} día${daysUntil !== 1 ? 's' : ''}`;
-      } else if (hoy >= inicio && hoy <= fin) {
-        const totalDays = Math.ceil((fin - inicio) / (1000 * 60 * 60 * 24)) + 1;
-        const daysPassed = Math.ceil((hoy - inicio) / (1000 * 60 * 60 * 24)) + 1;
-        progressPct = Math.min(100, Math.round((daysPassed / totalDays) * 100));
-        progressText = `Día ${daysPassed} de ${totalDays}`;
-      } else {
-        progressPct = 100;
-        progressText = 'Finalizado';
-      }
-    }
-
-    const bloqueoHtml = v.semanaBloqueadaInicio 
-      ? `<div style="margin-top:10px;padding:8px 12px;background:#FFEBEE;border-radius:8px;border-left:3px solid #C62828;font-size:12px;color:#C62828;"><strong>🚫 Semana bloqueada:</strong> ${formatShortDate(v.semanaBloqueadaInicio)} - ${formatShortDate(v.semanaBloqueadaFin)}</div>` 
-      : '';
-
-    const timelineHtml = `
-      <div style="display:flex;align-items:center;gap:8px;margin:14px 0;padding:14px;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-radius:12px;">
-        <div style="text-align:center;min-width:70px;">
-          <div style="font-size:24px;font-weight:700;color:var(--primary);">${inicio.getDate()}</div>
-          <div style="font-size:11px;color:var(--text-light);text-transform:uppercase;">${inicio.toLocaleDateString('es-ES',{month:'short'})}</div>
-        </div>
-        <div style="flex:1;display:flex;align-items:center;gap:6px;">
-          <div style="height:3px;flex:1;background:var(--border);border-radius:3px;overflow:hidden;">
-            <div style="height:100%;width:${progressPct}%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:3px;transition:width 1s ease;"></div>
-          </div>
-          <span style="font-size:16px;">🏖️</span>
-          <div style="height:3px;flex:1;background:var(--border);border-radius:3px;overflow:hidden;">
-            <div style="height:100%;width:100%;background:linear-gradient(90deg,var(--accent),var(--primary));border-radius:3px;"></div>
-          </div>
-        </div>
-        <div style="text-align:center;min-width:70px;">
-          <div style="font-size:24px;font-weight:700;color:var(--primary);">${fin.getDate()}</div>
-          <div style="font-size:11px;color:var(--text-light);text-transform:uppercase;">${fin.toLocaleDateString('es-ES',{month:'short'})}</div>
-        </div>
-      </div>
-    `;
-
-    const progressBarHtml = v.estado === 'aprobado' ? `
-      <div style="margin:10px 0;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <span style="font-size:11px;font-weight:600;color:var(--text-light);">Progreso</span>
-          <span style="font-size:11px;font-weight:600;color:var(--primary);">${progressText}</span>
-        </div>
-        <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
-          <div style="height:100%;width:${progressPct}%;background:linear-gradient(90deg,var(--primary),var(--accent));border-radius:3px;transition:width 1.2s ease;"></div>
-        </div>
-      </div>
-    ` : '';
-
-    const actionsHtml = isMine 
-      ? `<div class="card-actions"><button class="btn btn-secondary" onclick="editItem('vacaciones','${v.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="deleteItem('vacaciones','${v.id}')">🗑️ Eliminar</button></div>`
-      : '';
-
-    return `
-      <div class="card ${isMine ? 'vacation-mine' : 'vacation-other'}" style="animation-delay:${idx * 0.08}s;border:2px solid ${info.border};">
-        <div class="card-header">
-          <div class="card-icon" style="background:${info.bg};">${isMine ? '🏖️' : '👤'}</div>
-          <span class="card-status ${getStatusClass(v.estado)}">
-            <span class="status-dot ${v.estado}"></span>${v.estado}
-          </span>
-        </div>
-
-        <div class="card-title">${v.tipo}${!isMine ? `<span class="employee-name-badge">${v.userName || 'Empleado'}</span>` : ''}</div>
-
-        <!-- Estado banner -->
-        <div style="background:${info.bg};border-radius:10px;padding:12px 16px;margin:10px 0;display:flex;align-items:center;gap:12px;border:1px solid ${info.border};">
-          <span style="font-size:28px;">${info.emoji}</span>
-          <div>
-            <div style="font-weight:700;font-size:14px;color:${info.color};">${info.desc}</div>
-            <div style="font-size:12px;color:var(--text-light);margin-top:2px;">${dias} día${dias !== 1 ? 's' : ''} solicitado${dias !== 1 ? 's' : ''}</div>
-          </div>
-        </div>
-
-        <!-- Timeline visual -->
-        ${timelineHtml}
-
-        ${progressBarHtml}
-
-        <div class="card-desc">${v.notas || 'Sin notas adicionales'}</div>
-
-        <div class="card-meta" style="margin-top:8px;">
-          <span>📆 ${dias} día${dias !== 1 ? 's' : ''}</span>
-          <span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span>
-        </div>
-
-        ${bloqueoHtml}
-
-        <div class="card-meta" style="margin-top:8px;">
-          <span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(v.creado)}</span>
-        </div>
-
-        ${actionsHtml}
-      </div>
-    `;
-  }
+  const estadoVacInfo = { pendiente: '⏳ Esperando aprobación', aprobado: '✅ Aprobada', rechazado: '❌ Rechazada' };
 
   let html = '';
   if (myItems.length > 0) {
     html += `<div class="vacation-section-title">🏖️ Mis Solicitudes (${myItems.length})</div>`;
-    html += myItems.map((v, idx) => buildVacationCard(v, idx, true)).join('');
+    html += myItems.map((v, idx) => {
+      const dias = v.dias || calcularDias(v.inicio, v.fin);
+      return `<div class="card vacation-mine" style="animation-delay:${idx * 0.06}s;"><div class="card-header"><div class="card-icon" style="background:#E3F2FD;">🏖️</div><span class="card-status ${getStatusClass(v.estado)}"><span class="status-dot ${v.estado}"></span>${v.estado}</span></div><div class="card-title">${v.tipo}</div><div style="background:var(--bg);border-radius:8px;padding:8px 12px;margin:8px 0;font-size:12px;color:var(--text-light);">${estadoVacInfo[v.estado] || ''}</div><div class="card-desc">${v.notas || 'Sin notas'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>⏱️ ${dias} día${dias !== 1 ? 's' : ''}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(v.creado)}</span></div><div class="card-actions"><button class="btn btn-secondary" onclick="editItem('vacaciones','${v.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="deleteItem('vacaciones','${v.id}')">🗑️ Eliminar</button></div></div>`;
+    }).join('');
   }
   if (otherItems.length > 0) {
     html += `<div class="vacation-section-title">👥 Vacaciones de Compañeros (${otherItems.length})</div>`;
-    html += otherItems.map((v, idx) => buildVacationCard(v, idx, false)).join('');
+    html += otherItems.map((v, idx) => {
+      const dias = v.dias || calcularDias(v.inicio, v.fin);
+      return `<div class="card vacation-other" style="animation-delay:${idx * 0.06}s;"><div class="card-header"><div class="card-icon" style="background:#FFF3E0;">👤</div><span class="card-status ${getStatusClass(v.estado)}"><span class="status-dot ${v.estado}"></span>${v.estado}</span></div><div class="card-title">${v.tipo}<span class="employee-name-badge">${v.userName || 'Empleado'}</span></div><div style="background:var(--bg);border-radius:8px;padding:8px 12px;margin:8px 0;font-size:12px;color:var(--text-light);">${estadoVacInfo[v.estado] || ''}</div><div class="card-desc">${v.notas || 'Sin notas'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>⏱️ ${dias} día${dias !== 1 ? 's' : ''}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(v.creado)}</span></div></div>`;
+    }).join('');
   }
   if (myItems.length === 0 && otherItems.length === 0) {
     html = emptyState('🏖️', 'Sin solicitudes de vacaciones', 'Crea tu primera solicitud seleccionando un rango de fechas en el calendario');
