@@ -344,6 +344,16 @@
     .evidence-list-arrow{font-size:12px;color:var(--text-light);transition:transform .2s}
     .evidence-list-item.expanded .evidence-list-arrow{transform:rotate(180deg)}
     .evidence-detail{padding:0 20px 20px;animation:fadeIn .3s ease}
+
+    /* 2-column evidence grid for admin */
+    .evidence-grid-2col {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    @media(max-width:768px){
+      .evidence-grid-2col { grid-template-columns: 1fr; }
+    }
     .evidence-detail-box{background:#f8f9fa;border-radius:8px;padding:12px;margin-top:10px}
     .evidence-detail-row{display:flex;gap:16px;flex-wrap:wrap;font-size:12px}
     .evidence-detail-row span{display:flex;align-items:center;gap:4px;color:var(--text-light)}
@@ -574,7 +584,7 @@
       }
 
       // Build compact list
-      let html = '<div class="evidence-list-container">';
+      let html = '<div class="evidence-grid-2col">';
 
       items.forEach((e, idx) => {
         const hasLink = !!(e.videoUrl || e.videoLink);

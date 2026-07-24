@@ -183,7 +183,7 @@ function setupRealtimeListeners() {
     if (currentTab === 'vacaciones') renderVacaciones(); 
     updateStats(); 
   }, () => updateConnectionStatus(false)));
-  const matQuery = query(collection(db, 'materiales'), where('uid', '==', uid), orderBy('creado', 'desc'));
+  const matQuery = query(collection(db, 'materiales'), orderBy('creado', 'desc'));
   unsubscribers.push(onSnapshot(matQuery, (snapshot) => { const items = []; snapshot.forEach(d => items.push({ id: d.id, ...d.data() })); window._materiales = items; if (currentTab === 'materiales') renderMateriales(); updateStats(); }, () => updateConnectionStatus(false)));
   const evQuery = query(collection(db, 'evidencias'), orderBy('creado', 'desc'));
   unsubscribers.push(onSnapshot(evQuery, (snapshot) => { const items = []; snapshot.forEach(d => items.push({ id: d.id, ...d.data() })); window._evidencias = items; if (currentTab === 'evidencias') renderEvidencias(); updateStats(); }, () => updateConnectionStatus(false)));
@@ -203,7 +203,7 @@ function updateStats() {
   const mat = window._materiales || [];
   document.getElementById('statVacaciones').textContent = vac.filter(v => v.uid === currentUser?.uid).length;
   document.getElementById('statEvidencias').textContent = ev.filter(e => e.uid === currentUser?.uid).length;
-  document.getElementById('statMateriales').textContent = mat.length;
+  document.getElementById('statMateriales').textContent = mat.filter(m => m.uid === currentUser?.uid).length;
   const pendientes = vac.filter(v => v.uid === currentUser?.uid && v.estado === 'pendiente').length + ev.filter(e => e.uid === currentUser?.uid && e.estado === 'pendiente').length + mat.filter(m => m.estado === 'pendiente').length;
   document.getElementById('statPendientes').textContent = pendientes;
   document.getElementById('badgeVacaciones').textContent = vac.filter(v => v.uid === currentUser?.uid && v.estado === 'pendiente').length;
@@ -675,7 +675,7 @@ window.resetEvidenceFilters = function() {
 function renderMateriales() {
   const grid = document.getElementById('gridMateriales');
   const items = window._materiales || [];
-  if (items.length === 0) { grid.innerHTML = emptyState('📦', 'Sin solicitudes de materiales', 'Solicita el material que necesites para tus repartos'); return; }
+  if (items.length === 0) { grid.innerHTML = emptyState('📦', 'Sin solicitudes de materiales', 'No hay solicitudes de materiales registradas'); return; }
   const urgenciaEmoji = { alta: '🔴', media: '🟡', baja: '🟢' };
   const estadoInfo = {
     pendiente: { emoji: '⏳', texto: 'Pendiente de entrega', color: '#E65100', bg: '#FFF3E0', barClass: 'pendiente', pct: '33%' },
@@ -683,42 +683,95 @@ function renderMateriales() {
     cerrado:   { emoji: '🔒', texto: 'Solicitud finalizada', color: '#546E7A', bg: '#ECEFF1', barClass: 'cerrado', pct: '100%' }
   };
 
-  grid.innerHTML = items.map((m, idx) => {
-    const isCerrado = m.estado === 'cerrado';
-    const isEntregado = m.estado === 'entregado';
-    const info = estadoInfo[m.estado] || estadoInfo.pendiente;
+  const myItems = items.filter(m => m.uid === currentUser?.uid);
+  const otherItems = items.filter(m => m.uid !== currentUser?.uid);
 
-    return `<div class="card ${isCerrado ? 'incident-closed' : ''}" style="${isEntregado ? 'border-left:4px solid var(--accent);' : ''}animation-delay:${idx * 0.08}s;">
-      <div class="card-header">
-        <div class="card-icon" style="background:#F3E5F5;">📦</div>
-        <span class="card-status ${getStatusClass(m.estado)}">
-          <span class="status-dot ${m.estado}"></span>${m.estado}
-        </span>
-      </div>
-      <div class="card-title">${m.item}${isCerrado ? ' <span style="font-size:11px;color:#999;">(Finalizado)</span>' : ''}</div>
+  let html = '';
 
-      <!-- Barra de progreso animada -->
-      <div class="material-status-bar">
-        <div class="material-status-bar-fill ${info.barClass}"></div>
-      </div>
+  if (myItems.length > 0) {
+    html += `<div class="vacation-section-title">📦 Mis Solicitudes (${myItems.length})</div>`;
+    html += `<div class="cards-grid">`;
+    html += myItems.map((m, idx) => {
+      const isCerrado = m.estado === 'cerrado';
+      const isEntregado = m.estado === 'entregado';
+      const info = estadoInfo[m.estado] || estadoInfo.pendiente;
 
-      <!-- Estado prominente con animación -->
-      <div style="background:${info.bg};border-radius:8px;padding:12px 16px;margin:10px 0;display:flex;align-items:center;gap:12px;border:2px solid ${info.color}20;">
-        <span style="font-size:28px;animation:bounce 1s ease infinite;">${info.emoji}</span>
-        <div style="flex:1;">
-          <div style="font-weight:700;font-size:14px;color:${info.color};">${info.texto}</div>
-          <div style="font-size:12px;color:var(--text-light);margin-top:2px;">
-            ${isCerrado ? 'La solicitud ha sido completada y archivada' : isEntregado ? 'El material ha sido entregado correctamente' : 'Esperando confirmación de entrega por el administrador'}
+      return `<div class="card ${isCerrado ? 'incident-closed' : ''}" style="${isEntregado ? 'border-left:4px solid var(--accent);' : ''}animation-delay:${idx * 0.08}s;">
+        <div class="card-header">
+          <div class="card-icon" style="background:#F3E5F5;">📦</div>
+          <span class="card-status ${getStatusClass(m.estado)}">
+            <span class="status-dot ${m.estado}"></span>${m.estado}
+          </span>
+        </div>
+        <div class="card-title">${m.item}${isCerrado ? ' <span style="font-size:11px;color:#999;">(Finalizado)</span>' : ''}</div>
+
+        <div class="material-status-bar">
+          <div class="material-status-bar-fill ${info.barClass}"></div>
+        </div>
+
+        <div style="background:${info.bg};border-radius:8px;padding:12px 16px;margin:10px 0;display:flex;align-items:center;gap:12px;border:2px solid ${info.color}20;">
+          <span style="font-size:28px;">${info.emoji}</span>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:14px;color:${info.color};">${info.texto}</div>
+            <div style="font-size:12px;color:var(--text-light);margin-top:2px;">
+              ${isCerrado ? 'La solicitud ha sido completada' : isEntregado ? 'Material entregado correctamente' : 'Esperando confirmación de entrega'}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="card-desc">Cantidad solicitada: <strong>${m.cantidad}</strong> unidad${m.cantidad > 1 ? 'es' : ''}</div>
-      <div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span></div>
-      <div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(m.creado)}</span></div>
-      <div class="card-actions">${isCerrado ? `<button class="btn btn-info" onclick="toggleCerrarMaterial('${m.id}', 0)">🔓 Reabrir solicitud</button>` : `<button class="btn btn-secondary" onclick="editItem('materiales','${m.id}')">✏️ Editar</button>`}<button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div>
-    </div>`;
-  }).join('');
+        <div class="card-desc">Cantidad: <strong>${m.cantidad}</strong> unidad${m.cantidad > 1 ? 'es' : ''}</div>
+        <div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span></div>
+        <div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(m.creado)}</span></div>
+        <div class="card-actions">${isCerrado ? `<button class="btn btn-info" onclick="toggleCerrarMaterial('${m.id}', 0)">🔓 Reabrir</button>` : `<button class="btn btn-secondary" onclick="editItem('materiales','${m.id}')">✏️ Editar</button>`}<button class="btn btn-danger" onclick="deleteItem('materiales','${m.id}')">🗑️ Eliminar</button></div>
+      </div>`;
+    }).join('');
+    html += `</div>`;
+  }
+
+  if (otherItems.length > 0) {
+    html += `<div class="vacation-section-title">📦 Solicitudes de Compañeros (${otherItems.length})</div>`;
+    html += `<div class="cards-grid">`;
+    html += otherItems.map((m, idx) => {
+      const isCerrado = m.estado === 'cerrado';
+      const isEntregado = m.estado === 'entregado';
+      const info = estadoInfo[m.estado] || estadoInfo.pendiente;
+
+      return `<div class="card ${isCerrado ? 'incident-closed' : ''}" style="${isEntregado ? 'border-left:4px solid var(--accent);' : ''}animation-delay:${idx * 0.08}s;">
+        <div class="card-header">
+          <div class="card-icon" style="background:#F3E5F5;">📦</div>
+          <span class="card-status ${getStatusClass(m.estado)}">
+            <span class="status-dot ${m.estado}"></span>${m.estado}
+          </span>
+        </div>
+        <div class="card-title">${m.item}<span class="employee-name-badge">${m.userName || 'Empleado'}</span></div>
+
+        <div class="material-status-bar">
+          <div class="material-status-bar-fill ${info.barClass}"></div>
+        </div>
+
+        <div style="background:${info.bg};border-radius:8px;padding:12px 16px;margin:10px 0;display:flex;align-items:center;gap:12px;border:2px solid ${info.color}20;">
+          <span style="font-size:28px;">${info.emoji}</span>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:14px;color:${info.color};">${info.texto}</div>
+            <div style="font-size:12px;color:var(--text-light);margin-top:2px;">
+              ${isCerrado ? 'Solicitud completada' : isEntregado ? 'Entregado' : 'Pendiente'}
+            </div>
+          </div>
+        </div>
+
+        <div class="card-desc">Cantidad: <strong>${m.cantidad}</strong> unidad${m.cantidad > 1 ? 'es' : ''}</div>
+        <div class="card-meta"><span>${urgenciaEmoji[m.urgencia] || '⚪'} Urgencia ${m.urgencia}</span></div>
+        <div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(m.creado)}</span></div>
+      </div>`;
+    }).join('');
+    html += `</div>`;
+  }
+
+  if (myItems.length === 0 && otherItems.length === 0) {
+    html = emptyState('📦', 'Sin solicitudes de materiales', 'No hay solicitudes de materiales registradas');
+  }
+
+  grid.innerHTML = html;
 }
 
 // Expose render functions to window for inline handlers
