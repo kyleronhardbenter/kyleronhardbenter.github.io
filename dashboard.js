@@ -429,17 +429,21 @@ function renderVacaciones() {
   let html = '';
   if (myItems.length > 0) {
     html += `<div class="vacation-section-title">🏖️ Mis Solicitudes (${myItems.length})</div>`;
+    html += `<div class="cards-grid">`;
     html += myItems.map((v, idx) => {
       const dias = v.dias || calcularDias(v.inicio, v.fin);
       return `<div class="card vacation-mine" style="animation-delay:${idx * 0.06}s;"><div class="card-header"><div class="card-icon" style="background:#E3F2FD;">🏖️</div><span class="card-status ${getStatusClass(v.estado)}"><span class="status-dot ${v.estado}"></span>${v.estado}</span></div><div class="card-title">${v.tipo}</div><div style="background:var(--bg);border-radius:8px;padding:8px 12px;margin:8px 0;font-size:12px;color:var(--text-light);">${estadoVacInfo[v.estado] || ''}</div><div class="card-desc">${v.notas || 'Sin notas'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>⏱️ ${dias} día${dias !== 1 ? 's' : ''}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(v.creado)}</span></div><div class="card-actions"><button class="btn btn-secondary" onclick="editItem('vacaciones','${v.id}')">✏️ Editar</button><button class="btn btn-danger" onclick="deleteItem('vacaciones','${v.id}')">🗑️ Eliminar</button></div></div>`;
     }).join('');
+    html += `</div>`;
   }
   if (otherItems.length > 0) {
     html += `<div class="vacation-section-title">👥 Vacaciones de Compañeros (${otherItems.length})</div>`;
+    html += `<div class="cards-grid">`;
     html += otherItems.map((v, idx) => {
       const dias = v.dias || calcularDias(v.inicio, v.fin);
       return `<div class="card vacation-other" style="animation-delay:${idx * 0.06}s;"><div class="card-header"><div class="card-icon" style="background:#FFF3E0;">👤</div><span class="card-status ${getStatusClass(v.estado)}"><span class="status-dot ${v.estado}"></span>${v.estado}</span></div><div class="card-title">${v.tipo}<span class="employee-name-badge">${v.userName || 'Empleado'}</span></div><div style="background:var(--bg);border-radius:8px;padding:8px 12px;margin:8px 0;font-size:12px;color:var(--text-light);">${estadoVacInfo[v.estado] || ''}</div><div class="card-desc">${v.notas || 'Sin notas'}</div><div class="card-meta"><span>📅 ${formatDate(v.inicio)} → ${formatDate(v.fin)}</span><span>⏱️ ${dias} día${dias !== 1 ? 's' : ''}</span></div><div class="card-meta" style="margin-top:8px;"><span style="font-size:11px;color:#999;">Solicitado: ${formatFirestoreDate(v.creado)}</span></div></div>`;
     }).join('');
+    html += `</div>`;
   }
   if (myItems.length === 0 && otherItems.length === 0) {
     html = emptyState('🏖️', 'Sin solicitudes de vacaciones', 'Crea tu primera solicitud seleccionando un rango de fechas en el calendario');
