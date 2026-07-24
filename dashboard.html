@@ -185,6 +185,7 @@
       .evidence-list-date{display:none}
     }
   
+
     /* ==================== ANIMATED STATUS BADGES ==================== */
     .card-status {
       position: relative;
@@ -266,27 +267,6 @@
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* Status indicator dot */
-    .status-dot {
-      width: 8px; height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-      margin-right: 6px;
-      animation: statusDotPulse 1.5s ease-in-out infinite;
-    }
-    .status-dot.pendiente { background: #E65100; }
-    .status-dot.aprobado { background: #2E7D32; }
-    .status-dot.rechazado { background: #C62828; }
-    .status-dot.enviado { background: #1565C0; }
-    .status-dot.entregado { background: #6A1B9A; }
-    .status-dot.revisado { background: #00838F; }
-    .status-dot.cerrado { background: #546E7A; }
-
-    @keyframes statusDotPulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.5); opacity: 0.7; }
-    }
-
     /* Hover lift effect */
     .card:hover {
       transform: translateY(-6px) scale(1.01);
@@ -313,31 +293,6 @@
       width: 200px; height: 200px;
     }
 
-    /* Evidence list item animations */
-    .evidence-list-item {
-      animation: listItemSlide 0.3s ease-out;
-      animation-fill-mode: both;
-    }
-    .evidence-list-item:nth-child(1) { animation-delay: 0.03s; }
-    .evidence-list-item:nth-child(2) { animation-delay: 0.06s; }
-    .evidence-list-item:nth-child(3) { animation-delay: 0.09s; }
-    .evidence-list-item:nth-child(4) { animation-delay: 0.12s; }
-    .evidence-list-item:nth-child(5) { animation-delay: 0.15s; }
-
-    @keyframes listItemSlide {
-      from { opacity: 0; transform: translateX(-15px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* Expanded detail animation */
-    .evidence-detail {
-      animation: detailExpand 0.3s ease-out;
-    }
-    @keyframes detailExpand {
-      from { opacity: 0; max-height: 0; }
-      to { opacity: 1; max-height: 2000px; }
-    }
-
     /* Stat card counter animation */
     .stat-value {
       animation: countUp 0.6s ease-out;
@@ -345,34 +300,6 @@
     @keyframes countUp {
       from { opacity: 0; transform: scale(0.5); }
       to { opacity: 1; transform: scale(1); }
-    }
-
-    /* Notification badge bounce */
-    .notif-count {
-      animation: badgeBounce 0.5s ease-out;
-    }
-    @keyframes badgeBounce {
-      0% { transform: scale(0); }
-      50% { transform: scale(1.3); }
-      100% { transform: scale(1); }
-    }
-
-    /* Tab switch animation */
-    .content-area.active {
-      animation: tabFadeIn 0.4s ease;
-    }
-    @keyframes tabFadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Loading spinner */
-    .spinner {
-      animation: spin 1s linear infinite, spinnerPulse 1.5s ease-in-out infinite;
-    }
-    @keyframes spinnerPulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
     }
 
     /* Toast notification */
@@ -397,13 +324,13 @@
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* FAB button */
-    .fab {
-      animation: fabAppear 0.5s ease-out;
+    /* Loading spinner */
+    .spinner {
+      animation: spin 1s linear infinite, spinnerPulse 1.5s ease-in-out infinite;
     }
-    @keyframes fabAppear {
-      from { opacity: 0; transform: scale(0) rotate(-90deg); }
-      to { opacity: 1; transform: scale(1) rotate(0); }
+    @keyframes spinnerPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
     }
 
     /* Filter bar */
@@ -433,7 +360,16 @@
       50% { box-shadow: 0 0 0 6px rgba(46, 125, 50, 0); }
     }
 
-    /* Progress/status bar for materials */
+    /* Header icon bounce */
+    .header-icon {
+      animation: iconBounce 2s ease-in-out infinite;
+    }
+    @keyframes iconBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    /* Progress bar for materials */
     .material-status-bar {
       height: 4px;
       border-radius: 2px;
@@ -455,23 +391,9 @@
       from { width: 0; }
     }
 
-    /* Calendar day animations */
-    .day-cell.available {
-      animation: dayPulse 2s ease-in-out infinite;
-      animation-delay: calc(var(--day-index, 0) * 0.05s);
-    }
-    @keyframes dayPulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.02); }
-    }
-
-    /* Header icon bounce */
-    .header-icon {
-      animation: iconBounce 2s ease-in-out infinite;
-    }
-    @keyframes iconBounce {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-3px); }
+    /* Tab content */
+    .content-area.active {
+      animation: tabFadeIn 0.4s ease;
     }
 </style>
 </head>
@@ -506,21 +428,21 @@
     </div>
 
     <div class="nav-tabs">
-      <button class="nav-tab active" data-tab="vacaciones" onclick="switchTab('vacaciones')">🏖️ <span>Vacaciones</span> <span class="badge" id="badgeVacaciones">0</span></button>
-      <button class="nav-tab" data-tab="evidencias" onclick="switchTab('evidencias')">📸 <span>Incidencias</span> <span class="badge" id="badgeEvidencias">0</span></button>
+      <button class="nav-tab active" data-tab="evidencias" onclick="switchTab('evidencias')">📸 <span>Incidencias</span> <span class="badge" id="badgeEvidencias">0</span></button>
+      <button class="nav-tab" data-tab="vacaciones" onclick="switchTab('vacaciones')">🏖️ <span>Vacaciones</span> <span class="badge" id="badgeVacaciones">0</span></button>
       <button class="nav-tab" data-tab="materiales" onclick="switchTab('materiales')">📦 <span>Materiales</span> <span class="badge" id="badgeMateriales">0</span></button>
     </div>
 
-    <div class="content-area active" id="tab-vacaciones">
+    <div class="content-area active" id="tab-evidencias">
+      <div id="evidenciasInfo" style="background:var(--primary-light);padding:16px 20px;border-radius:var(--radius-sm);margin-bottom:20px;font-size:13px;color:var(--secondary);">📢 <strong>Historial de incidencias:</strong> Toca un pedido para ver los detalles completos. Las incidencias cerradas aparecen atenuadas.</div>
+      <div id="gridEvidencias"></div>
+    </div>
+
+    <div class="content-area" id="tab-vacaciones">
       <div id="vacacionesInfo" style="background:var(--primary-light);padding:16px 20px;border-radius:var(--radius-sm);margin-bottom:20px;font-size:13px;color:var(--secondary);">
         📅 <strong>Calendario compartido:</strong> Todos los empleados ven las semanas reservadas. Las semanas en naranja son de otros companeros. Las azules son las tuyas. Las rojas estan bloqueadas (semana siguiente a una reserva).
       </div>
       <div class="cards-grid" id="gridVacaciones"></div>
-    </div>
-
-    <div class="content-area" id="tab-evidencias">
-      <div id="evidenciasInfo" style="background:var(--primary-light);padding:16px 20px;border-radius:var(--radius-sm);margin-bottom:20px;font-size:13px;color:var(--secondary);">📢 <strong>Historial de incidencias:</strong> Toca un pedido para ver los detalles completos. Las incidencias cerradas aparecen atenuadas.</div>
-      <div id="gridEvidencias"></div>
     </div>
 
     <div class="content-area" id="tab-materiales"><div class="cards-grid" id="gridMateriales"></div></div>
@@ -539,6 +461,6 @@
 
   <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div style="color:var(--text-light);font-size:14px;">Sincronizando...</div></div>
 
-  <script type="module" src="dashboard.js?v=10"></script>
+  <script type="module" src="dashboard.js?v=12"></script>
 </body>
 </html>
